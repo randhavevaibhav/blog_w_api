@@ -3,6 +3,7 @@ import { PostgresDialect } from "@sequelize/postgres";
 import dotenv from "dotenv";
 
 dotenv.config();
+//for local use ==>
 
 // const sequelize = new Sequelize({
 //   dialect: PostgresDialect,

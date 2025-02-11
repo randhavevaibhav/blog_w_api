@@ -14,7 +14,7 @@ const corsOptions = {
   origin: "http://localhost:8003",
 };
 
-app.use(cors());
+app.use(cors("https://blog-w-api.vercel.app"));
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));

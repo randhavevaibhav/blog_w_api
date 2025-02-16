@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
-import { createToken } from "../../../../utils/utils.js";
+
 import { JWT_MAX_AGE } from "../../../../utils/constants.js";
 import { checkIfUserExistWithMail } from "../../../../model/Users/quries.js";
+import jwt from "jsonwebtoken";
 export const signinController = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -18,7 +19,8 @@ export const signinController = async (req, res) => {
     // console.log("user in sinIn_post ===> ", user.id);
 
     if (!user) {
-      res.status(400).send({
+      //404 code for user not found
+      res.status(404).send({
         message: `user with mail:${email} not found!`,
       });
       return;
@@ -32,15 +34,25 @@ export const signinController = async (req, res) => {
       );
 
       if (auth) {
-        const token = createToken(user.id);
+        const accessToken = jwt.sign(
+          { userId: user.id },
+          process.env.ACCESS_TOKEN_SCERET,
+          { expiresIn: "2m" }
+        );
+        const refreshToken = jwt.sign(
+          { userId: user.id },
+          process.env.REFRESH_TOKEN_SCERET,
+          { expiresIn: "10h" }
+        );
 
-        res.cookie("jwt", token, {
+        res.cookie("jwt", refreshToken, {
           httpOnly: true,
-          maxAge: JWT_MAX_AGE * 1000,
+          maxAge: 10 * 60 * 60 * 1000,
         });
         res.status(200).send({
           message: `user with mail: ${email} validated !!!`,
-          userId:user.id,
+          userId: user.id,
+          accessToken,
         });
         return;
       } else {

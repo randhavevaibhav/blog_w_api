@@ -1,6 +1,5 @@
-import { JWT_MAX_AGE } from "../../../../utils/constants.js";
 import { handleError } from "../../../../handleErrors/handleError.js";
-import { createToken, incript } from "../../../../utils/utils.js";
+import { incript } from "../../../../utils/utils.js";
 import {
   checkIfUserExistWithMail,
   createUser,
@@ -8,12 +7,7 @@ import {
 
 export const singupController = async (req, res) => {
   try {
-    const {
-      firstName,
-      email,
-      password,
-      registered_at,
-    } = req.body;
+    const { firstName, email, password, registered_at } = req.body;
 
     let incriptedPassword = "";
     if (password.length > 0) {
@@ -23,7 +17,8 @@ export const singupController = async (req, res) => {
     const existingUser = await checkIfUserExistWithMail(email);
 
     if (existingUser) {
-      res.status(400).send({
+      //409 code for existing user
+      res.status(409).send({
         message: `user with mail ${email} already exist.`,
       });
 
@@ -36,10 +31,6 @@ export const singupController = async (req, res) => {
       incriptedPassword,
       registered_at
     );
-
-    const token = createToken(result.id);
-
-    res.cookie("jwt", token, { httpOnly: true, maxAge: JWT_MAX_AGE * 1000 });
 
     res
       .status(201)

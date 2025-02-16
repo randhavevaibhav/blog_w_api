@@ -2,6 +2,9 @@ import express from "express";
 import sq from "./db.js";
 import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
+import dashboardRoutes from "./routes/dashboard/dashboardRoutes.js";
+
+import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
@@ -11,10 +14,11 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: "http://localhost:8003",
+  origin: " http://localhost:5173",
+  credentials: true,
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -42,6 +46,8 @@ app.listen(PORT, () =>
 app.use(authRoutes);
 
 app.use(postsRoutes);
+app.use(dashboardRoutes);
+app.use(refreshTokenRoute);
 
 // app.get("/posts",requireAuth,(res,req)=>{
 // res.send({

@@ -1,49 +1,27 @@
-import jwt from "jsonwebtoken"
-import { JWT_SECRET_KEY } from "../utils/constants.js";
+import jwt from "jsonwebtoken";
 
-export const requireAuth = (req,res,next)=>{
-   try {
-
-console.log("req.cookies ===> ",req.cookies)
-    if(!req.cookies)
-    {
-        res.status(400).send({
-            message:`this is a protected route. cookies are required!`
-        });
-
-        return;
+export const requireAuth = (req, res, next) => {
+  try {
+    const authHeader = req.headers[`authorization`];
+    if (!authHeader) {
+      return res.status(401).send({ message: "un-authorized access." });
     }
 
-    const token = req.cookies.jwt;
+    console.log("authHeader ===> ", authHeader);
 
- 
+    console.log("req.cookies ===> ", req.cookies);
 
-    if(token)
-    {
-        jwt.verify(token,JWT_SECRET_KEY,(err,decodedToken)=>{
-            if(err)
-            {
-                console.log("Error in JWT token ==> ",err);
-                console.log("redirecting to login page");
-                res.redirect("/login")
-            }else{
-                console.log("Auth successfull");
-                console.log("decodedToken ===> ",decodedToken);
-                next()
-            }
-        })
+    const accessToken = authHeader.split(" ")[1];
 
-    }
-    else{
-        console.log("redirecting to login page")
-        res.status(400).send({
-            message:`Error JWT auth failed.`
-        })
-    }
-   } catch (error) {
-    console.log("error occured in requireAuth",error);
-  
-   }
-}
-
-
+    jwt.verify(accessToken, process.env.ACCESS_TOKEN_SCERET, (err, decoded) => {
+      if (err) {
+        return res.status(403).send({ message: "forbidden to access." });
+      }
+      //all went well
+      console.log("decoded.userId ====> ", decoded.userId);
+      next();
+    });
+  } catch (error) {
+    console.log("error occured in requireAuth", error);
+  }
+};

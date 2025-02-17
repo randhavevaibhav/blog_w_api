@@ -7,6 +7,10 @@ import dashboardRoutes from "./routes/dashboard/dashboardRoutes.js";
 import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import {
+  LOCAL_CLIENT_ORIGIN,
+  REMOTE_CLIENT_ORIGIN,
+} from "./utils/constants.js";
 
 const app = express();
 
@@ -14,7 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: " http://localhost:5173",
+  origin: [LOCAL_CLIENT_ORIGIN, REMOTE_CLIENT_ORIGIN],
   credentials: true,
 };
 

@@ -15,7 +15,7 @@ export const signinController = async (req, res) => {
     }
 
     // const user = await checkIfUserExistWithMail(email);
-    const user = true;
+    const user = await checkIfUserExistWithMail(email);
 
     // console.log("user in sinIn_post ===> ", user.id);
 
@@ -27,42 +27,42 @@ export const signinController = async (req, res) => {
       return;
     }
 
-    if (user) {
-      //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
-      const auth = await bcrypt.compare(
-        password,
-        user.dataValues.password_hash
-      );
+    // if (user) {
+    //   //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
+    //   const auth = await bcrypt.compare(
+    //     password,
+    //     user.dataValues.password_hash
+    //   );
 
-      if (auth) {
-        const accessToken = jwt.sign(
-          { userId: user.id },
-          process.env.ACCESS_TOKEN_SCERET,
-          { expiresIn: "4m" }
-        );
-        const refreshToken = jwt.sign(
-          { userId: user.id },
-          process.env.REFRESH_TOKEN_SCERET,
-          { expiresIn: "10h" }
-        );
+    //   if (auth) {
+    //     const accessToken = jwt.sign(
+    //       { userId: user.id },
+    //       process.env.ACCESS_TOKEN_SCERET,
+    //       { expiresIn: "4m" }
+    //     );
+    //     const refreshToken = jwt.sign(
+    //       { userId: user.id },
+    //       process.env.REFRESH_TOKEN_SCERET,
+    //       { expiresIn: "10h" }
+    //     );
 
-        res.cookie("jwt", refreshToken, {
-          httpOnly: true,
-          maxAge: 10 * 60 * 60 * 1000,
-        });
-        res.status(200).send({
-          message: `user with mail: ${email} validated !!!`,
-          userId: user.id,
-          accessToken,
-        });
-        return;
-      } else {
-        res.status(400).send({
-          message: `Invalid password`,
-        });
-        return;
-      }
-    }
+    //     res.cookie("jwt", refreshToken, {
+    //       httpOnly: true,
+    //       maxAge: 10 * 60 * 60 * 1000,
+    //     });
+    //     res.status(200).send({
+    //       message: `user with mail: ${email} validated !!!`,
+    //       userId: user.id,
+    //       accessToken,
+    //     });
+    //     return;
+    //   } else {
+    //     res.status(400).send({
+    //       message: `Invalid password`,
+    //     });
+    //     return;
+    //   }
+    // }
   } catch (error) {
     console.log("Error ocuured in sinIn_post ==> ", error);
   }

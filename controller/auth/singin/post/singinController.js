@@ -34,34 +34,32 @@ export const signinController = async (req, res) => {
         user.dataValues.password_hash
       );
 
-      // if (auth) {
-      //   const accessToken = jwt.sign(
-      //     { userId: user.id },
-      //     process.env.ACCESS_TOKEN_SCERET,
-      //     { expiresIn: "4m" }
-      //   );
-      //   const refreshToken = jwt.sign(
-      //     { userId: user.id },
-      //     process.env.REFRESH_TOKEN_SCERET,
-      //     { expiresIn: "10h" }
-      //   );
+      if (auth) {
+        const accessToken = jwt.sign(
+          { userId: user.id },
+          process.env.ACCESS_TOKEN_SCERET,
+          { expiresIn: "4m" }
+        );
+        const refreshToken = jwt.sign(
+          { userId: user.id },
+          process.env.REFRESH_TOKEN_SCERET,
+          { expiresIn: "10h" }
+        );
 
-      //   res.cookie("jwt", refreshToken, {
-      //     httpOnly: true,
-      //     maxAge: 10 * 60 * 60 * 1000,
-      //   });
-      //   res.status(200).send({
-      //     message: `user with mail: ${email} validated !!!`,
-      //     userId: user.id,
-      //     accessToken,
-      //   });
-      //   return;
-      // } else {
-      //   res.status(400).send({
-      //     message: `Invalid password`,
-      //   });
-      //   return;
-      // }
+        // res.cookie("jwt", refreshToken, {
+        //   httpOnly: true,
+        //   maxAge: 10 * 60 * 60 * 1000,
+        // });
+        // res.status(200).send({
+        //   message: `user with mail: ${email} validated !!!`,
+        //   userId: user.id,
+        //   accessToken,
+        // });
+      } else {
+        res.status(400).send({
+          message: `Invalid password`,
+        });
+      }
     }
 
     return res.status(200).send({

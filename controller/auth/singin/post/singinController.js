@@ -46,25 +46,23 @@ export const signinController = async (req, res) => {
           { expiresIn: "10h" }
         );
 
-        // res.cookie("jwt", refreshToken, {
-        //   httpOnly: true,
-        //   maxAge: 10 * 60 * 60 * 1000,
-        // });
-        // res.status(200).send({
-        //   message: `user with mail: ${email} validated !!!`,
-        //   userId: user.id,
-        //   accessToken,
-        // });
+        res.cookie("jwt", refreshToken, {
+          httpOnly: true,
+          maxAge: 10 * 60 * 60 * 1000,
+        });
+        res.status(200).send({
+          message: `user with mail: ${email} validated !!!`,
+          userId: user.id,
+          accessToken,
+        });
+        return;
       } else {
         res.status(400).send({
           message: `Invalid password`,
         });
+        return;
       }
     }
-
-    return res.status(200).send({
-      message: "done",
-    });
   } catch (error) {
     console.log("Error ocuured in sinIn_post ==> ", error);
   }

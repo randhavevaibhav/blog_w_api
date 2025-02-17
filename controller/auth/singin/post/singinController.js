@@ -26,6 +26,9 @@ export const signinController = async (req, res) => {
       });
       return;
     }
+    return res.status(200).send({
+      message: "done",
+    });
 
     // if (user) {
     //   //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.

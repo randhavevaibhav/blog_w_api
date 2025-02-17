@@ -37,7 +37,7 @@ export const signinController = async (req, res) => {
         const accessToken = jwt.sign(
           { userId: user.id },
           process.env.ACCESS_TOKEN_SCERET,
-          { expiresIn: "2m" }
+          { expiresIn: "4m" }
         );
         const refreshToken = jwt.sign(
           { userId: user.id },

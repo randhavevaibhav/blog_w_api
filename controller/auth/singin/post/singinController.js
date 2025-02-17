@@ -14,7 +14,8 @@ export const signinController = async (req, res) => {
       return;
     }
 
-    const user = await checkIfUserExistWithMail(email);
+    // const user = await checkIfUserExistWithMail(email);
+    const user = true;
 
     // console.log("user in sinIn_post ===> ", user.id);
 

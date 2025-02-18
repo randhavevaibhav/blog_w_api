@@ -45,10 +45,14 @@ export const signinController = async (req, res) => {
           process.env.REFRESH_TOKEN_SCERET,
           { expiresIn: "10h" }
         );
-
+//below options required to persist cookie on reload
+// sameSite:"none", 
+// secure:true
         res.cookie("jwt", refreshToken, {
           httpOnly: true,
           maxAge: 10 * 60 * 60 * 1000,
+          sameSite:"none",
+          secure:true
         });
         res.status(200).send({
           message: `user with mail: ${email} validated !!!`,

@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-  // origin: [LOCAL_CLIENT_ORIGIN, REMOTE_CLIENT_ORIGIN,"http://127.0.0.1:5173"],
+  origin: [LOCAL_CLIENT_ORIGIN, REMOTE_CLIENT_ORIGIN, "http://127.0.0.1:5173"],
   credentials: true,
 };
 

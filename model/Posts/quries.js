@@ -1,7 +1,5 @@
 import { Posts } from "./Posts.js";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
+import { Users } from "../Users/users.js";
 
 export const createPost = async (
   userId,
@@ -11,21 +9,41 @@ export const createPost = async (
   updatedAt = null,
   likes = null
 ) => {
-  try {
-    const result = await Posts.create({
-      user_id:userId,
-      title,
-      content,
-      created_at:createdAt,
-      updated_at:updatedAt,
-      likes,
-    });
+  console.log("{userId,title,content,createdAt,updatedAt,likes}", {
+    userId,
+    title,
+    content,
+    createdAt,
+    updatedAt,
+    likes,
+  });
 
-    return result;
-  } catch (error) {
-    console.log(
-      `Error while creating a post ==> \n Error file location ===> :${__filename}`,
-      error
-    );
-  }
+  const result = await Posts.create({
+    user_id: userId,
+    title,
+    content,
+    created_at: createdAt,
+    updated_at: updatedAt,
+    likes,
+  });
+
+  return result;
+};
+
+export const getAllPosts = async (userId) => {
+
+  const result = await Posts.findAll({
+    attributes: ["id","title","content","created_at","likes"],
+    include: [
+      {
+        model: Users,
+        attributes: ["id"],
+      },
+    ],
+    where:{
+      user_id:userId
+    }
+  });
+
+  return result;
 };

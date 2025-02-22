@@ -1,5 +1,7 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
+
+
 // IMp to add
 // {
 //     createdAt: false,
@@ -7,7 +9,7 @@ import { DataTypes } from "@sequelize/core";
 //   }
 //as 3rd argument to define
 
-export const Users = sq.define(
+ export const Users = sq.define(
   "users",
   {
     first_name: {
@@ -58,3 +60,6 @@ export const Users = sq.define(
     updatedAt: false,
   }
 );
+
+
+

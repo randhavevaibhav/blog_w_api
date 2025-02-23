@@ -1,6 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
-import  {Users}  from "../Users/users.js";
+import { Users } from "../Users/users.js";
 
 export const Posts = sq.define(
   "posts",
@@ -49,6 +49,10 @@ export const Posts = sq.define(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
+    title_img: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     createdAt: false,
@@ -56,4 +60,4 @@ export const Posts = sq.define(
   }
 );
 
-Posts.belongsTo(Users, {foreignKey: 'user_id'})
+Posts.belongsTo(Users, { foreignKey: "user_id" });

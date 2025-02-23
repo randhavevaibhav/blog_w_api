@@ -4,23 +4,26 @@ import { Users } from "../Users/users.js";
 export const createPost = async (
   userId,
   title,
+  titleImg,
   content,
   createdAt,
   updatedAt = null,
   likes = null
 ) => {
-  console.log("{userId,title,content,createdAt,updatedAt,likes}", {
-    userId,
-    title,
-    content,
-    createdAt,
-    updatedAt,
-    likes,
-  });
+  // console.log("{userId,title,content,createdAt,updatedAt,likes}", {
+  //   userId,
+  //   title,
+  //   titleImg,
+  //   content,
+  //   createdAt,
+  //   updatedAt,
+  //   likes,
+  // });
 
   const result = await Posts.create({
     user_id: userId,
     title,
+    title_img: titleImg,
     content,
     created_at: createdAt,
     updated_at: updatedAt,
@@ -31,18 +34,17 @@ export const createPost = async (
 };
 
 export const getAllPosts = async (userId) => {
-
   const result = await Posts.findAll({
-    attributes: ["id","title","content","created_at","likes"],
+    attributes: ["id", "title", "content", "created_at", "likes"],
     include: [
       {
         model: Users,
         attributes: ["id"],
       },
     ],
-    where:{
-      user_id:userId
-    }
+    where: {
+      user_id: userId,
+    },
   });
 
   return result;

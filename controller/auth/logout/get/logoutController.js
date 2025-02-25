@@ -20,7 +20,6 @@ export const logoutController = async (req, res) => {
     */
     res.clearCookie("jwt",{
       httpOnly: true,
-      maxAge: 10 * 60 * 60 * 1000,
       sameSite:"none",
       secure:true
     });

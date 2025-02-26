@@ -4,16 +4,16 @@ import { Users } from "../Users/users.js";
 export const createPost = async (
   userId,
   title,
-  titleImg,
+  titleImgURL,
   content,
   createdAt,
-  updatedAt = null,
-  likes = null
+  updatedAt,
+  likes
 ) => {
-  // console.log("{userId,title,content,createdAt,updatedAt,likes}", {
+  // console.log("{userId,title,titleImgURL,content,createdAt,updatedAt,likes}", {
   //   userId,
   //   title,
-  //   titleImg,
+  //   titleImgURL,
   //   content,
   //   createdAt,
   //   updatedAt,
@@ -23,7 +23,7 @@ export const createPost = async (
   const result = await Posts.create({
     user_id: userId,
     title,
-    title_img: titleImg,
+    title_img_url: titleImgURL,
     content,
     created_at: createdAt,
     updated_at: updatedAt,

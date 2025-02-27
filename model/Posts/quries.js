@@ -4,16 +4,16 @@ import { Users } from "../Users/users.js";
 export const createPost = async (
   userId,
   title,
-  titleImg,
+  titleImgURL,
   content,
   createdAt,
-  updatedAt = null,
-  likes = null
+  updatedAt,
+  likes
 ) => {
-  // console.log("{userId,title,content,createdAt,updatedAt,likes}", {
+  // console.log("{userId,title,titleImgURL,content,createdAt,updatedAt,likes}", {
   //   userId,
   //   title,
-  //   titleImg,
+  //   titleImgURL,
   //   content,
   //   createdAt,
   //   updatedAt,
@@ -23,7 +23,7 @@ export const createPost = async (
   const result = await Posts.create({
     user_id: userId,
     title,
-    title_img: titleImg,
+    title_img_url: titleImgURL,
     content,
     created_at: createdAt,
     updated_at: updatedAt,
@@ -35,7 +35,7 @@ export const createPost = async (
 
 export const getAllPosts = async (userId) => {
   const result = await Posts.findAll({
-    attributes: ["id", "title", "content", "created_at", "likes"],
+    attributes: ["id", "title","title_img_url", "content", "created_at", "likes"],
     include: [
       {
         model: Users,
@@ -49,3 +49,21 @@ export const getAllPosts = async (userId) => {
 
   return result;
 };
+
+export const getPost = async(userId,postId)=>{
+  const result = await Posts.findOne({
+    attributes: ["id", "title", "content", "created_at", "likes","title_img_url"],
+    include: [
+      {
+        model: Users,
+        attributes: ["id"],
+      },
+    ],
+    where: {
+      user_id: userId,
+      id:postId
+    },
+  });
+
+  return result;
+}

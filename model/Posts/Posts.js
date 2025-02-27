@@ -49,7 +49,7 @@ export const Posts = sq.define(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
-    title_img: {
+    title_img_url: {
       type: DataTypes.STRING,
       allowNull: true,
     },

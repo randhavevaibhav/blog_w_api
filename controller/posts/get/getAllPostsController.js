@@ -8,6 +8,7 @@ export const getAllPostsController = async (req, res) => {
       const result = await getAllPosts(userId);
       // console.log("result from getAllPosts ==>  ",result)
       let responseData = null;
+      console.log("result.length ===> ",result.length)
 
       if (result.length) {
         responseData = result.reduce((acc, rec) => {
@@ -26,6 +27,7 @@ export const getAllPostsController = async (req, res) => {
         return res.status(200).send({
           message: `found user posts.`,
           posts: `${JSON.stringify(responseData)}`,
+          total_post_count:result.length
         });
       } else {
         return res.status(404).send({

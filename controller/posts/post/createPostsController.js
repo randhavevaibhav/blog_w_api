@@ -5,11 +5,11 @@ export const createPostsController = async (req, res) => {
     const {
       userId,
       title,
-      titleImg = null,
+      titleImgURL,
       content,
       createdAt,
-      updatedAt = null,
-      likes = null,
+      updatedAt ,
+      likes ,
     } = req.body;
     // console.log("{userId,title,content,createdAt,updatedAt,likes}",{userId,title,content,createdAt,updatedAt,likes})
     if (!userId || !title || !content || !createdAt) {
@@ -21,7 +21,7 @@ export const createPostsController = async (req, res) => {
     const result = await createPost(
       userId,
       title,
-      titleImg,
+      titleImgURL,
       content,
       createdAt,
       updatedAt,

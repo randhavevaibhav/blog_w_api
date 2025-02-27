@@ -3,7 +3,9 @@ import { handleUpload } from "../../../utils/cloudinary.js";
 export const uploadFileController = async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).send("No file uploaded.");
+      return res.status(400).send({
+        message:"No post image added !"
+      });
     }
     const b64 = Buffer.from(req.file.buffer).toString("base64");
     let dataURI = "data:" + req.file.mimetype + ";base64," + b64;

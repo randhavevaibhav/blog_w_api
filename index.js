@@ -8,9 +8,6 @@ import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-// import multer from "multer";
-// import * as fs from "node:fs";
-// import path from "node:path";
 import {
   LOCAL_CLIENT_ORIGIN,
   REMOTE_CLIENT_ORIGIN,
@@ -39,29 +36,6 @@ app.use(refreshTokenRoute);
 app.use(uploadFileRoute);
 
 const PORT = 8003;
-
-// Set up storage engine for multer
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     const uploadPath = "uploads";
-//     if (!fs.existsSync(uploadPath)) {
-//       fs.mkdirSync(uploadPath);
-//     }
-//     cb(null, uploadPath);
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, Date.now() + path.extname(file.originalname));
-//   },
-// });
-
-// const upload = multer({ storage: storage });
-
-// app.post("/upload", upload.single("file"), (req, res) => {
-//   if (!req.file) {
-//     return res.status(400).send("No file uploaded.");
-//   }
-//   res.send({ message: "File uploaded successfully!", file: req.file.filename });
-// });
 
 app.get("/", (req, res) => {
   res.send({

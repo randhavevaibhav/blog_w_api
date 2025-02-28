@@ -14,7 +14,7 @@ export const createPostsController = async (req, res) => {
     // console.log("{userId,title,content,createdAt,updatedAt,likes}",{userId,title,content,createdAt,updatedAt,likes})
     if (!userId || !title || !content || !createdAt) {
       return res.status(400).send({
-        message: `please provide all required fields. ==> userId, title, content, createdAt`,
+        message: `please provide all required fields. ==>  title, content`,
       });
     }
 

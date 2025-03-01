@@ -26,6 +26,7 @@ export const refreshTokenController = async (req, res) => {
         );
         res.status(200).send({
           accessToken,
+          userId: decoded.userId,
         });
       }
     );

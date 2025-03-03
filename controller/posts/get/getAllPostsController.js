@@ -20,6 +20,7 @@ export const getAllPostsController = async (req, res) => {
             created_at: rec.dataValues.created_at,
             likes: rec.dataValues.likes,
             userId: rec.dataValues.users.dataValues.id,
+            imgURL:rec.dataValues.title_img_url
           });
           return acc;
         }, []);

@@ -1,6 +1,4 @@
 import bcrypt from "bcrypt";
-
-import { JWT_MAX_AGE } from "../../../../utils/constants.js";
 import { checkIfUserExistWithMail } from "../../../../model/Users/quries.js";
 import jwt from "jsonwebtoken";
 export const signinController = async (req, res) => {

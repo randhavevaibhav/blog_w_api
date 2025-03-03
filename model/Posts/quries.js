@@ -35,7 +35,14 @@ export const createPost = async (
 
 export const getAllPosts = async (userId) => {
   const result = await Posts.findAll({
-    attributes: ["id", "title","title_img_url", "content", "created_at", "likes"],
+    attributes: [
+      "id",
+      "title",
+      "title_img_url",
+      "content",
+      "created_at",
+      "likes",
+    ],
     include: [
       {
         model: Users,
@@ -50,9 +57,16 @@ export const getAllPosts = async (userId) => {
   return result;
 };
 
-export const getPost = async(userId,postId)=>{
+export const getPost = async (userId, postId) => {
   const result = await Posts.findOne({
-    attributes: ["id", "title", "content", "created_at", "likes","title_img_url"],
+    attributes: [
+      "id",
+      "title",
+      "content",
+      "created_at",
+      "likes",
+      "title_img_url",
+    ],
     include: [
       {
         model: Users,
@@ -61,9 +75,43 @@ export const getPost = async(userId,postId)=>{
     ],
     where: {
       user_id: userId,
-      id:postId
+      id: postId,
     },
   });
 
   return result;
-}
+};
+
+export const deletePost = async (postId) => {
+  const result = await Posts.destroy({
+    where: {
+      id: postId,
+    },
+  });
+
+  return result;
+};
+
+export const updatePost = async (
+  postId,
+  title,
+  content,
+  titleImgURL,
+  updatedAt
+) => {
+  const result = await Posts.update(
+    {
+      title,
+      content,
+      title_img_url: titleImgURL,
+      updated_at: updatedAt,
+    },
+    {
+      where: {
+        id: postId,
+      },
+    }
+  );
+
+  return result;
+};

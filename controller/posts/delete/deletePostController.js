@@ -20,6 +20,7 @@ export const deletePostController = async (req, res) => {
 
     res.status(200).send({
       message: "post deleted !!",
+      postId
     });
   } catch (error) {
     console.log("Error ocuured in deletePostController ===> ", error);

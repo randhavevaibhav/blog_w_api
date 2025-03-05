@@ -23,5 +23,8 @@ export const requireAuth = (req, res, next) => {
     });
   } catch (error) {
     console.log("error occured in requireAuth", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

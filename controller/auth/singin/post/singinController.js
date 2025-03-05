@@ -66,6 +66,9 @@ export const signinController = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log("Error ocuured in sinIn_post ==> ", error);
+    console.log("Error ocuured in signinController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

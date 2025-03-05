@@ -32,5 +32,8 @@ export const refreshTokenController = async (req, res) => {
     );
   } catch (error) {
     console.log("Error ocuured in refreshTokenController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

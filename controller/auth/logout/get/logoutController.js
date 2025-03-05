@@ -29,5 +29,8 @@ export const logoutController = async (req, res) => {
     });
   } catch (error) {
     console.log("Error ocuured in logoutController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

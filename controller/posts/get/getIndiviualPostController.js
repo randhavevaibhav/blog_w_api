@@ -34,6 +34,9 @@ export const getIndiviualPostController = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("Error ocuured in getAllPostsController ==> ", error);
+    console.log("Error ocuured in getIndiviualPostController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

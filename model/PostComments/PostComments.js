@@ -1,9 +1,19 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
+import { Users } from "../Users/users.js";
 
 export const PostComments = sq.define(
   "post_comments",
   {
+    user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "user id can not be empty.",
+        },
+      },
+    },
     post_id: {
       type: DataTypes.BIGINT,
       allowNull: false,
@@ -41,3 +51,6 @@ export const PostComments = sq.define(
     updatedAt: false,
   }
 );
+
+
+PostComments.belongsTo(Users, { foreignKey: "user_id" });

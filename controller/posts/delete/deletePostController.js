@@ -24,5 +24,8 @@ export const deletePostController = async (req, res) => {
     });
   } catch (error) {
     console.log("Error ocuured in deletePostController ===> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

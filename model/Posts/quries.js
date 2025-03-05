@@ -33,7 +33,19 @@ export const createPost = async (
   return result;
 };
 
-export const getAllPosts = async (userId) => {
+export const  getAllPosts = async(limit)=>{
+  const result = await Posts.findAll({ attributes: [
+    "id",
+    "user_id",
+    "title",
+    "created_at",
+    "likes",
+  ],limit}
+)
+
+  return result;
+}
+export const getAllOwnPosts = async (userId) => {
   const result = await Posts.findAll({
     attributes: [
       "id",
@@ -81,7 +93,6 @@ export const getPost = async (userId, postId) => {
 
   return result;
 };
-
 export const deletePost = async (postId) => {
   const result = await Posts.destroy({
     where: {

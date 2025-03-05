@@ -5,5 +5,8 @@ export const dashboardController = async (req, res) => {
     });
   } catch (error) {
     console.log("Error ocuured in dashboardController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

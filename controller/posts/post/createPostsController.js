@@ -27,5 +27,8 @@ export const createPostsController = async (req, res) => {
     });
   } catch (error) {
     console.log("Error ocuured in createPostsController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

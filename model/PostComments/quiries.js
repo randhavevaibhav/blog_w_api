@@ -1,18 +1,41 @@
-import { PostComments } from "./PostComments";
+import { Users } from "../Users/users.js";
+import { PostComments } from "./PostComments.js";
 
 export const createPostComment = async (
+  userId,
   postId,
   content,
   createdAt,
-  likes = null
 ) => {
   const result = await PostComments.create({
+    user_id:userId,
     post_id: postId,
     content,
-    createdAt,
-    likes,
+    created_at:createdAt
   });
 
   return result;
 };
 
+
+export const getAllPostComments = async(postId)=>{
+  const result = await PostComments.findAll({
+    attributes: [
+     
+      "content",
+      "created_at",
+      "likes",
+    ],
+    where:{
+      post_id:postId
+    },
+     include: [
+          {
+            model: Users,
+            attributes: ["first_name"],
+          },
+        ],
+  });
+
+  return result;
+}

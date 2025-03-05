@@ -36,9 +36,9 @@ export const singupController = async (req, res) => {
       .status(201)
       .send({ message: `successfully created user with mail ${email}`, email });
   } catch (err) {
-    console.log(err);
-    const message = handleError(err);
-
-    res.status(400).send({ message });
+    console.log("Error ocuured in singupController ===> ",err);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

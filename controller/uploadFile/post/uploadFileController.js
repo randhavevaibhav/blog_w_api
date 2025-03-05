@@ -19,5 +19,8 @@ export const uploadFileController = async (req, res) => {
     });
   } catch (error) {
     console.log("Error ocuured in uploadFileController ==> ", error);
+    return res.status(500).send({
+      message:"Internal Server Error"
+    })
   }
 };

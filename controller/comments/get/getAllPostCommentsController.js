@@ -18,6 +18,7 @@ export const getAllPostCommentsController = async (req, res) => {
       responseData = result.reduce((acc, rec) => {
         // console.log("rec from getAllPostComments ==>  ", rec);
         acc.push({
+          id: rec.dataValues.id,
           content: rec.dataValues.content,
           created_at: rec.dataValues.created_at,
           likes: rec.dataValues.likes,

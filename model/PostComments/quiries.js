@@ -21,7 +21,7 @@ export const createPostComment = async (
 export const getAllPostComments = async(postId)=>{
   const result = await PostComments.findAll({
     attributes: [
-     
+     "id",
       "content",
       "created_at",
       "likes",
@@ -36,6 +36,16 @@ export const getAllPostComments = async(postId)=>{
           },
         ],
   });
+
+  return result;
+}
+
+export const getAllOwnPostComments = async (userId)=>{
+  const result = await PostComments.findAll({
+    where:{
+      user_id:userId
+    }
+  })
 
   return result;
 }

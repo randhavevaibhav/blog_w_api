@@ -8,11 +8,11 @@ export const getAllOwnPostsController = async (req, res) => {
       const result = await getAllOwnPosts(userId);
       // console.log("result from getAllPosts ==>  ",result)
       let responseData = null;
-      console.log("result.length ===> ",result.length)
+      // console.log("result.length ===> ",result.length)
 
       if (result.length) {
         responseData = result.reduce((acc, rec) => {
-          console.log("rec from getAllPosts ==>  ", rec);
+          console.log("rec from getAllOwnPosts ==>  ", rec);
           acc.push({
             id: rec.dataValues.id,
             title: rec.dataValues.title,

@@ -15,7 +15,7 @@ export const signinController = async (req, res) => {
     // const user = await checkIfUserExistWithMail(email);
     const user = await checkIfUserExistWithMail(email);
 
-    // console.log("user in sinIn_post ===> ", user.id);
+    // console.log("user in sinIn_post ===> ", user);
 
     if (!user) {
       //404 code for user not found
@@ -55,6 +55,7 @@ export const signinController = async (req, res) => {
         res.status(200).send({
           message: `user with mail: ${email} validated !!!`,
           userId: user.id,
+          userName:user.first_name,
           accessToken,
         });
         return;

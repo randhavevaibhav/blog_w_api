@@ -33,18 +33,21 @@ export const createPost = async (
   return result;
 };
 
-export const  getAllPosts = async(limit)=>{
-  const result = await Posts.findAll({ attributes: [
-    "id",
-    "user_id",
-    "title",
-    "created_at",
-    "likes",
-  ],limit}
-)
+export const getAllPosts = async (offset) => {
+  const result = await Posts.findAll({
+    attributes: ["id", "user_id", "title", "created_at", "likes"],
+    // limit:5,
+    offset: offset,
+    include: [
+      {
+        model: Users,
+        attributes: ["first_name"],
+      },
+    ],
+  });
 
   return result;
-}
+};
 export const getAllOwnPosts = async (userId) => {
   const result = await Posts.findAll({
     attributes: [
@@ -82,7 +85,7 @@ export const getPost = async (userId, postId) => {
     include: [
       {
         model: Users,
-        attributes: ["id"],
+        attributes: ["first_name"],
       },
     ],
     where: {

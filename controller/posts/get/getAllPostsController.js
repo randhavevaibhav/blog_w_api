@@ -2,28 +2,31 @@ import { getAllPosts } from "../../../model/Posts/quries.js";
 
 export const getAllPostsController = async (req, res) => {
   try {
-    const { limit } = req.body;
+    const offset = req.params.offset;
 
-    if (!limit) {
+    // console.log("offset in getAllPostsController ===> ",offset)
+
+    if (!offset) {
       return res.status(400).send({
-        message: "please send required field. limit",
+        message: "please send required field. offset",
       });
     }
 
-    if (limit > 50) {
+    if (offset > 10) {
       return res.status(400).send({
-        message: "limit can not exceed more than 50",
+        message: "offset can not exceed more than 10",
       });
     }
 
-    const result = await getAllPosts(limit);
+    const result = await getAllPosts(offset);
 
     if (result.length) {
       let responseData = null;
 
-      responseData = result.reduce((acc, rec) => {
-        // console.log("rec from getAllPostComments ==>  ", rec);
+      responseData = result.reduce((acc, rec, i) => {
+        // console.log("rec from getAllPosts ==>  ", rec.dataValues.id);
         acc.push({
+          userName: rec.dataValues.users.dataValues.first_name,
           postId: rec.dataValues.id,
           userId: rec.dataValues.user_id,
           title: rec.dataValues.title,
@@ -34,9 +37,10 @@ export const getAllPostsController = async (req, res) => {
       }, []);
 
       // console.log("result getAllPostsController ===> ", result);
+      // console.log("responseData getAllPostsController ===> ", responseData);
 
       return res.status(200).send({
-        message: "found posts.",
+        message: "found posts. get all",
         posts: `${JSON.stringify(responseData)}`,
         total_posts_count: result.length,
       });

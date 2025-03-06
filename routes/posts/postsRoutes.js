@@ -7,7 +7,7 @@ const { createPostsController, getAllOwnPostsController ,getIndiviualPostControl
 router.post("/createpost", requireAuth, createPostsController);
 router.get("/posts/:userId", requireAuth, getAllOwnPostsController);
 router.get("/posts/:userId/:postId", requireAuth, getIndiviualPostController);
-router.get("/posts",requireAuth,getAllPostsController)
+router.get("/getallposts/:offset",requireAuth,getAllPostsController)
 router.delete("/deletepost/:postId", requireAuth,deletePostController );
 router.patch("/edit", requireAuth,updatePostController );
 export default router;

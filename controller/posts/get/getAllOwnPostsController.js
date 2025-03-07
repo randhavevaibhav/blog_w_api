@@ -18,6 +18,7 @@ export const getAllOwnPostsController = async (req, res) => {
           acc.push({
             id: rec.post_id,
             title: rec.title,
+            content: rec.content,
             created_at: rec.created_at,
             likes: rec.likes,
             userId: rec.user_id,

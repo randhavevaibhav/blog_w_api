@@ -63,6 +63,7 @@ export const getAllOwnPosts = async (userId) => {
     p.id as post_id,
 	p.created_at,
 	p.title,
+  p.content,
 	p.likes,
 	p.title_img_url,
     COUNT(pc.id) AS total_post_comments
@@ -72,7 +73,8 @@ LEFT JOIN post_comments pc ON p.id = pc.post_id
 WHERE u.id=${userId}
 GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
 	p.likes,
-	p.title_img_url
+	p.title_img_url,
+  p.content
 ORDER BY u.id, p.id;`);
   return result;
 };

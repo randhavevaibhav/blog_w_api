@@ -32,6 +32,7 @@ export const getAllPostsController = async (req, res) => {
           title: rec.dataValues.title,
           created_at: rec.dataValues.created_at,
           likes: rec.dataValues.likes,
+          imgURL: rec.dataValues.title_img_url,
         });
         return acc;
       }, []);

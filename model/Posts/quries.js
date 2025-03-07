@@ -1,5 +1,6 @@
 import { Posts } from "./Posts.js";
 import { Users } from "../Users/users.js";
+import sequelize from "../../db.js";
 
 export const createPost = async (
   userId,
@@ -35,7 +36,14 @@ export const createPost = async (
 
 export const getAllPosts = async (offset) => {
   const result = await Posts.findAll({
-    attributes: ["id", "user_id", "title", "created_at", "likes"],
+    attributes: [
+      "id",
+      "user_id",
+      "title",
+      "created_at",
+      "likes",
+      "title_img_url",
+    ],
     // limit:5,
     offset: offset,
     include: [
@@ -49,26 +57,23 @@ export const getAllPosts = async (offset) => {
   return result;
 };
 export const getAllOwnPosts = async (userId) => {
-  const result = await Posts.findAll({
-    attributes: [
-      "id",
-      "title",
-      "title_img_url",
-      "content",
-      "created_at",
-      "likes",
-    ],
-    include: [
-      {
-        model: Users,
-        attributes: ["id"],
-      },
-    ],
-    where: {
-      user_id: userId,
-    },
-  });
-
+  const result = await sequelize.query(`SELECT 
+    u.id as user_id, 
+	u.first_name,
+    p.id as post_id,
+	p.created_at,
+	p.title,
+	p.likes,
+	p.title_img_url,
+    COUNT(pc.id) AS total_post_comments
+FROM users u
+JOIN posts p ON u.id = p.user_id
+LEFT JOIN post_comments pc ON p.id = pc.post_id
+WHERE u.id=${userId}
+GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
+	p.likes,
+	p.title_img_url
+ORDER BY u.id, p.id;`);
   return result;
 };
 

@@ -56,6 +56,7 @@ export const signinController = async (req, res) => {
           message: `user with mail: ${email} validated !!!`,
           userId: user.id,
           userName:user.first_name,
+          userMail:user.email,
           accessToken,
         });
         return;

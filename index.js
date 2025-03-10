@@ -5,6 +5,7 @@ import postsRoutes from "./routes/posts/postsRoutes.js";
 import dashboardRoutes from "./routes/dashboard/dashboardRoutes.js";
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import commentsRoute from "./routes/comments/commentsRoute.js"
+import postLikesRoute from "./routes/postLikes/PostLikesRoute.js"
 
 import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
@@ -34,6 +35,7 @@ app.use(authRoutes);
 app.use(postsRoutes);
 app.use(dashboardRoutes);
 app.use(commentsRoute);
+app.use(postLikesRoute);
 app.use(refreshTokenRoute);
 app.use(uploadFileRoute);
 

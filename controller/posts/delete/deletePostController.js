@@ -1,3 +1,4 @@
+import { deletePostComments } from "../../../model/PostComments/quiries.js";
 import { deletePost } from "../../../model/Posts/quries.js";
 
 export const deletePostController = async (req, res) => {
@@ -10,6 +11,9 @@ export const deletePostController = async (req, res) => {
     }
 
     const result = await deletePost( postId);
+    //delete all comments related to that post
+    const deletePostCommentsResult = await deletePostComments(postId);
+    
     //no post deleted
     if (result === 0) {
     

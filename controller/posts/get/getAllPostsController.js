@@ -21,28 +21,11 @@ export const getAllPostsController = async (req, res) => {
     const result = await getAllPosts(offset);
 
     if (result.length) {
-      let responseData = null;
-
-      responseData = result.reduce((acc, rec, i) => {
-        // console.log("rec from getAllPosts ==>  ", rec.dataValues.id);
-        acc.push({
-          userName: rec.dataValues.users.dataValues.first_name,
-          postId: rec.dataValues.id,
-          userId: rec.dataValues.user_id,
-          title: rec.dataValues.title,
-          created_at: rec.dataValues.created_at,
-          likes: rec.dataValues.likes,
-          imgURL: rec.dataValues.title_img_url,
-        });
-        return acc;
-      }, []);
-
       // console.log("result getAllPostsController ===> ", result);
-      // console.log("responseData getAllPostsController ===> ", responseData);
 
       return res.status(200).send({
         message: "found posts. get all",
-        posts: `${JSON.stringify(responseData)}`,
+        posts: `${JSON.stringify(result)}`,
         total_posts_count: result.length,
       });
     } else {

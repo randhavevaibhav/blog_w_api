@@ -7,9 +7,9 @@ export const requireAuth = (req, res, next) => {
       return res.status(401).send({ message: "un-authorized access." });
     }
 
-    console.log("authHeader ===> ", authHeader);
+    // console.log("authHeader ===> ", authHeader);
 
-    console.log("req.cookies ===> ", req.cookies);
+    // console.log("req.cookies ===> ", req.cookies);
 
     const accessToken = authHeader.split(" ")[1];
 
@@ -18,7 +18,7 @@ export const requireAuth = (req, res, next) => {
         return res.status(403).send({ message: "forbidden to access." });
       }
       //all went well
-      console.log("decoded.userId ====> ", decoded.userId);
+      // console.log("decoded.userId ====> ", decoded.userId);
       next();
     });
   } catch (error) {

@@ -35,26 +35,23 @@ export const createPost = async (
 };
 
 export const getAllPosts = async (offset) => {
-  const result = await Posts.findAll({
-    attributes: [
-      "id",
-      "user_id",
-      "title",
-      "created_at",
-      "likes",
-      "title_img_url",
-    ],
-    // limit:5,
-    offset: offset,
-    include: [
-      {
-        model: Users,
-        attributes: ["first_name"],
-      },
-    ],
-  });
+  const result = await sequelize.query(`select
+p.id as post_id,
+u.id as user_id,
+u.first_name,
+p.title , 
+p.created_at,
+p.title_img_url,
+pa.likes,
+COUNT(pc.id) as total_comments from posts p
+join post_analytics pa on p.id=pa.post_id
+join post_comments pc on p.id=pc.post_id
+join users u on u.id = p.user_id
+group by p.id,u.id,u.first_name,p.title,pa.likes,p.created_at,p.title_img_url`)
 
-  return result;
+// console.log("result ===> ",result[0])
+
+  return result[0];
 };
 export const getAllOwnPosts = async (userId) => {
   const result = await sequelize.query(`SELECT 
@@ -79,6 +76,19 @@ GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
   pa.likes
 ORDER BY u.id, p.id;`);
   return result;
+};
+
+export const getTotalOwnPostsLikesCount = async (userId) => {
+  const result = await sequelize.query(`SELECT
+  SUM(pa.likes) AS total_likes
+FROM
+  posts p
+JOIN
+  post_analytics pa ON p.id = pa.post_id
+WHERE
+  p.user_id=${userId};`);
+
+  return result?result[0][0].total_likes:null;
 };
 
 export const getPost = async (userId, postId) => {

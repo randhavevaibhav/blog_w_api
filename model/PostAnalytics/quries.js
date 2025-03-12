@@ -38,6 +38,7 @@ export const createPostAnalytics = async (postId) => {
 
 export const getPostAnalytics = async (postId) => {
   const result = await PostAnalytics.findOne({
+    attributes:["likes"],
     where: {
       post_id: postId,
     },

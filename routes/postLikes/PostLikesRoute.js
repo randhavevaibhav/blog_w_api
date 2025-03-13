@@ -13,8 +13,8 @@ const limiter = rateLimit({
   }
 });
 const router = Router();
-const {createPostLikeController,getTotalPostLikesController} = PostLikesControllers;
-router.post("/createpostlike/:userId/:postId",requireAuth,limiter,createPostLikeController);
-
+const {getTotalPostLikesController,likePostController,dislikePostController} = PostLikesControllers;
+router.post("/like/:userId/:postId",requireAuth,limiter,likePostController);
+router.post("/dislike/:userId/:postId",requireAuth,limiter,dislikePostController);
 router.get("/gettotalpostlikes/:userId/:postId",requireAuth,getTotalPostLikesController);
 export default router;

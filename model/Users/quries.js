@@ -29,3 +29,19 @@ export const checkIfUserExistWithId = async (id) => {
 
   return user;
 };
+
+export const updateUser = async (userId, userName, userMail) => {
+  const result = await Users.update(
+    {
+      first_name: userName,
+      email: userMail,
+    },
+    {
+      where: {
+        id: userId,
+      },
+    }
+  );
+
+  return result;
+};

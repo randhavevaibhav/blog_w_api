@@ -22,7 +22,7 @@ export const getAllPostComments = async (postId) => {
     include: [
       {
         model: Users,
-        attributes: ["first_name"],
+        attributes: ["first_name","id"],
       },
     ],
   });
@@ -49,6 +49,17 @@ export const deletePostComments = async(postId)=>{
   const result = await PostComments.destroy({
     where:{
       post_id:postId
+    }
+  });
+
+ return  result;
+}
+
+export const deleteSinglePostComment = async(userId,commentId)=>{
+  const result = await PostComments.destroy({
+    where:{
+      id:commentId,
+      user_id:userId
     }
   });
 

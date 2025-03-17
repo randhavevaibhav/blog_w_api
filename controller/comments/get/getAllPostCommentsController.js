@@ -23,6 +23,7 @@ export const getAllPostCommentsController = async (req, res) => {
           created_at: rec.dataValues.created_at,
           likes: rec.dataValues.likes,
           userName: rec.dataValues.users.dataValues.first_name,
+          userId:rec.dataValues.users.dataValues.id
         });
         return acc;
       }, []);

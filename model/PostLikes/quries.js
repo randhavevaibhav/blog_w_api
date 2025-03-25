@@ -23,11 +23,21 @@ export const isPostLikedByUser = async (userId,postId)=>
 return result;
 }
 
-export const removePostLike = async(userId,postId)=>{
+export const removeUserPostLike = async(userId,postId)=>{
     const result = PostLikes.destroy({
         where:{
             post_id:postId,
             user_id:userId
+        }
+    });
+
+    return result;
+}
+
+export const removeAllPostLikes = async(postId)=>{
+    const result = PostLikes.destroy({
+        where:{
+            post_id:postId,
         }
     });
 

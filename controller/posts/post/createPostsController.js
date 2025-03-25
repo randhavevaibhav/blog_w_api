@@ -1,3 +1,4 @@
+import { createPostAnalytics } from "../../../model/PostAnalytics/quries.js";
 import { createPost } from "../../../model/Posts/quries.js";
 
 export const createPostsController = async (req, res) => {
@@ -20,6 +21,8 @@ export const createPostsController = async (req, res) => {
       updatedAt,
       likes
     );
+
+    await createPostAnalytics(result.id);
 
     res.status(201).send({
       message: `successfully created new post.`,

@@ -1,3 +1,4 @@
+import { incCommentCount } from "../../../model/PostAnalytics/quries.js";
 import { createPostComment } from "../../../model/PostComments/quiries.js";
 
 export const createPostCommentController = async (req, res) => {
@@ -19,6 +20,9 @@ export const createPostCommentController = async (req, res) => {
     }
 
     const result = await createPostComment(userId, postId, content, createdAt);
+    const resultOfincCommentCount = await incCommentCount(postId);
+
+    // console.log("resultOfincCommentCount ===> ",JSON.stringify(resultOfincCommentCount))
 
     return res.status(200).send({
       message: "submitted new comment",

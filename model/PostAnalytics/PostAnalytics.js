@@ -19,6 +19,10 @@ export const PostAnalytics = sq.define(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
+    comments:{
+      type: DataTypes.BIGINT,
+      allowNull: true,
+    }
   },
   {
     createdAt: false,

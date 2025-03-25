@@ -35,12 +35,6 @@ export const likePostController = async (req, res) => {
       createdAt
     );
     
-    const isPostAnalyticsPresent = await getPostAnalytics(postId);
-
-    if (!isPostAnalyticsPresent) {
-      const createPostAnalyticsResult = await createPostAnalytics(postId);
-      // console.log("result in createPostAnalyticsResult =======> ",createPostAnalyticsResult);
-    }
     const incPostLikeResult = await incPostLike(postId);
     return res.status(200).send({
         message: "liked a post !",

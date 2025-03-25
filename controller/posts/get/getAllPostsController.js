@@ -2,7 +2,7 @@ import { getAllPosts } from "../../../model/Posts/quries.js";
 
 export const getAllPostsController = async (req, res) => {
   try {
-    const offset = req.params.offset;
+    const {offset} = req.query;
 
     // console.log("offset in getAllPostsController ===> ",offset)
 

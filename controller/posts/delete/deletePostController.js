@@ -1,4 +1,6 @@
+import { deletePostAnalytics } from "../../../model/PostAnalytics/quries.js";
 import { deletePostComments } from "../../../model/PostComments/quiries.js";
+import { removeAllPostLikes } from "../../../model/PostLikes/quries.js";
 import { deletePost } from "../../../model/Posts/quries.js";
 
 export const deletePostController = async (req, res) => {
@@ -10,9 +12,15 @@ export const deletePostController = async (req, res) => {
       });
     }
 
+    //delete post
     const result = await deletePost( postId);
     //delete all comments related to that post
     const deletePostCommentsResult = await deletePostComments(postId);
+    //delete post analytics
+    await deletePostAnalytics(postId);
+    //delete post likes
+    await removeAllPostLikes(postId)
+    
     
     //no post deleted
     if (result === 0) {

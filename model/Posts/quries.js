@@ -35,6 +35,7 @@ export const createPost = async (
 };
 
 export const getAllPosts = async (offset) => {
+  const limit = 5;
   const result = await sequelize.query(`select
 p.id as post_id,
 u.id as user_id,
@@ -43,13 +44,13 @@ p.title ,
 p.created_at,
 p.title_img_url,
 pa.likes,
-COUNT(pc.id) as total_comments from posts p
-join post_analytics pa on p.id=pa.post_id
-join post_comments pc on p.id=pc.post_id
+pa.comments as total_comments
+from posts p
+join post_analytics pa on pa.post_id=p.id
 join users u on u.id = p.user_id
-group by p.id,u.id,u.first_name,p.title,pa.likes,p.created_at,p.title_img_url`)
-
-// console.log("result ===> ",result[0])
+limit ${limit} 
+offset ${offset}
+`);
 
   return result[0];
 };
@@ -88,32 +89,25 @@ JOIN
 WHERE
   p.user_id=${userId};`);
 
-  return result?result[0][0].total_likes:null;
+  return result ? result[0][0].total_likes : null;
 };
 
-export const getPost = async (userId, postId) => {
-  const result = await Posts.findOne({
-    attributes: [
-      "id",
-      "title",
-      "content",
-      "created_at",
-      "likes",
-      "title_img_url",
-    ],
-    include: [
-      {
-        model: Users,
-        attributes: ["first_name"],
-      },
-    ],
-    where: {
-      user_id: userId,
-      id: postId,
-    },
-  });
+export const getPost = async ( postId) => {
+  const result = await sequelize.query(`select 
+p.id,
+u.first_name,
+p.title,
+p.content,
+p.created_at,
+p.title_img_url,
+pa.likes,
+pa.comments
+from posts p
+join post_analytics pa on pa.post_id=p.id
+join users u on u.id=p.user_id
+where p.id=${postId}`)
 
-  return result;
+  return result[0][0];
 };
 export const deletePost = async (postId) => {
   const result = await Posts.destroy({

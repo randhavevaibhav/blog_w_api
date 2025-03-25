@@ -1,5 +1,5 @@
 import { decPostLike, getPostAnalytics } from "../../../model/PostAnalytics/quries.js";
-import { removePostLike } from "../../../model/PostLikes/quries.js";
+import {  removeUserPostLike } from "../../../model/PostLikes/quries.js";
 
 
 export const dislikePostController = async (req, res) => {
@@ -19,7 +19,7 @@ export const dislikePostController = async (req, res) => {
 
     if(Number(totalLikes.likes)>0)
     {
-        const removePostLikeResult = await removePostLike(userId, postId);
+        const removePostLikeResult = await removeUserPostLike(userId, postId);
         const decPostLikeResult = await decPostLike(postId);
         // console.log("result in removePostLikeResult =======> ",removePostLikeResult);
         // console.log("result in removePostLikeResult =======> ",decPostLikeResult);

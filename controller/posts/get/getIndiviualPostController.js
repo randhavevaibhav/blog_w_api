@@ -10,7 +10,7 @@ export const getIndiviualPostController = async (req, res) => {
     // console.log("userId getIndiviualPostController ====> ",userId)
     // console.log("postId getIndiviualPostController ====> ",postId)
 
-    if (!userId||!postId||!currentUserId) {
+    if (!userId || !postId || !currentUserId) {
       return res.status(400).send({
         message: `Please send all required fields. userId,currentUserId,postId`,
       });
@@ -18,7 +18,7 @@ export const getIndiviualPostController = async (req, res) => {
 
     const result = await getPost(postId);
     // console.log("result from getIndiviualPostController ==>  ",result)
-    
+
     if (result) {
       const postData = {
         userName: result.first_name,
@@ -29,18 +29,17 @@ export const getIndiviualPostController = async (req, res) => {
         created_at: result.created_at,
         totalComments: result.comments,
       };
-      console.log("postData  result ===> ", postData);
+      // console.log("postData  result ===> ", postData);
       const isLikedByUser = await isPostLikedByUser(currentUserId, postId);
-      
-      if (isLikedByUser) {
-            likedByUser = true;
-        }
 
+      if (isLikedByUser) {
+        likedByUser = true;
+      }
 
       return res.status(200).send({
         message: `post fetched.`,
         postData,
-        likedByUser
+        likedByUser,
       });
     } else {
       return res.status(404).send({

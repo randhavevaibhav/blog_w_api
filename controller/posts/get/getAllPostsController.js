@@ -1,8 +1,9 @@
 import { getAllPosts } from "../../../model/Posts/quries.js";
+import { POST_OFFSET } from "../../../utils/constants.js";
 
 export const getAllPostsController = async (req, res) => {
   try {
-    const {offset} = req.query;
+    const { offset } = req.query;
 
     // console.log("offset in getAllPostsController ===> ",offset)
 
@@ -12,24 +13,21 @@ export const getAllPostsController = async (req, res) => {
       });
     }
 
-    if (offset > 10) {
-      return res.status(400).send({
-        message: "offset can not exceed more than 10",
-      });
-    }
-
     const result = await getAllPosts(offset);
 
     if (result.length) {
-      // console.log("result getAllPostsController ===> ", result);
-
       return res.status(200).send({
         message: "found posts. get all",
         posts: `${JSON.stringify(result)}`,
         total_posts_count: result.length,
+        offset: Number(offset) + POST_OFFSET,
       });
     } else {
-      return res.sendStatus(204);
+      return res.status(200).send({
+        message: "No posts found",
+        posts: `[]`,
+        total_posts_count: 0,
+      });
     }
   } catch (error) {
     console.log("Error ocurred in getAllPostsController ===> ", error);

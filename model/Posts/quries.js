@@ -1,6 +1,6 @@
 import { Posts } from "./Posts.js";
-import { Users } from "../Users/users.js";
 import sequelize from "../../db.js";
+import { POST_LIMIT } from "../../utils/constants.js";
 
 export const createPost = async (
   userId,
@@ -35,8 +35,7 @@ export const createPost = async (
 };
 
 export const getAllPosts = async (offset) => {
-  const limit = 5;
-  const result = await sequelize.query(`select
+const result = await sequelize.query(`select
 p.id as post_id,
 u.id as user_id,
 u.first_name,
@@ -48,8 +47,10 @@ pa.comments as total_comments
 from posts p
 join post_analytics pa on pa.post_id=p.id
 join users u on u.id = p.user_id
-limit ${limit} 
+order by p.created_at desc,
+p.id desc
 offset ${offset}
+limit ${POST_LIMIT}
 `);
 
   return result[0];

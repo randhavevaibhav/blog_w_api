@@ -14,6 +14,8 @@ export const refreshTokenController = async (req, res) => {
       refreshToken,
       process.env.REFRESH_TOKEN_SCERET,
       (err, decoded) => {
+
+        console.log("decoded ===> ",decoded)
         if (err) {
           return res.status(403).send({
             message: `access forbidden`,
@@ -27,6 +29,8 @@ export const refreshTokenController = async (req, res) => {
         res.status(200).send({
           accessToken,
           userId: decoded.userId,
+          userName:decoded.userName,
+          userMail:decoded.userMail
         });
       }
     );

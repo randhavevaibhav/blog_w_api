@@ -39,24 +39,24 @@ export const signinController = async (req, res) => {
           { expiresIn: "4m" }
         );
         const refreshToken = jwt.sign(
-          { userId: user.id },
+          { userId: user.id, userName: user.first_name, userMail: user.email },
           process.env.REFRESH_TOKEN_SCERET,
           { expiresIn: "10h" }
         );
-//below options required to persist cookie on reload
-// sameSite:"none", 
-// secure:true
+        //below options required to persist cookie on reload
+        // sameSite:"none",
+        // secure:true
         res.cookie("jwt", refreshToken, {
           httpOnly: true,
           maxAge: 10 * 60 * 60 * 1000,
-          sameSite:"none",
-          secure:true
+          sameSite: "none",
+          secure: true,
         });
         res.status(200).send({
           message: `user with mail: ${email} validated !!!`,
           userId: user.id,
-          userName:user.first_name,
-          userMail:user.email,
+          userName: user.first_name,
+          userMail: user.email,
           accessToken,
         });
         return;
@@ -70,7 +70,7 @@ export const signinController = async (req, res) => {
   } catch (error) {
     console.log("Error ocuured in signinController ==> ", error);
     return res.status(500).send({
-      message:"Internal Server Error"
-    })
+      message: "Internal Server Error",
+    });
   }
 };

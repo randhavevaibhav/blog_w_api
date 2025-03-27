@@ -15,7 +15,7 @@ export const deleteCommentController = async (req, res) => {
     const result = await deleteSinglePostComment(userId, commentId);
     //decrease the comment count in post_analytics table if it is not zero
     const isCommentCount = await isCommentCountZero(postId)
-    console.log("isCommentCountZero ===> ",isCommentCount)
+    // console.log("isCommentCountZero ===> ",isCommentCount)
     if(!isCommentCount)
     {
       await decCommentCount(postId);

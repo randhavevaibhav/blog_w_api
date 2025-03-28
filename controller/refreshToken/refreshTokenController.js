@@ -5,7 +5,7 @@ export const refreshTokenController = async (req, res) => {
     if (!cookies?.jwt) {
       return res.status(401).send({ message: "JWT cookie not present." });
     }
-    console.log("cookies.jwt in refreshTokenController ===> ", cookies.jwt);
+    // console.log("cookies.jwt in refreshTokenController ===> ", cookies.jwt);
     const refreshToken = cookies.jwt;
 
     //eval jwt
@@ -15,7 +15,7 @@ export const refreshTokenController = async (req, res) => {
       process.env.REFRESH_TOKEN_SCERET,
       (err, decoded) => {
 
-        console.log("decoded ===> ",decoded)
+        // console.log("decoded ===> ",decoded)
         if (err) {
           return res.status(403).send({
             message: `access forbidden`,

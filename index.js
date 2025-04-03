@@ -7,6 +7,7 @@ import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import userRoutes from "./routes/user/userRoutes.js"
 import commentsRoute from "./routes/comments/commentsRoute.js"
 import postLikesRoute from "./routes/postLikes/PostLikesRoute.js"
+import convertRoutes from "./routes/convert/convertRoutes.js"
 
 import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
@@ -40,7 +41,7 @@ app.use(commentsRoute);
 app.use(postLikesRoute);
 app.use(refreshTokenRoute);
 app.use(uploadFileRoute);
-
+app.use(convertRoutes);
 const PORT = 8003;
 
 app.get("/", (req, res) => {

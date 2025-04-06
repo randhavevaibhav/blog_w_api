@@ -62,8 +62,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
 
     return res.status(200).send({
       message: `post fetched.`,
-      postData,
-      likedByUser,
+      postData: { ...postData, likedByUser },
     });
   } else {
     return next(new AppError(`No post found.`));

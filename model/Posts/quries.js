@@ -35,7 +35,7 @@ export const createPost = async (
 };
 
 export const getAllPosts = async (offset) => {
-const result = await sequelize.query(`select
+  const result = await sequelize.query(`select
 p.id as post_id,
 u.id as user_id,
 u.first_name,
@@ -93,7 +93,7 @@ WHERE
   return result ? result[0][0].total_likes : null;
 };
 
-export const getPost = async ( postId) => {
+export const getPost = async (postId) => {
   const result = await sequelize.query(`select 
 p.id,
 u.first_name,
@@ -106,7 +106,7 @@ pa.comments
 from posts p
 join post_analytics pa on pa.post_id=p.id
 join users u on u.id=p.user_id
-where p.id=${postId}`)
+where p.id=${postId}`);
 
   return result[0][0];
 };

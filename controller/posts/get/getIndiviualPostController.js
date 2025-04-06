@@ -1,55 +1,71 @@
 import { isPostLikedByUser } from "../../../model/PostLikes/quries.js";
 import { getPost } from "../../../model/Posts/quries.js";
+import { getAllPostComments } from "../../../model/PostComments/quiries.js";
 
-export const getIndiviualPostController = async (req, res) => {
-  try {
-    const userId = req.params.userId;
-    const postId = req.params.postId;
-    const currentUserId = req.params.currentUserId;
-    let likedByUser = false;
-    // console.log("userId getIndiviualPostController ====> ",userId)
-    // console.log("postId getIndiviualPostController ====> ",postId)
+import { AppError } from "../../../utils/appError.js";
+import { catchAsync } from "../../../utils/catchAsync.js";
 
-    if (!userId || !postId || !currentUserId) {
-      return res.status(400).send({
-        message: `Please send all required fields. userId,currentUserId,postId`,
-      });
-    }
+export const getIndiviualPostController = catchAsync(async (req, res, next) => {
+  const userId = req.params.userId;
+  const postId = req.params.postId;
+  const currentUserId = req.params.currentUserId;
+  let likedByUser = false;
+  let commentsArr = [];
+  // console.log("userId getIndiviualPostController ====> ",userId)
+  // console.log("postId getIndiviualPostController ====> ",postId)
 
-    const result = await getPost(postId);
-    // console.log("result from getIndiviualPostController ==>  ",result)
-
-    if (result) {
-      const postData = {
-        userName: result.first_name,
-        title: result.title,
-        content: result.content,
-        title_img_url: result.title_img_url,
-        totalLikes: result.likes,
-        created_at: result.created_at,
-        totalComments: result.comments,
-      };
-      // console.log("postData  result ===> ", postData);
-      const isLikedByUser = await isPostLikedByUser(currentUserId, postId);
-
-      if (isLikedByUser) {
-        likedByUser = true;
-      }
-
-      return res.status(200).send({
-        message: `post fetched.`,
-        postData,
-        likedByUser,
-      });
-    } else {
-      return res.status(404).send({
-        message: `No post found.`,
-      });
-    }
-  } catch (error) {
-    console.log("Error ocuured in getIndiviualPostController ==> ", error);
-    return res.status(500).send({
-      message: "Internal Server Error",
-    });
+  if (!userId || !postId || !currentUserId) {
+    return next(
+      new AppError(
+        `Please send all required fields. userId,currentUserId,postId`
+      )
+    );
   }
-};
+
+  const result = await getPost(postId);
+  // console.log("result from getIndiviualPostController ==>  ",result)
+  const commentsResult = await getAllPostComments(postId);
+  // console.log("commentsResult ==>  ", commentsResult);
+  const isLikedByUser = await isPostLikedByUser(currentUserId, postId);
+
+  if (commentsResult.length) {
+    commentsArr = commentsResult.reduce((acc, rec) => {
+      // console.log("rec from getAllPostComments ==>  ", rec);
+      acc.push({
+        id: rec.dataValues.id,
+        content: rec.dataValues.content,
+        created_at: rec.dataValues.created_at,
+        likes: rec.dataValues.likes,
+        userName: rec.dataValues.users.dataValues.first_name,
+        userId: rec.dataValues.users.dataValues.id,
+      });
+      return acc;
+    }, []);
+  }
+  // console.log("commentsArr ==>  ", commentsArr);
+  if (result) {
+    const postData = {
+      userName: result.first_name,
+      title: result.title,
+      content: result.content,
+      title_img_url: result.title_img_url,
+      totalLikes: result.likes,
+      created_at: result.created_at,
+      totalComments: result.comments,
+      comments: commentsArr,
+    };
+    // console.log("postData  result ===> ", postData);
+
+    if (isLikedByUser) {
+      likedByUser = true;
+    }
+
+    return res.status(200).send({
+      message: `post fetched.`,
+      postData,
+      likedByUser,
+    });
+  } else {
+    return next(new AppError(`No post found.`));
+  }
+});

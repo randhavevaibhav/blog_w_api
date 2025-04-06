@@ -1,43 +1,30 @@
 import jwt from "jsonwebtoken";
-export const refreshTokenController = async (req, res) => {
-  try {
-    const cookies = req.cookies;
-    if (!cookies?.jwt) {
-      return res.status(401).send({ message: "JWT cookie not present." });
-    }
-    // console.log("cookies.jwt in refreshTokenController ===> ", cookies.jwt);
-    const refreshToken = cookies.jwt;
-
-    //eval jwt
-
-    jwt.verify(
-      refreshToken,
-      process.env.REFRESH_TOKEN_SCERET,
-      (err, decoded) => {
-
-        // console.log("decoded ===> ",decoded)
-        if (err) {
-          return res.status(403).send({
-            message: `access forbidden`,
-          });
-        }
-        const accessToken = jwt.sign(
-          { userId: decoded.userId },
-          process.env.ACCESS_TOKEN_SCERET,
-          { expiresIn: "2m" }
-        );
-        res.status(200).send({
-          accessToken,
-          userId: decoded.userId,
-          userName:decoded.userName,
-          userMail:decoded.userMail
-        });
-      }
-    );
-  } catch (error) {
-    console.log("Error ocuured in refreshTokenController ==> ", error);
-    return res.status(500).send({
-      message:"Internal Server Error"
-    })
+import { AppError } from "../../utils/appError.js";
+export const refreshTokenController = async (req, res, next) => {
+  const cookies = req.cookies;
+  if (!cookies?.jwt) {
+    return next(new AppError(`JWT cookie not present.`, 401));
   }
+  // console.log("cookies.jwt in refreshTokenController ===> ", cookies.jwt);
+  const refreshToken = cookies.jwt;
+
+  //eval jwt
+
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SCERET, (err, decoded) => {
+    // console.log("decoded ===> ",decoded)
+    if (err) {
+      return next(new AppError(`access forbidden`, 403));
+    }
+    const accessToken = jwt.sign(
+      { userId: decoded.userId },
+      process.env.ACCESS_TOKEN_SCERET,
+      { expiresIn: "2m" }
+    );
+    res.status(200).send({
+      accessToken,
+      userId: decoded.userId,
+      userName: decoded.userName,
+      userMail: decoded.userMail,
+    });
+  });
 };

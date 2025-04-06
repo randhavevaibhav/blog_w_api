@@ -4,18 +4,20 @@ import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
 import dashboardRoutes from "./routes/dashboard/dashboardRoutes.js";
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
-import userRoutes from "./routes/user/userRoutes.js"
-import commentsRoute from "./routes/comments/commentsRoute.js"
-import postLikesRoute from "./routes/postLikes/PostLikesRoute.js"
-import convertRoutes from "./routes/convert/convertRoutes.js"
+import userRoutes from "./routes/user/userRoutes.js";
+import commentsRoute from "./routes/comments/commentsRoute.js";
+import postLikesRoute from "./routes/postLikes/PostLikesRoute.js";
+import convertRoutes from "./routes/convert/convertRoutes.js";
 
 import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { AppError } from "./utils/appError.js";
 import {
   LOCAL_CLIENT_ORIGIN,
   REMOTE_CLIENT_ORIGIN,
 } from "./utils/constants.js";
+import { globalErrorController } from "./controller/error/globalErrorController.js";
 
 const app = express();
 
@@ -27,13 +29,12 @@ const corsOptions = {
   credentials: true,
 };
 
-app.use(cors(corsOptions));
+const PORT = 8003;
 
+app.use(cors(corsOptions));
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
-
 app.use(authRoutes);
-
 app.use(postsRoutes);
 app.use(dashboardRoutes);
 app.use(userRoutes);
@@ -42,13 +43,25 @@ app.use(postLikesRoute);
 app.use(refreshTokenRoute);
 app.use(uploadFileRoute);
 app.use(convertRoutes);
-const PORT = 8003;
 
 app.get("/", (req, res) => {
   res.send({
     message: "home page",
   });
 });
+
+app.all("*", (req, res, next) => {
+  // res.status(404).send({
+  //   message: `Can't find ${req.originalUrl} on this server.`,
+  // });
+
+  // const err = new Error(`Can't find ${req.originalUrl} on this server.`);
+  // err.status = `fail`;
+  // err.statusCode = 404;
+  next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
+});
+
+app.use(globalErrorController);
 
 app.listen(PORT, () =>
   console.log(`server started at port ${PORT} http://localhost:${PORT}`)

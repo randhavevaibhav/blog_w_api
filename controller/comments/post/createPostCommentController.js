@@ -1,8 +1,10 @@
 import { incCommentCount } from "../../../model/PostAnalytics/quries.js";
 import { createPostComment } from "../../../model/PostComments/quiries.js";
+import { AppError } from "../../../utils/appError.js";
+import { catchAsync } from "../../../utils/catchAsync.js";
 
-export const createPostCommentController = async (req, res) => {
-  try {
+export const createPostCommentController = catchAsync(
+  async (req, res, next) => {
     // console.log("req.body ===> ", req.body);
     const { content, createdAt } = req.body;
     const userId = req.params.userId;
@@ -13,10 +15,11 @@ export const createPostCommentController = async (req, res) => {
     // console.log("postId  createPostCommentController ===> ",postId)
 
     if (!userId || !postId || !content || !createdAt) {
-      return res.status(400).send({
-        message:
-          "Please send all required fields.userId, postId,content,createdAt",
-      });
+      return next(
+        new AppError(
+          `Please send all required fields.userId, postId,content,createdAt`
+        )
+      );
     }
 
     const result = await createPostComment(userId, postId, content, createdAt);
@@ -27,10 +30,5 @@ export const createPostCommentController = async (req, res) => {
     return res.status(200).send({
       message: "submitted new comment",
     });
-  } catch (error) {
-    console.log("Error occured in postCommentController ==> ", error);
-    return res.status(500).send({
-      message: "Internal Server Error",
-    });
   }
-};
+);

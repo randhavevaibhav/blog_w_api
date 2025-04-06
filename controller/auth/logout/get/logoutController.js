@@ -8,7 +8,6 @@ export const logoutController = async (req, res) => {
       });
     }
 
-  
     /* below options should be excatly same as in sigin controller i.e when user sign and we set the jwt cookie to refresh token
     otherwise jwt cookie will not be cleared from the client 
       {
@@ -18,10 +17,10 @@ export const logoutController = async (req, res) => {
       secure:true
     }
     */
-    res.clearCookie("jwt",{
+    res.clearCookie("jwt", {
       httpOnly: true,
-      sameSite:"none",
-      secure:true
+      sameSite: "none",
+      secure: true,
     });
 
     return res.status(200).send({
@@ -30,7 +29,7 @@ export const logoutController = async (req, res) => {
   } catch (error) {
     console.log("Error ocuured in logoutController ==> ", error);
     return res.status(500).send({
-      message:"Internal Server Error"
-    })
+      message: "Internal Server Error",
+    });
   }
 };

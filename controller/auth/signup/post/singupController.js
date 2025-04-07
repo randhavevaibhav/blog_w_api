@@ -1,44 +1,49 @@
-import { handleError } from "../../../../handleErrors/handleError.js";
 import { incript } from "../../../../utils/utils.js";
 import {
   checkIfUserExistWithMail,
   createUser,
 } from "../../../../model/Users/quries.js";
+import { catchAsync } from "../../../../utils/catchAsync.js";
+import { AppError } from "../../../../utils/appError.js";
 
-export const singupController = async (req, res) => {
-  try {
-    const { firstName, email, password, registered_at } = req.body;
+export const singupController = catchAsync(async (req, res, next) => {
+  const { firstName, email, password, registered_at } = req.body;
 
-    let incriptedPassword = "";
-    if (password.length > 0) {
-      incriptedPassword = await incript(password);
-    }
-
-    const existingUser = await checkIfUserExistWithMail(email);
-
-    if (existingUser) {
-      //409 code for existing user
-      res.status(409).send({
-        message: `user with mail ${email} already exist.`,
-      });
-
-      return;
-    }
-
-    const result = await createUser(
-      firstName,
-      email,
-      incriptedPassword,
-      registered_at
+  if (!firstName || !email || !password || !registered_at) {
+    return next(
+      new AppError(
+        `Please send alll required fields firstName, email, password, registered_at.`,
+        400
+      )
     );
-
-    res
-      .status(201)
-      .send({ message: `successfully created user with mail ${email}`, email });
-  } catch (err) {
-    console.log("Error ocuured in singupController ===> ",err);
-    return res.status(500).send({
-      message:"Internal Server Error"
-    })
   }
-};
+
+  if (password.length > 20 || password.length < 6) {
+    return next(
+      new AppError(
+        `Password must have charaters greater than 6 and less than 20.`,
+        400
+      )
+    );
+  }
+
+  const existingUser = await checkIfUserExistWithMail(email);
+
+  if (existingUser) {
+    //409 code for existing user
+    return next(new AppError(`User already exist. Please sign in.`, 409));
+  }
+
+  incriptedPassword = await incript(password);
+
+  const result = await createUser(
+    firstName,
+    email,
+    incriptedPassword,
+    registered_at
+  );
+
+  return res
+    .status(201)
+    .send({ message: `successfully created user with mail ${email}`, email });
+});

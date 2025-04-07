@@ -1,17 +1,34 @@
 import { updateUser } from "../../../model/Users/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { incript } from "../../../utils/utils.js";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
-  const { userMail, userName } = req.body;
-  if (!userId || !userMail || !userName) {
+  const { userMail, userName, password } = req.body;
+  if (!userId || !userMail || !userName || !password) {
     return next(
-      new AppError(`Please send all required fields. userId,userName,userMail`)
+      new AppError(
+        `Please send all required fields. userId,userName,userMail,password`
+      )
     );
   }
 
-  const result = await updateUser(userId, userName, userMail);
+  if (password.length > 20 || password.length < 6) {
+    return next(
+      new AppError(
+        `Password must have charaters greater than 6 and less than 20.`,
+        400
+      )
+    );
+  }
+  const incriptedPassword = await incript(password);
+  const result = await updateUser(
+    userId,
+    userName,
+    userMail,
+    incriptedPassword
+  );
 
   if (result[0] === 0) {
     return res.sendStatus(304);

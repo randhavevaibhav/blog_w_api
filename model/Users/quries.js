@@ -30,11 +30,12 @@ export const checkIfUserExistWithId = async (id) => {
   return user;
 };
 
-export const updateUser = async (userId, userName, userMail) => {
+export const updateUser = async (userId, userName, userMail,incriptedPassword) => {
   const result = await Users.update(
     {
       first_name: userName,
       email: userMail,
+      password_hash:incriptedPassword
     },
     {
       where: {

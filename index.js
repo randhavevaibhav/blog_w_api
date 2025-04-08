@@ -18,7 +18,6 @@ import {
   REMOTE_CLIENT_ORIGIN,
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
-import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 
@@ -59,11 +58,6 @@ app.use(globalErrorController);
 
 app.listen(PORT, () =>
   console.log(`server started at port ${PORT} http://localhost:${PORT}`)
-);
-
-export const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_KEY
 );
 
 sq.authenticate()

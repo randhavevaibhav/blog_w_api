@@ -1,4 +1,4 @@
-import { supabase } from "../../../index.js";
+import { supabase } from "../../../utils/supabase.js";
 import { Jimp } from "jimp";
 import * as path from "path";
 
@@ -10,7 +10,7 @@ export const uploadFileController = catchAsync(async (req, res) => {
       fileURL: "",
     });
   }
- 
+
   const fileBuffer = req.file.buffer;
   const mimetype = req.file.mimetype;
   const fileExt = path.extname(req.file.originalname);

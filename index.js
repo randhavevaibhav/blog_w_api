@@ -61,12 +61,10 @@ app.listen(PORT, () =>
   console.log(`server started at port ${PORT} http://localhost:${PORT}`)
 );
 
- export const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
-  )
-
-
+export const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 
 sq.authenticate()
   .then(() => {

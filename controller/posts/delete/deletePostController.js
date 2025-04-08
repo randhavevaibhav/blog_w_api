@@ -4,7 +4,7 @@ import { removeAllPostLikes } from "../../../model/PostLikes/quries.js";
 import { deletePost, getPost } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { supabase } from "../../../index.js";
+// import { supabase } from "../../../index.js";
 
 const getFilePathFromURL = (postTitleImgUrl) => {
   const urlArr = postTitleImgUrl.split("/");
@@ -21,7 +21,7 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   }
 
   //get postTitleImgUrl
-  const { title_img_url: postTitleImgUrl } = await getPost({postId});
+  const { title_img_url: postTitleImgUrl } = await getPost({ postId });
   // console.log("postTitleImgUrl ===>", postTitleImgUrl);
 
   if (postTitleImgUrl) {
@@ -42,13 +42,13 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   }
 
   //delete post
-  const result = await deletePost({postId});
+  const result = await deletePost({ postId });
   //delete all comments related to that post
-  const deletePostCommentsResult = await deletePostComments({postId});
+  const deletePostCommentsResult = await deletePostComments({ postId });
   //delete post analytics
-  await deletePostAnalytics({postId});
+  await deletePostAnalytics({ postId });
   //delete post likes
-  await removeAllPostLikes({postId});
+  await removeAllPostLikes({ postId });
 
   //no post deleted
   if (result === 0) {

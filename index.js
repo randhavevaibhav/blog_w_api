@@ -19,6 +19,8 @@ import {
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
 
+//no exports from index js
+
 const app = express();
 
 app.use(express.json());

@@ -4,7 +4,7 @@ import { removeAllPostLikes } from "../../../model/PostLikes/quries.js";
 import { deletePost, getPost } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-// import { supabase } from "../../../index.js";
+import { supabase } from "../../../index.js";
 
 const getFilePathFromURL = (postTitleImgUrl) => {
   const urlArr = postTitleImgUrl.split("/");

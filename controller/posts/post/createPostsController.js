@@ -15,20 +15,21 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const result = await createPost(
+  const postData = {
     userId,
     title,
     titleImgURL,
     content,
     createdAt,
     updatedAt,
-    likes
-  );
-
-  await createPostAnalytics(result.id);
+    likes,
+  };
+  const result = await createPost(postData);
+  const postId = result.id;
+  await createPostAnalytics({postId});
 
   res.status(201).send({
     message: `successfully created new post.`,
-    postId: `${result.id}`,
+    postId
   });
 });

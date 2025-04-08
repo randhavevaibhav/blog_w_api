@@ -12,7 +12,7 @@ export const getAllPostsController = catchAsync(async (req, res) => {
     return next(new AppError(`please send required field. offset`));
   }
 
-  const result = await getAllPosts(offset);
+  const result = await getAllPosts({offset});
 
   if (result.length) {
     return res.status(200).send({

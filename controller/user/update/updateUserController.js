@@ -23,12 +23,13 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     );
   }
   const incriptedPassword = await incript(password);
-  const result = await updateUser(
+  const updateUserData = {
     userId,
     userName,
     userMail,
-    incriptedPassword
-  );
+    incriptedPassword,
+  };
+  const result = await updateUser(updateUserData);
 
   if (result[0] === 0) {
     return res.sendStatus(304);

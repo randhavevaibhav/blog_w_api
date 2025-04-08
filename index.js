@@ -18,6 +18,7 @@ import {
   REMOTE_CLIENT_ORIGIN,
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
+import { createClient } from "@supabase/supabase-js";
 
 const app = express();
 
@@ -51,13 +52,6 @@ app.get("/", (req, res) => {
 });
 
 app.all("*", (req, res, next) => {
-  // res.status(404).send({
-  //   message: `Can't find ${req.originalUrl} on this server.`,
-  // });
-
-  // const err = new Error(`Can't find ${req.originalUrl} on this server.`);
-  // err.status = `fail`;
-  // err.statusCode = 404;
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
 });
 
@@ -66,6 +60,13 @@ app.use(globalErrorController);
 app.listen(PORT, () =>
   console.log(`server started at port ${PORT} http://localhost:${PORT}`)
 );
+
+ export const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY
+  )
+
+
 
 sq.authenticate()
   .then(() => {

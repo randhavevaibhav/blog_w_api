@@ -18,7 +18,7 @@ export const likePostController = catchAsync(async (req, res) => {
   }
 
   //check if post is already liked by user
-  const isPostLiked = await isPostLikedByUser(userId, postId);
+  const isPostLiked = await isPostLikedByUser({userId, postId});
 
   if (isPostLiked) {
     return res.status(304).send({
@@ -28,7 +28,7 @@ export const likePostController = catchAsync(async (req, res) => {
   }
 
   //if not like post
-  const createPostLikeResult = await createPostLike(userId, postId, createdAt);
+  const createPostLikeResult = await createPostLike({userId, postId, createdAt});
 
   const incPostLikeResult = await incPostLike(postId);
   return res.status(200).send({

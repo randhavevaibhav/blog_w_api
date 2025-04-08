@@ -22,11 +22,11 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const result = await getPost(postId);
+  const result = await getPost({postId});
   // console.log("result from getIndiviualPostController ==>  ",result)
-  const commentsResult = await getAllPostComments(postId);
+  const commentsResult = await getAllPostComments({postId});
   // console.log("commentsResult ==>  ", commentsResult);
-  const isLikedByUser = await isPostLikedByUser(currentUserId, postId);
+  const isLikedByUser = await isPostLikedByUser({userId:currentUserId, postId});
 
   if (commentsResult.length) {
     commentsArr = commentsResult.reduce((acc, rec) => {

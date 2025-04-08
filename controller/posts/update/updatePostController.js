@@ -10,13 +10,8 @@ export const updatePostController = catchAsync(async (req, res, next) => {
     return next(new AppError(`please send all required fields postId`));
   }
 
-  const result = await updatePost(
-    postId,
-    title,
-    content,
-    titleImgURL,
-    updatedAt
-  );
+  const updatePostData = { postId, title, content, titleImgURL, updatedAt };
+  const result = await updatePost(updatePostData);
   if (result[0] === 0) {
     return res.sendStatus(304);
   }

@@ -1,7 +1,7 @@
 import { PostAnalytics } from "./PostAnalytics.js";
 
 
-export const createPostAnalytics = async (postId) => {
+export const createPostAnalytics = async ({postId}) => {
   const result = await PostAnalytics.create({
     post_id: postId,
     likes: 0,
@@ -10,7 +10,7 @@ export const createPostAnalytics = async (postId) => {
   return result;
 };
 
-export const deletePostAnalytics = async (postId)=>{
+export const deletePostAnalytics = async ({postId})=>{
   const result = await PostAnalytics.destroy({
     where:{
       post_id:postId
@@ -19,7 +19,7 @@ export const deletePostAnalytics = async (postId)=>{
   return result;
 }
 
-export const getPostAnalytics = async (postId) => {
+export const getPostAnalytics = async ({postId}) => {
   const result = await PostAnalytics.findOne({
     attributes:["likes"],
     where: {

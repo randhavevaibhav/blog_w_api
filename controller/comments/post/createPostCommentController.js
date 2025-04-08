@@ -22,7 +22,8 @@ export const createPostCommentController = catchAsync(
       );
     }
 
-    const result = await createPostComment(userId, postId, content, createdAt);
+    const commentData = {userId, postId, content, createdAt}
+    const result = await createPostComment(commentData);
     const resultOfincCommentCount = await incCommentCount(postId);
 
     // console.log("resultOfincCommentCount ===> ",JSON.stringify(resultOfincCommentCount))

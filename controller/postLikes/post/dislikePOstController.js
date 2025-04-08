@@ -20,11 +20,11 @@ export const dislikePostController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const totalLikes = await getPostAnalytics(postId);
+  const totalLikes = await getPostAnalytics({postId});
   // console.log("totalLikes ===> ",Number(totalLikes.likes));
 
   if (Number(totalLikes.likes) > 0) {
-    const removePostLikeResult = await removeUserPostLike(userId, postId);
+    const removePostLikeResult = await removeUserPostLike({userId, postId});
     const decPostLikeResult = await decPostLike(postId);
     // console.log("result in removePostLikeResult =======> ",removePostLikeResult);
     // console.log("result in removePostLikeResult =======> ",decPostLikeResult);

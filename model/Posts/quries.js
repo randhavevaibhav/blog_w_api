@@ -3,24 +3,15 @@ import sequelize from "../../db.js";
 import { POST_LIMIT } from "../../utils/constants.js";
 
 export const createPost = async (
-  userId,
+  {userId,
   title,
   titleImgURL,
   content,
   createdAt,
   updatedAt,
-  likes
+  likes}
 ) => {
-  // console.log("{userId,title,titleImgURL,content,createdAt,updatedAt,likes}", {
-  //   userId,
-  //   title,
-  //   titleImgURL,
-  //   content,
-  //   createdAt,
-  //   updatedAt,
-  //   likes,
-  // });
-
+  
   const result = await Posts.create({
     user_id: userId,
     title,
@@ -34,7 +25,7 @@ export const createPost = async (
   return result;
 };
 
-export const getAllPosts = async (offset) => {
+export const getAllPosts = async ({offset}) => {
   const result = await sequelize.query(`select
 p.id as post_id,
 u.id as user_id,
@@ -55,7 +46,7 @@ limit ${POST_LIMIT}
 
   return result[0];
 };
-export const getAllOwnPosts = async (userId) => {
+export const getAllOwnPosts = async ({userId}) => {
   const result = await sequelize.query(`SELECT 
     u.id as user_id, 
 	u.first_name,
@@ -80,7 +71,7 @@ ORDER BY u.id, p.id;`);
   return result;
 };
 
-export const getTotalOwnPostsLikesCount = async (userId) => {
+export const getTotalOwnPostsLikesCount = async ({userId}) => {
   const result = await sequelize.query(`SELECT
   SUM(pa.likes) AS total_likes
 FROM
@@ -93,7 +84,7 @@ WHERE
   return result ? result[0][0].total_likes : null;
 };
 
-export const getPost = async (postId) => {
+export const getPost = async ({postId}) => {
   const result = await sequelize.query(`select 
 p.id,
 u.first_name,
@@ -110,7 +101,7 @@ where p.id=${postId}`);
 
   return result[0][0];
 };
-export const deletePost = async (postId) => {
+export const deletePost = async ({postId}) => {
   const result = await Posts.destroy({
     where: {
       id: postId,
@@ -121,11 +112,11 @@ export const deletePost = async (postId) => {
 };
 
 export const updatePost = async (
-  postId,
+ { postId,
   title,
   content,
   titleImgURL,
-  updatedAt
+  updatedAt}
 ) => {
   const result = await Posts.update(
     {

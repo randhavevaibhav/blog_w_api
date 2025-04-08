@@ -1,5 +1,4 @@
-import { handleUpload } from "../../../utils/cloudinary.js";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "../../../index.js";
 import { Jimp } from "jimp";
 import * as path from "path";
 
@@ -11,10 +10,7 @@ export const uploadFileController = catchAsync(async (req, res) => {
       fileURL: "",
     });
   }
-  const supabase = createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_KEY
-  );
+ 
   const fileBuffer = req.file.buffer;
   const mimetype = req.file.mimetype;
   const fileExt = path.extname(req.file.originalname);
@@ -32,7 +28,7 @@ export const uploadFileController = catchAsync(async (req, res) => {
   // Compress and set quality
 
   const compressedImageBuffer = await image.getBuffer(mimetype);
-
+  //upload img
   const { data, error } = await supabase.storage
     .from(process.env.SUPABASE_BUCKET)
     .upload(filePath, compressedImageBuffer, {
@@ -43,9 +39,11 @@ export const uploadFileController = catchAsync(async (req, res) => {
     throw new Error(`Error while uploading file to supabase! ==> ${error}`);
   }
 
+  //get public url of that img
   const { data: publicUrlData } = supabase.storage
     .from(process.env.SUPABASE_BUCKET)
     .getPublicUrl(filePath);
+
   const imageUrl = publicUrlData.publicUrl;
 
   res.send({

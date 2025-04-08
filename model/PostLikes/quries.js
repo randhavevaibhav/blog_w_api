@@ -1,6 +1,6 @@
 import { PostLikes } from "./PostLikes.js"
 
-export const createPostLike  = async(userId,postId,createdAt)=>{
+export const createPostLike  = async({userId,postId,createdAt})=>{
 
     const result = await PostLikes.create({
         user_id:userId,
@@ -10,7 +10,7 @@ export const createPostLike  = async(userId,postId,createdAt)=>{
 return result;
 }
 
-export const isPostLikedByUser = async (userId,postId)=>
+export const isPostLikedByUser = async ({userId,postId})=>
 {
    
     const result = await PostLikes.findOne({
@@ -23,7 +23,7 @@ export const isPostLikedByUser = async (userId,postId)=>
 return result;
 }
 
-export const removeUserPostLike = async(userId,postId)=>{
+export const removeUserPostLike = async({userId,postId})=>{
     const result = PostLikes.destroy({
         where:{
             post_id:postId,
@@ -34,7 +34,7 @@ export const removeUserPostLike = async(userId,postId)=>{
     return result;
 }
 
-export const removeAllPostLikes = async(postId)=>{
+export const removeAllPostLikes = async({postId})=>{
     const result = PostLikes.destroy({
         where:{
             post_id:postId,

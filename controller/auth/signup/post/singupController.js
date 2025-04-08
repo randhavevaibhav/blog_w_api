@@ -27,7 +27,7 @@ export const singupController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const existingUser = await checkIfUserExistWithMail(email);
+  const existingUser = await checkIfUserExistWithMail({email});
 
   if (existingUser) {
     //409 code for existing user
@@ -35,13 +35,8 @@ export const singupController = catchAsync(async (req, res, next) => {
   }
 
   incriptedPassword = await incript(password);
-
-  const result = await createUser(
-    firstName,
-    email,
-    incriptedPassword,
-    registered_at
-  );
+  const userData = { firstName, email, incriptedPassword, registered_at };
+  const result = await createUser(userData);
 
   return res
     .status(201)

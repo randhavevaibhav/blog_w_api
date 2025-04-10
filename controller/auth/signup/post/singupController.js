@@ -27,14 +27,14 @@ export const singupController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const existingUser = await checkIfUserExistWithMail({email});
+  const existingUser = await checkIfUserExistWithMail({ email });
 
   if (existingUser) {
     //409 code for existing user
     return next(new AppError(`User already exist. Please sign in.`, 409));
   }
 
-  incriptedPassword = await incript(password);
+  let incriptedPassword = await incript(password);
   const userData = { firstName, email, incriptedPassword, registered_at };
   const result = await createUser(userData);
 

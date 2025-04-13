@@ -1,3 +1,4 @@
+import sequelize from "../../db.js";
 import { Users } from "./users.js";
 import { fileURLToPath } from "url";
 
@@ -46,3 +47,15 @@ export const updateUser = async ({userId, userName, userMail,incriptedPassword})
 
   return result;
 };
+
+
+export const getUserInfo = async ({userId})=>{
+  // const result = sequelize.query(`select u.first_name,u.registered_at,u.email from users u where u.id= ${userId}`);
+  const result = Users.findOne({
+    attributes:["first_name","email","registered_at"],
+    where:{
+      id:userId
+    }
+  })
+  return result;
+}

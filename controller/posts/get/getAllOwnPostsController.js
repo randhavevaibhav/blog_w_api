@@ -1,4 +1,4 @@
-import { getTotalOwnCommentsCount } from "../../../model/PostComments/quiries.js";
+import { getTotalOwnPostCommentsCount } from "../../../model/PostComments/quiries.js";
 import {
   getAllOwnPosts,
   getTotalOwnPostsLikesCount,
@@ -13,7 +13,7 @@ export const getAllOwnPostsController = catchAsync(async (req, res, next) => {
     return next(new AppError(`userId is not present`, 400));
   }
 
-  const result = await getAllOwnPosts({userId});
+  const result = await getAllOwnPosts({ userId });
 
   // console.log("totalOwnPostsLikes =====> ",totalOwnPostsLikes)
 
@@ -25,8 +25,10 @@ export const getAllOwnPostsController = catchAsync(async (req, res, next) => {
   // console.log("result.length ===> ",result.length)
 
   if (result[0].length) {
-    const totalOwnPostsLikes = await getTotalOwnPostsLikesCount({userId});
-    const totalOwnPostsComments = await getTotalOwnCommentsCount({userId});
+    const totalOwnPostsLikes = await getTotalOwnPostsLikesCount({ userId });
+    const totalOwnPostsComments = await getTotalOwnPostCommentsCount({
+      userId,
+    });
     responseData = result[0].reduce((acc, rec) => {
       // console.log("rec from getAllOwnPosts ==>  ", rec);
       acc.push({

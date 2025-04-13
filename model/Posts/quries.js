@@ -2,16 +2,15 @@ import { Posts } from "./Posts.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT } from "../../utils/constants.js";
 
-export const createPost = async (
-  {userId,
+export const createPost = async ({
+  userId,
   title,
   titleImgURL,
   content,
   createdAt,
   updatedAt,
-  likes}
-) => {
-  
+  likes,
+}) => {
   const result = await Posts.create({
     user_id: userId,
     title,
@@ -25,7 +24,7 @@ export const createPost = async (
   return result;
 };
 
-export const getAllPosts = async ({offset}) => {
+export const getAllPosts = async ({ offset }) => {
   const result = await sequelize.query(`select
 p.id as post_id,
 u.id as user_id,
@@ -46,7 +45,7 @@ limit ${POST_LIMIT}
 
   return result[0];
 };
-export const getAllOwnPosts = async ({userId}) => {
+export const getAllOwnPosts = async ({ userId }) => {
   const result = await sequelize.query(`SELECT 
     u.id as user_id, 
 	u.first_name,
@@ -67,11 +66,11 @@ GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
 	p.title_img_url,
   p.content,
   pa.likes
-ORDER BY u.id, p.id;`);
+ORDER BY p.created_at desc;`);
   return result;
 };
 
-export const getTotalOwnPostsLikesCount = async ({userId}) => {
+export const getTotalOwnPostsLikesCount = async ({ userId }) => {
   const result = await sequelize.query(`SELECT
   SUM(pa.likes) AS total_likes
 FROM
@@ -81,10 +80,11 @@ JOIN
 WHERE
   p.user_id=${userId};`);
 
-  return result ? result[0][0].total_likes : null;
+  return result[0][0].total_likes ? result[0][0].total_likes : 0;
+  
 };
 
-export const getPost = async ({postId}) => {
+export const getPost = async ({ postId }) => {
   const result = await sequelize.query(`select 
 p.id,
 u.first_name,
@@ -101,7 +101,7 @@ where p.id=${postId}`);
 
   return result[0][0];
 };
-export const deletePost = async ({postId}) => {
+export const deletePost = async ({ postId }) => {
   const result = await Posts.destroy({
     where: {
       id: postId,
@@ -111,13 +111,13 @@ export const deletePost = async ({postId}) => {
   return result;
 };
 
-export const updatePost = async (
- { postId,
+export const updatePost = async ({
+  postId,
   title,
   content,
   titleImgURL,
-  updatedAt}
-) => {
+  updatedAt,
+}) => {
   const result = await Posts.update(
     {
       title,
@@ -134,3 +134,4 @@ export const updatePost = async (
 
   return result;
 };
+

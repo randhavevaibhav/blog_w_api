@@ -1,6 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
-import { Users } from "../Users/users.js";
+import { Users } from "../Users/Users.js";
 
 export const Posts = sq.define(
   "posts",

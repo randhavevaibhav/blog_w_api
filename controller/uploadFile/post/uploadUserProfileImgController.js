@@ -6,19 +6,19 @@ import {
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { compressImage, getFileInfo } from "../../../utils/utils.js";
 
-export const uploadUserAvatarFileController = catchAsync(
+export const uploadUserProfileImgController = catchAsync(
   async (req, res, next) => {
     const { file } = req;
-    const bucket = `user-avatar`;
+    const bucket = `user-profile-img`;
     if (!file) {
       return res.status(200).send({
-        message: "No avatar image added !",
+        message: "No profile image added !",
         fileURL: "",
       });
     }
 
-    const { fileBuffer, mimetype, fileName } = getFileInfo({ file });
-
+    const { fileBuffer, mimetype, fileExt } = getFileInfo({ file });
+    const fileName = `${Date.now()}_user_profile_img_${fileExt}`;
     const { compressedImageBuffer } = await compressImage({
       fileBuffer,
       mimetype,
@@ -39,7 +39,7 @@ export const uploadUserAvatarFileController = catchAsync(
     });
 
     res.send({
-      message: "avatar uploaded successfully!",
+      message: "profile img uploaded successfully!",
       fileURL: publicUrl,
     });
   }

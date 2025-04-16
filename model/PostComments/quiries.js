@@ -1,4 +1,4 @@
-import { Users } from "../Users/users.js";
+import { Users } from "../Users/Users.js";
 import { PostComments } from "./PostComments.js";
 import sequelize from "../../db.js";
 

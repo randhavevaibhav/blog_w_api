@@ -7,7 +7,7 @@ import { catchAsync } from "../../../../utils/catchAsync.js";
 import { AppError } from "../../../../utils/appError.js";
 
 export const singupController = catchAsync(async (req, res, next) => {
-  const { firstName, email, password, registered_at } = req.body;
+  const { firstName, email, password, registered_at, profileImgUrl } = req.body;
 
   if (!firstName || !email || !password || !registered_at) {
     return next(
@@ -35,7 +35,13 @@ export const singupController = catchAsync(async (req, res, next) => {
   }
 
   let incriptedPassword = await incript(password);
-  const userData = { firstName, email, incriptedPassword, registered_at };
+  const userData = {
+    firstName,
+    email,
+    incriptedPassword,
+    registered_at,
+    profileImgUrl,
+  };
   const result = await createUser(userData);
 
   return res

@@ -1,6 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
-import { Users } from "../Users/users.js";
+import { Users } from "../Users/Users.js";
 
 export const PostComments = sq.define(
   "post_comments",
@@ -51,6 +51,5 @@ export const PostComments = sq.define(
     updatedAt: false,
   }
 );
-
 
 PostComments.belongsTo(Users, { foreignKey: "user_id" });

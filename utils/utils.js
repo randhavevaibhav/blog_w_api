@@ -7,12 +7,11 @@ export const incript = async (item) => {
   return incripteditem;
 };
 
-export const compressImage = async({fileBuffer,mimetype})=>{
- 
+export const compressImage = async ({ fileBuffer, mimetype }) => {
   const processedImage = await Jimp.read(fileBuffer);
 
   if (processedImage.width > 900 && processedImage.height > 600) {
-      processedImage.resize({
+    processedImage.resize({
       w: 900,
       h: 600,
     }); // Adjust width as needed
@@ -22,23 +21,20 @@ export const compressImage = async({fileBuffer,mimetype})=>{
 
   const compressedImageBuffer = await processedImage.getBuffer(mimetype);
 
-  return {compressedImageBuffer};
-}
+  return { compressedImageBuffer };
+};
 
-export const getFileInfo=({file})=>{
+export const getFileInfo = ({ file }) => {
   const fileBuffer = file.buffer;
   const mimetype = file.mimetype;
   const fileExt = path.extname(file.originalname);
-  const fileName = `${Date.now()}_post_title_img_${fileExt}`;
-  const bucket = file.bucket;
 
+  const bucket = file.bucket;
 
   return {
     fileBuffer,
     mimetype,
     fileExt,
-    fileName,
-    bucket
-  }
-}
-
+    bucket,
+  };
+};

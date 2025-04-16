@@ -1,7 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
 
-
 // IMp to add
 // {
 //     createdAt: false,
@@ -9,7 +8,7 @@ import { DataTypes } from "@sequelize/core";
 //   }
 //as 3rd argument to define
 
- export const Users = sq.define(
+export const Users = sq.define(
   "users",
   {
     first_name: {
@@ -17,7 +16,7 @@ import { DataTypes } from "@sequelize/core";
       allowNull: false,
       validate: {
         notEmpty: {
-            msg:"first_name can not be empty."
+          msg: "first_name can not be empty.",
         },
       },
     },
@@ -26,10 +25,10 @@ import { DataTypes } from "@sequelize/core";
       allowNull: false,
       validate: {
         notEmpty: {
-            msg:"email can not be empty." 
+          msg: "email can not be empty.",
         },
         isEmail: {
-            msg:"please provided proper mail."
+          msg: "please provided proper mail.",
         },
       },
     },
@@ -38,7 +37,7 @@ import { DataTypes } from "@sequelize/core";
       allowNull: false,
       validate: {
         notEmpty: {
-            msg:"password_hash can not be empty." 
+          msg: "password_hash can not be empty.",
         },
       },
     },
@@ -47,12 +46,16 @@ import { DataTypes } from "@sequelize/core";
       allowNull: false,
       validate: {
         notEmpty: {
-            msg:"registered_at can not be empty." 
+          msg: "registered_at can not be empty.",
         },
         isDate: {
-            msg:"please provided proper date."
+          msg: "please provided proper date.",
         },
       },
+    },
+    profile_img_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {
@@ -60,6 +63,3 @@ import { DataTypes } from "@sequelize/core";
     updatedAt: false,
   }
 );
-
-
-

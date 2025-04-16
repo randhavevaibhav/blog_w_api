@@ -18,7 +18,8 @@ export const uploadPostTitleImgFileController = catchAsync(
       });
     }
 
-    const { fileBuffer, mimetype, fileName } = getFileInfo({ file });
+    const { fileBuffer, mimetype, fileExt } = getFileInfo({ file });
+    const fileName = `${Date.now()}_post_title_img_${fileExt}`;
 
     const { compressedImageBuffer } = await compressImage({
       fileBuffer,

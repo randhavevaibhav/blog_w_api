@@ -1,15 +1,15 @@
 import { Router } from "express";
-import { uploadFileController } from "../../controller/uploadFile/post/uploadFileController.js";
+import uploadFileControllers from "../../controller/uploadFile/index.js";
 import { upload } from "../../utils/multer.js";
 import { requireAuth } from "../../middleware/authMiddleware.js";
 
 const router = Router();
-
+const {uploadPostTitleImgFileController} = uploadFileControllers;
 router.post(
-  "/upload",
+  "/upload/title-img",
   requireAuth,
-  upload.single("file"),
-  uploadFileController
+  upload.single("post_title_img_file"),
+  uploadPostTitleImgFileController
 );
 
 export default router;

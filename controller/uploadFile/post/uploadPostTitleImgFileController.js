@@ -18,19 +18,28 @@ export const uploadPostTitleImgFileController = catchAsync(
       });
     }
 
+    let compressedBuffer = "";
     const { fileBuffer, mimetype, fileExt } = getFileInfo({ file });
+    console.log("mimetype ===> ", mimetype);
+
     const fileName = `${Date.now()}_post_title_img_${fileExt}`;
 
-    const { compressedImageBuffer } = await compressImage({
-      fileBuffer,
-      mimetype,
-    });
+    compressedBuffer = fileBuffer;
+
+    if (!mimetype === `image/webp`) {
+      const { compressedImageBuffer } = await compressImage({
+        fileBuffer,
+        mimetype,
+      });
+      compressedBuffer = compressedImageBuffer;
+    }
+
     //upload img
 
     const uploadImgFileRes = await supabaseFileUpload({
       bucket,
       fileName,
-      compressedImageBuffer,
+      compressedImageBuffer: compressedBuffer,
       mimetype,
     });
 

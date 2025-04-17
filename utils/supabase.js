@@ -1,9 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
-const bucketList = {
-  postTitleImgBucket: `post-title-imgs`,
-  userAvatarBucket: `user-avatar`,
-};
+
 
 export const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -41,5 +38,17 @@ export const supabaseGetFilePublicUrl = async ({ bucket, fileName }) => {
 
   return { publicUrl: data.publicUrl };
 };
+
+export const supabaseDeleteStorageFile = async({filePath,bucket})=>{
+
+  const { data, error } = await supabase.storage
+  .from(bucket)
+  .remove([filePath]);
+
+  return {
+    data,
+    error
+  }
+}
 
 

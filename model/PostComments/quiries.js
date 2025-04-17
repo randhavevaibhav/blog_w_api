@@ -27,7 +27,7 @@ export const getAllPostComments = async ({ postId }) => {
     include: [
       {
         model: Users,
-        attributes: ["first_name", "id"],
+        attributes: ["first_name", "id","profile_img_url"],
       },
     ],
   });

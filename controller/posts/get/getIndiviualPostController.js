@@ -22,8 +22,8 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const result = await getPost({postId});
-  // console.log("result from getIndiviualPostController ==>  ",result)
+  const postResult = await getPost({postId});
+  // console.log("postResult from getIndiviualPostController ==>  ",postResult)
   const commentsResult = await getAllPostComments({postId});
   // console.log("commentsResult ==>  ", commentsResult);
   const isLikedByUser = await isPostLikedByUser({userId:currentUserId, postId});
@@ -37,24 +37,26 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
         created_at: rec.dataValues.created_at,
         likes: rec.dataValues.likes,
         userName: rec.dataValues.users.dataValues.first_name,
+        userProfileImg:rec.dataValues.users.dataValues.profile_img_url,
         userId: rec.dataValues.users.dataValues.id,
       });
       return acc;
     }, []);
   }
   // console.log("commentsArr ==>  ", commentsArr);
-  if (result) {
+  if (postResult) {
     const postData = {
-      userName: result.first_name,
-      title: result.title,
-      content: result.content,
-      title_img_url: result.title_img_url,
-      totalLikes: result.likes,
-      created_at: result.created_at,
-      totalComments: result.comments,
+      userName: postResult.first_name,
+      userProfileImg:postResult.profile_img_url,
+      title: postResult.title,
+      content: postResult.content,
+      title_img_url: postResult.title_img_url,
+      totalLikes: postResult.likes,
+      created_at: postResult.created_at,
+      totalComments: postResult.comments,
       comments: commentsArr,
     };
-    // console.log("postData  result ===> ", postData);
+    // console.log("postData  postResult ===> ", postData);
 
     if (isLikedByUser) {
       likedByUser = true;

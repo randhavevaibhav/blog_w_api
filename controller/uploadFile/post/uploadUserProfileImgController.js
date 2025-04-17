@@ -32,6 +32,8 @@ export const uploadUserProfileImgController = catchAsync(
       mimetype,
     });
 
+    // console.log("uploadImgFileRes ====> ",uploadImgFileRes)
+
     //get public url of that img
     const { publicUrl } = await supabaseGetFilePublicUrl({
       bucket,

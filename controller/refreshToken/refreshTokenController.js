@@ -25,6 +25,7 @@ export const refreshTokenController = async (req, res, next) => {
       userId: decoded.userId,
       userName: decoded.userName,
       userMail: decoded.userMail,
+      userProfileImg:decoded.userProfileImg,
     });
   });
 };

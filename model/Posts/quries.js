@@ -29,6 +29,7 @@ export const getAllPosts = async ({ offset }) => {
 p.id as post_id,
 u.id as user_id,
 u.first_name,
+u.profile_img_url,
 p.title , 
 p.created_at,
 p.title_img_url,
@@ -88,6 +89,7 @@ export const getPost = async ({ postId }) => {
   const result = await sequelize.query(`select 
 p.id,
 u.first_name,
+u.profile_img_url,
 p.title,
 p.content,
 p.created_at,

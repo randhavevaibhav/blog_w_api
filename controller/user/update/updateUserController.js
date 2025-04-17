@@ -5,7 +5,7 @@ import { incript } from "../../../utils/utils.js";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
-  const { userMail, userName, password } = req.body;
+  const { userMail, userName, password,profileImgUrl } = req.body;
   if (!userId || !userMail || !userName || !password) {
     return next(
       new AppError(
@@ -27,6 +27,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     userId,
     userName,
     userMail,
+    profileImgUrl,
     incriptedPassword,
   };
   const result = await updateUser(updateUserData);

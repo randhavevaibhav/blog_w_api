@@ -31,7 +31,7 @@ export const signinController = catchAsync(async (req, res, next) => {
         { expiresIn: "4m" }
       );
       const refreshToken = jwt.sign(
-        { userId: user.id, userName: user.first_name, userMail: user.email },
+        { userId: user.id, userName: user.first_name, userMail: user.email,userProfileImg:user.profile_img_url },
         process.env.REFRESH_TOKEN_SCERET,
         { expiresIn: "10h" }
       );
@@ -49,6 +49,7 @@ export const signinController = catchAsync(async (req, res, next) => {
         userId: user.id,
         userName: user.first_name,
         userMail: user.email,
+        userProfileImg:user.profile_img_url,
         accessToken,
       });
       return;

@@ -4,7 +4,7 @@ import { removeAllPostLikes } from "../../../model/PostLikes/quries.js";
 import { deletePost, getPost } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { supabase } from "../../../utils/supabase.js";
+import {  supabaseDeleteStorageFile } from "../../../utils/supabase.js";
 
 const getFilePathFromURL = (postTitleImgUrl) => {
   const urlArr = postTitleImgUrl.split("/");
@@ -15,6 +15,7 @@ const getFilePathFromURL = (postTitleImgUrl) => {
 };
 
 export const deletePostController = catchAsync(async (req, res, next) => {
+  const bucket = `post-title-imgs`;
   const postId = req.params.postId;
   if (!postId) {
     return next(new AppError(`please send all required field postId`));
@@ -30,9 +31,7 @@ export const deletePostController = catchAsync(async (req, res, next) => {
 
     //delete from supabase storage
 
-    const { data, error } = await supabase.storage
-      .from(process.env.SUPABASE_BUCKET)
-      .remove([filePath]);
+    const { data, error } = await supabaseDeleteStorageFile({filePath,bucket})
 
     if (error) {
       throw new Error(`Error while deleting file on supabase ==> ${error}`);

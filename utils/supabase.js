@@ -10,12 +10,12 @@ export const supabase = createClient(
 export const supabaseFileUpload = async ({
   bucket,
   fileName,
-  compressedImageBuffer,
+  fileBuffer,
   mimetype,
 }) => {
   const { data, error } = await supabase.storage
     .from(bucket)
-    .upload(fileName, compressedImageBuffer, {
+    .upload(fileName, fileBuffer, {
       contentType: mimetype,
     });
 

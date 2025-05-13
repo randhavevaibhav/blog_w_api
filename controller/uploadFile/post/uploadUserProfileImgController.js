@@ -17,18 +17,28 @@ export const uploadUserProfileImgController = catchAsync(
       });
     }
 
-    const { fileBuffer, mimetype, fileExt } = getFileInfo({ file });
+    const { fileBuffer, mimetype, fileExt, fileSize } = getFileInfo({ file });
+
+    let fileBufferToUpload = fileBuffer;
+
     const fileName = `${Date.now()}_user_profile_img_${fileExt}`;
-    const { compressedImageBuffer } = await compressImage({
-      fileBuffer,
-      mimetype,
-    });
+
+    if (fileSize > 200000) {
+      const { compressedImageBuffer } = await compressImage({
+        fileBuffer,
+        mimetype,
+        isProfileImg: true,
+      });
+
+      fileBufferToUpload = compressedImageBuffer;
+    }
+
     //upload img
 
     const uploadImgFileRes = await supabaseFileUpload({
       bucket,
       fileName,
-      compressedImageBuffer,
+      fileBuffer: fileBufferToUpload,
       mimetype,
     });
 

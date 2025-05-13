@@ -5,7 +5,6 @@ import {
 
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { compressImage, getFileInfo } from "../../../utils/utils.js";
-import { AppError } from "../../../utils/appError.js";
 
 export const uploadPostTitleImgFileController = catchAsync(
   async (req, res, next) => {
@@ -18,28 +17,30 @@ export const uploadPostTitleImgFileController = catchAsync(
       });
     }
 
-    let compressedBuffer = "";
-    const { fileBuffer, mimetype, fileExt } = getFileInfo({ file });
-    console.log("mimetype ===> ", mimetype);
+    const { fileBuffer, mimetype, fileExt, fileSize } = getFileInfo({ file });
+    // console.log("mimetype ===> ", mimetype);
+
+    let fileBufferToUpload = fileBuffer;
 
     const fileName = `${Date.now()}_post_title_img_${fileExt}`;
 
-    compressedBuffer = fileBuffer;
-
-    if (!mimetype === `image/webp`) {
-      const { compressedImageBuffer } = await compressImage({
-        fileBuffer,
-        mimetype,
-      });
-      compressedBuffer = compressedImageBuffer;
+    if (fileSize > 200000) {
+      if (mimetype !== `image/webp`) {
+        const { compressedImageBuffer } = await compressImage({
+          fileBuffer,
+          mimetype,
+        });
+        fileBufferToUpload = compressedImageBuffer;
+      }
     }
 
+    // console.log("fileBufferToUpload ==> ", fileBufferToUpload);
     //upload img
 
     const uploadImgFileRes = await supabaseFileUpload({
       bucket,
       fileName,
-      compressedImageBuffer: compressedBuffer,
+      fileBuffer: fileBufferToUpload,
       mimetype,
     });
 

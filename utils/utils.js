@@ -7,34 +7,48 @@ export const incript = async (item) => {
   return incripteditem;
 };
 
-export const compressImage = async ({ fileBuffer, mimetype }) => {
-  const processedImage = await Jimp.read(fileBuffer);
+export const compressImage = async ({
+  fileBuffer,
+  mimetype,
+  isProfileImg = false,
+}) => {
+  let processedImage = await Jimp.read(fileBuffer);
 
-  if (processedImage.width > 900 && processedImage.height > 600) {
-    processedImage.resize({
-      w: 900,
-      h: 600,
-    }); // Adjust width as needed
+  // console.log("processedImage ===> ",processedImage)
+  if (!isProfileImg) {
+    if (processedImage.width > 900 && processedImage.height > 600) {
+      processedImage = processedImage.resize({
+        w: 900,
+        h: 600,
+      }); // Adjust width as needed
+
+      // console.log("compressing !");
+    }
+  } else {
+    processedImage = processedImage.resize({
+      w: 60,
+      h: 60,
+    });
   }
 
-  // Compress and set quality
+  processedImage = await processedImage.getBuffer(mimetype);
 
-  const compressedImageBuffer = await processedImage.getBuffer(mimetype);
-
-  return { compressedImageBuffer };
+  return { compressedImageBuffer: processedImage };
 };
 
 export const getFileInfo = ({ file }) => {
   const fileBuffer = file.buffer;
   const mimetype = file.mimetype;
   const fileExt = path.extname(file.originalname);
+  const fileSize = file.size;
 
   const bucket = file.bucket;
-
+  // console.log("File Info ==> ", file);
   return {
     fileBuffer,
     mimetype,
     fileExt,
     bucket,
+    fileSize,
   };
 };

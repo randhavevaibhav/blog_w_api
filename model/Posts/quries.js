@@ -24,6 +24,24 @@ export const createPost = async ({
   return result;
 };
 
+export const isPostBelongsToUser=async ({userId,postId})=>{
+
+  const result = await Posts.findOne({
+    where:{
+      id:postId,
+      user_id:userId
+    }
+  })
+
+  if(!result)
+  {
+    return false;
+  }else{
+    return true;
+  }
+
+}
+
 export const getAllPosts = async ({ offset }) => {
   const result = await sequelize.query(`select
 p.id as post_id,

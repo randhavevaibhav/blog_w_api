@@ -26,7 +26,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
   const auth = await bcrypt.compare(oldPassword, user.dataValues.password_hash);
 
   if (!auth) {
-    return next(new AppError(`access forbidden`, 403));
+    return next(new AppError(`Wrong password`, 403));
   }
 
   if (password.length > 20 || password.length < 6) {

@@ -22,7 +22,7 @@ export const createPostCommentController = catchAsync(
       );
     }
 
-    const commentData = {userId, postId, content, createdAt}
+    const commentData = { userId, postId, content, createdAt };
     const result = await createPostComment(commentData);
     const resultOfincCommentCount = await incCommentCount(postId);
 
@@ -30,6 +30,7 @@ export const createPostCommentController = catchAsync(
 
     return res.status(200).send({
       message: "submitted new comment",
+      commentId: result.id,
     });
   }
 );

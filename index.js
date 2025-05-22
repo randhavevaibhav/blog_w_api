@@ -2,6 +2,7 @@ import express from "express";
 import sq from "./db.js";
 import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
+import bookmarkRoutes from "./routes/bookmark/bookmarkRoutes.js"
 import dashboardRoutes from "./routes/dashboard/dashboardRoutes.js";
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import userRoutes from "./routes/user/userRoutes.js";
@@ -39,6 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(authRoutes);
 app.use(postsRoutes);
 app.use(dashboardRoutes);
+app.use(bookmarkRoutes);
 app.use(userRoutes);
 app.use(commentsRoute);
 app.use(postLikesRoute);

@@ -4,12 +4,14 @@ import { getAllPostComments } from "../../../model/PostComments/quiries.js";
 
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quries.js";
 
 export const getIndiviualPostController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const postId = req.params.postId;
   const currentUserId = req.params.currentUserId;
   let likedByUser = false;
+  let bookmarked = false;
   let commentsArr = [];
   // console.log("userId getIndiviualPostController ====> ",userId)
   // console.log("postId getIndiviualPostController ====> ",postId)
@@ -62,9 +64,20 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
       likedByUser = true;
     }
 
+    const isBookmarked = await checkIfAlreadyBookmarked({
+      userId:currentUserId,
+      postId
+    })
+
+    if(isBookmarked)
+    {
+      bookmarked=true
+    }
+
     return res.status(200).send({
       message: `post fetched.`,
-      postData: { ...postData, likedByUser },
+      postData: { ...postData, likedByUser ,bookmarked},
+      
     });
   } else {
     return next(new AppError(`No post found.`));

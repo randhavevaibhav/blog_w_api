@@ -5,8 +5,7 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 export const removeBookmarkController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const postId = req.params.postId;
-  console.log("userId ==> ", userId);
-  console.log("postId ==> ", postId);
+
   if (!userId || !postId) {
     return next(
       new AppError(`please provide all required fields. ==>  userId, postId`)

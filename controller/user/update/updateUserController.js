@@ -6,11 +6,11 @@ import bcrypt from "bcrypt";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
-  const { userMail, userName, password, profileImgUrl, oldPassword } = req.body;
+  const { userMail, userName, password, profileImgUrl, oldPassword,userBio,userWebsiteURL,userLocation } = req.body;
   if (!userId || !userMail || !userName || !password || !oldPassword) {
     return next(
       new AppError(
-        `Please send all required fields. userId,userName,userMail,password`
+        `Please send all required fields. userId,userName,userMail,oldPassword,password`
       )
     );
   }
@@ -44,6 +44,9 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     userMail,
     profileImgUrl,
     incriptedPassword,
+    userBio,
+    userWebsiteURL,
+    userLocation
   };
   const result = await updateUser(updateUserData);
 

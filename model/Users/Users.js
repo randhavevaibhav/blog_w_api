@@ -57,6 +57,18 @@ export const Users = sq.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    bio: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    website_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    location: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     createdAt: false,

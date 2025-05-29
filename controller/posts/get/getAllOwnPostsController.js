@@ -34,7 +34,6 @@ export const getAllOwnPostsController = catchAsync(async (req, res, next) => {
       acc.push({
         id: rec.post_id,
         title: rec.title,
-        content: rec.content,
         created_at: rec.created_at,
         likes: rec.likes ? rec.likes : 0,
         userId: rec.user_id,

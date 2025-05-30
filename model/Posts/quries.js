@@ -64,7 +64,19 @@ limit ${POST_LIMIT}
 
   return result[0];
 };
-export const getAllOwnPosts = async ({ userId }) => {
+
+
+export const getAllUserPosts = async({userId})=>{
+  const result = await Posts.findAll({
+    where:{
+      user_id:userId
+    }
+  })
+
+  return result;
+}
+
+export const getAllOwnPosts = async ({ userId,offset }) => {
   const result = await sequelize.query(`SELECT 
     u.id as user_id, 
 	u.first_name,
@@ -85,7 +97,9 @@ GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
   p.content,
   pa.likes,
   pa.comments
-ORDER BY p.created_at desc;`);
+ORDER BY p.created_at desc
+limit ${POST_LIMIT}
+offset ${offset}`);
   return result;
 };
 

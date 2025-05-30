@@ -34,5 +34,6 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
 
   return res.status(200).send({
     message: "comment deleted!",
+    commentId
   });
 });

@@ -6,9 +6,8 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 export const createPostCommentController = catchAsync(
   async (req, res, next) => {
     // console.log("req.body ===> ", req.body);
-    const { content, createdAt } = req.body;
-    const userId = req.params.userId;
-    const postId = req.params.postId;
+    const { userId,postId,content, createdAt } = req.body;
+    
     // console.log("postId,content,createdAt,likes ===> ", postId);
 
     // console.log("userId  createPostCommentController ===> ",userId)
@@ -30,7 +29,12 @@ export const createPostCommentController = catchAsync(
 
     return res.status(200).send({
       message: "submitted new comment",
-      commentId: result.id,
+      comment: {
+        userId,
+        id:result.id,
+        content,
+        created_at:createdAt
+      },
     });
   }
 );

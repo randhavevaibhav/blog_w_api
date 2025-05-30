@@ -5,7 +5,7 @@ const router = Router();
 const { createPostCommentController, deleteCommentController } =
   commentsControllers;
 router.post(
-  "/comment/:userId/:postId",
+  "/comment",
   requireAuth,
   createPostCommentController
 );

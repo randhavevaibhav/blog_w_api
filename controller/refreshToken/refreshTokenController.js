@@ -11,7 +11,7 @@ export const refreshTokenController = async (req, res, next) => {
   //eval jwt
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SCERET, (err, decoded) => {
-    // console.log("decoded ===> ",decoded)
+    // console.log("decoded ===> ", decoded);
     if (err) {
       return next(new AppError(`access forbidden`, 403));
     }
@@ -20,12 +20,29 @@ export const refreshTokenController = async (req, res, next) => {
       process.env.ACCESS_TOKEN_SCERET,
       { expiresIn: "2m" }
     );
+
+    const {
+      userId,
+      userName,
+      userMail,
+      userProfileImg,
+      userBio,
+      userWebsiteURL,
+      userLocation,
+    } = decoded;
+
+    const userInfo = {
+      userId,
+      userName,
+      userMail,
+      userProfileImg,
+      userBio,
+      userWebsiteURL,
+      userLocation,
+    };
     res.status(200).send({
       accessToken,
-      userId: decoded.userId,
-      userName: decoded.userName,
-      userMail: decoded.userMail,
-      userProfileImg:decoded.userProfileImg,
+      userInfo
     });
   });
 };

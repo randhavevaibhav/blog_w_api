@@ -12,7 +12,7 @@ export const signinController = catchAsync(async (req, res, next) => {
   }
 
   // const user = await checkIfUserExistWithMail(email);
-  const user = await checkIfUserExistWithMail({email});
+  const user = await checkIfUserExistWithMail({ email });
 
   // console.log("user in sinIn_post ===> ", user);
 
@@ -30,8 +30,18 @@ export const signinController = catchAsync(async (req, res, next) => {
         process.env.ACCESS_TOKEN_SCERET,
         { expiresIn: "4m" }
       );
-      const refreshToken = jwt.sign(
-        { userId: user.id, userName: user.first_name, userMail: user.email,userProfileImg:user.profile_img_url },
+
+      const userInfo = {
+        userId: user.id,
+        userName: user.first_name,
+        userMail: user.email,
+        userProfileImg: user.profile_img_url,
+        userBio: user.bio,
+        userWebsiteURL: user.website_url,
+        userLocation: user.location,
+      };
+
+      const refreshToken = jwt.sign(userInfo,
         process.env.REFRESH_TOKEN_SCERET,
         { expiresIn: "10h" }
       );
@@ -46,10 +56,7 @@ export const signinController = catchAsync(async (req, res, next) => {
       });
       res.status(200).send({
         message: `user with mail: ${email} validated !!!`,
-        userId: user.id,
-        userName: user.first_name,
-        userMail: user.email,
-        userProfileImg:user.profile_img_url,
+        userInfo,
         accessToken,
       });
       return;

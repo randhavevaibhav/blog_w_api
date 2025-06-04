@@ -122,6 +122,9 @@ export const getPost = async ({ postId }) => {
 p.id,
 u.first_name,
 u.profile_img_url,
+u.location,
+u.registered_at,
+u.email,
 p.title,
 p.content,
 p.created_at,
@@ -133,7 +136,7 @@ join post_analytics pa on pa.post_id=p.id
 join users u on u.id=p.user_id
 where p.id=${postId}`);
 
-  return result[0][0];
+  return result[0][0]?result[0][0]:null;
 };
 export const deletePost = async ({ postId }) => {
   const result = await Posts.destroy({

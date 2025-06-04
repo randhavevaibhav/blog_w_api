@@ -6,8 +6,8 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 export const createPostCommentController = catchAsync(
   async (req, res, next) => {
     // console.log("req.body ===> ", req.body);
-    const { userId,postId,content, createdAt } = req.body;
-    
+    const { userId, postId, parentId = null, content, createdAt } = req.body;
+
     // console.log("postId,content,createdAt,likes ===> ", postId);
 
     // console.log("userId  createPostCommentController ===> ",userId)
@@ -21,9 +21,13 @@ export const createPostCommentController = catchAsync(
       );
     }
 
-    const commentData = { userId, postId, content, createdAt };
+    const commentData = { userId, postId, content, createdAt, parentId };
     const result = await createPostComment(commentData);
-    const resultOfincCommentCount = await incCommentCount(postId);
+
+    if (!parentId) { //only inc. if it is a comment not a reply
+      
+      const resultOfincCommentCount = await incCommentCount(postId);
+    }
 
     // console.log("resultOfincCommentCount ===> ",JSON.stringify(resultOfincCommentCount))
 
@@ -31,9 +35,10 @@ export const createPostCommentController = catchAsync(
       message: "submitted new comment",
       comment: {
         userId,
-        id:result.id,
+        id: result.id,
         content,
-        created_at:createdAt
+        created_at: createdAt,
+        parentId: result.parent_id,
       },
     });
   }

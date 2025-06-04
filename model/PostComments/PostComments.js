@@ -45,6 +45,9 @@ export const PostComments = sq.define(
       type: DataTypes.BIGINT,
       allowNull: true,
     },
+    parent_id: {
+      type: DataTypes.BIGINT,
+    },
   },
   {
     createdAt: false,

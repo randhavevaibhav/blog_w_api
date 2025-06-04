@@ -7,12 +7,14 @@ export const createPostComment = async ({
   postId,
   content,
   createdAt,
+  parentId,
 }) => {
   const result = await PostComments.create({
     user_id: userId,
     post_id: postId,
     content,
     created_at: createdAt,
+    parent_id: parentId,
   });
 
   return result;
@@ -20,14 +22,14 @@ export const createPostComment = async ({
 
 export const getAllPostComments = async ({ postId }) => {
   const result = await PostComments.findAll({
-    attributes: ["id", "content", "created_at", "likes"],
+    attributes: ["id", "content", "created_at", "likes", "parent_id"],
     where: {
       post_id: postId,
     },
     include: [
       {
         model: Users,
-        attributes: ["first_name", "id","profile_img_url"],
+        attributes: ["first_name", "id", "profile_img_url"],
       },
     ],
   });
@@ -55,11 +57,37 @@ export const deletePostComments = async ({ postId }) => {
   return result;
 };
 
+export const getReplies = async ({ commentId }) => {
+  const res = await PostComments.findAll({
+    where: {
+      parent_id: commentId,
+    },
+    include: [
+      {
+        model: Users,
+        attributes: ["first_name", "id", "profile_img_url"],
+      },
+    ],
+  });
+
+  return res;
+};
+
 export const deleteSinglePostComment = async ({ userId, commentId }) => {
   const result = await PostComments.destroy({
     where: {
       id: commentId,
       user_id: userId,
+    },
+  });
+
+  return result;
+};
+
+export const deleteAllCmtReplies = async ({ commentId }) => {
+  const result = await PostComments.destroy({
+    where: {
+      parent_id: commentId,
     },
   });
 

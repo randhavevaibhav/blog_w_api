@@ -1,6 +1,9 @@
 import { isPostLikedByUser } from "../../../model/PostLikes/quries.js";
 import { getPost } from "../../../model/Posts/quries.js";
-import { getAllPostComments } from "../../../model/PostComments/quiries.js";
+import {
+  getAllPostComments,
+  getReplies,
+} from "../../../model/PostComments/quiries.js";
 
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -10,11 +13,6 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const postId = req.params.postId;
   const currentUserId = req.params.currentUserId;
-  let likedByUser = false;
-  let bookmarked = false;
-  let commentsArr = [];
-  // console.log("userId getIndiviualPostController ====> ",userId)
-  // console.log("postId getIndiviualPostController ====> ",postId)
 
   if (!userId || !postId || !currentUserId) {
     return next(
@@ -24,39 +22,93 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const postResult = await getPost({postId});
+  if (!Number(userId) || !Number(postId) || !Number(currentUserId)) {
+    return next(
+      new AppError(`Please send correct user id, post id, current user id`)
+    );
+  }
+
+  let likedByUser = false;
+  let bookmarked = false;
+  let commentsArr = [];
+  let commentTree = [];
+  // console.log("userId getIndiviualPostController ====> ",userId)
+  // console.log("postId getIndiviualPostController ====> ",postId)
+
+  const postResult = await getPost({ postId });
   // console.log("postResult from getIndiviualPostController ==>  ",postResult)
-  const commentsResult = await getAllPostComments({postId});
-  // console.log("commentsResult ==>  ", commentsResult);
-  const isLikedByUser = await isPostLikedByUser({userId:currentUserId, postId});
+  const commentsResult = await getAllPostComments({ postId });
+
+  const isLikedByUser = await isPostLikedByUser({
+    userId: currentUserId,
+    postId,
+  });
 
   if (commentsResult.length) {
-    commentsArr = commentsResult.reduce((acc, rec) => {
-      // console.log("rec from getAllPostComments ==>  ", rec);
-      acc.push({
-        id: rec.dataValues.id,
-        content: rec.dataValues.content,
-        created_at: rec.dataValues.created_at,
-        likes: rec.dataValues.likes,
-        userName: rec.dataValues.users.dataValues.first_name,
-        userProfileImg:rec.dataValues.users.dataValues.profile_img_url,
-        userId: rec.dataValues.users.dataValues.id,
-      });
-      return acc;
-    }, []);
+    commentsArr = commentsResult.map((comment) => {
+      return {
+        id: comment.id,
+        content: comment.content,
+        created_at: comment.created_at,
+        likes: comment.likes,
+        userName: comment.users.first_name,
+        userProfileImg: comment.users.profile_img_url,
+        userId: comment.users.id,
+        parentId: comment.parent_id,
+      };
+    });
+
+    const constructCommentTree = (commentsArr) => {
+      // console.log("commentsArr ===> ", commentsArr);
+
+      return Promise.all(
+        commentsArr.map(async (comment) => {
+          // console.log("comment.id ==> ", comment.id);
+
+          const repliesResult = await getReplies({
+            commentId: comment.id,
+          });
+          // console.log("repliesResult ==> ",repliesResult)
+          const repliesArr = repliesResult.map((reply) => {
+            return {
+              id: reply.id,
+              content: reply.content,
+              created_at: reply.created_at,
+              likes: reply.likes,
+              userName: reply.users.first_name,
+              userProfileImg: reply.users.profile_img_url,
+              userId: reply.users.id,
+              parentId: reply.parent_id,
+            };
+          });
+          return {
+            ...comment,
+            replies: await constructCommentTree(repliesArr),
+          };
+        })
+      );
+    };
+
+    commentTree = await constructCommentTree(commentsArr);
+    commentTree = commentTree.filter((comment) => comment.parentId == null);
   }
-  // console.log("commentsArr ==>  ", commentsArr);
+
+  // console.log("commentTree ===> ",commentTree)
+
   if (postResult) {
     const postData = {
       userName: postResult.first_name,
-      userProfileImg:postResult.profile_img_url,
+      userProfileImg: postResult.profile_img_url,
+      userLocation: postResult.location,
+      userEmail: postResult.email,
+      userJoinedOn: postResult.registered_at,
       title: postResult.title,
       content: postResult.content,
       title_img_url: postResult.title_img_url,
       totalLikes: postResult.likes,
       created_at: postResult.created_at,
       totalComments: postResult.comments,
-      comments: commentsArr,
+      comments: commentTree,
     };
     // console.log("postData  postResult ===> ", postData);
 
@@ -65,21 +117,21 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     }
 
     const isBookmarked = await checkIfAlreadyBookmarked({
-      userId:currentUserId,
-      postId
-    })
+      userId: currentUserId,
+      postId,
+    });
 
-    if(isBookmarked)
-    {
-      bookmarked=true
+    if (isBookmarked) {
+      bookmarked = true;
     }
 
     return res.status(200).send({
       message: `post fetched.`,
-      postData: { ...postData, likedByUser ,bookmarked},
-      
+      postData: { ...postData, likedByUser, bookmarked },
     });
   } else {
-    return next(new AppError(`No post found.`));
+    return res.status(404).send({
+      message: "Post not found !!",
+    });
   }
 });

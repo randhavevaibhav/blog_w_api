@@ -1,5 +1,5 @@
 import { createPostAnalytics } from "../../../model/PostAnalytics/quries.js";
-import { createPost } from "../../../model/Posts/quries.js";
+import { createPost, getAllUserPosts } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
@@ -11,6 +11,17 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     return next(
       new AppError(
         `please provide all required fields. ==>  title, content,user id, created at`
+      )
+    );
+  }
+  const totalOwnPosts = await getAllUserPosts({userId})
+  const totalOwnPostsCount = totalOwnPosts.length;
+
+  if(totalOwnPostsCount>=20)
+  {
+      return next(
+      new AppError(
+        `Can not create more posts. Post limit reached !!`
       )
     );
   }

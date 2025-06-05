@@ -37,6 +37,20 @@ export const getAllPostComments = async ({ postId }) => {
   return result;
 };
 
+
+
+export const updateCommentAsGhost = async ({
+  commentId
+}) => {
+  const result = await PostComments.update({content:"NA-#GOHST"},{
+    where:{
+      id:commentId
+    }
+  });
+
+  return result;
+};
+
 export const getTotalOwnPostCommentsCount = async ({ userId }) => {
   const result = await sequelize.query(
     `select COUNT(pc.id) as total_comments_count from posts p 
@@ -56,6 +70,8 @@ export const deletePostComments = async ({ postId }) => {
 
   return result;
 };
+
+
 
 export const getReplies = async ({ commentId }) => {
   const res = await PostComments.findAll({

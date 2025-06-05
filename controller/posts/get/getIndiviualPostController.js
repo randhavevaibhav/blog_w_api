@@ -90,6 +90,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     };
 
     commentTree = await constructCommentTree(commentsArr);
+    //  console.log("commentTree ===> ",commentTree)
     commentTree = commentTree.filter((comment) => comment.parentId == null);
   }
 

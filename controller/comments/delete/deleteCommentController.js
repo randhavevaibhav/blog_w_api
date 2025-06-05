@@ -5,13 +5,16 @@ import {
 import {
   deleteAllCmtReplies,
   deleteSinglePostComment,
+  updateCommentAsGhost,
 } from "../../../model/PostComments/quiries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 export const deleteCommentController = catchAsync(async (req, res, next) => {
-  const { userId, commentId, postId, parentId } = req.body;
+  const { userId, commentId, postId, hasReplies } = req.body;
 
-  if (!userId || !commentId || !postId) {
+  const numHasReplies = Number(hasReplies)
+
+  if (!Number(userId) || !Number(commentId) || !Number(postId)) {
     return next(
       new AppError(
         `Please send all required fields. userId,commentId,postId`,
@@ -19,25 +22,32 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
       )
     );
   }
+  let result = null;
+  let ghosted = false;
 
-  //delete comment from post_comments table
-  const result = await deleteSinglePostComment({ userId, commentId });
   //decrease the comment count in post_analytics table if it is not zero
   const isCommentCount = await isCommentCountZero(postId);
   // console.log("isCommentCountZero ===> ",isCommentCount)
 
-  if (parentId) {
-    const deleteAllCmtRepliesResult = await deleteAllCmtReplies({ commentId });
+  // if (parentId) {
+  //   const deleteAllCmtRepliesResult = await deleteAllCmtReplies({ commentId });
+  // }
+
+  if (!isCommentCount && !numHasReplies) {
+    await decCommentCount(postId);
+    result = await deleteSinglePostComment({ userId, commentId });
   }
 
-  if (!isCommentCount && !parentId) {
-    //only dec if it is a comment not reply
-    await decCommentCount(postId);
+  if (numHasReplies) {
+    ghosted=true
+    await updateCommentAsGhost({ commentId, postId });
   }
+
+ 
 
   // console.log("result from deleteSinglePostComment ===> ", result);
 
-  if (!result) {
+  if (!result&&!ghosted) {
     return res.sendStatus(304);
   }
 

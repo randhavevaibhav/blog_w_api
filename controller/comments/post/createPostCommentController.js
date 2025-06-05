@@ -24,10 +24,7 @@ export const createPostCommentController = catchAsync(
     const commentData = { userId, postId, content, createdAt, parentId };
     const result = await createPostComment(commentData);
 
-    if (!parentId) { //only inc. if it is a comment not a reply
-      
-      const resultOfincCommentCount = await incCommentCount(postId);
-    }
+    const resultOfincCommentCount = await incCommentCount(postId);
 
     // console.log("resultOfincCommentCount ===> ",JSON.stringify(resultOfincCommentCount))
 

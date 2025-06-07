@@ -100,7 +100,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
           id: comment.id,
           content: comment.content,
           created_at: comment.created_at,
-          likes: Number(commetLikes.likes),
+          likes: commetLikes ? Number(commetLikes.likes) : 0,
           isLikedByUser: isLikedByUser ? true : false,
           userName: comment.users.first_name,
           userProfileImg: comment.users.profile_img_url,

@@ -1,3 +1,4 @@
+import { createCommentAnalytics } from "../../../model/CommentAnalytics/quries.js";
 import { incCommentCount } from "../../../model/PostAnalytics/quries.js";
 import { createPostComment } from "../../../model/PostComments/quiries.js";
 import { AppError } from "../../../utils/appError.js";
@@ -25,6 +26,10 @@ export const createPostCommentController = catchAsync(
     const result = await createPostComment(commentData);
 
     const resultOfincCommentCount = await incCommentCount(postId);
+
+    const createCommentAnalyticsRes = await createCommentAnalytics({
+      commentId: result.id,
+    });
 
     // console.log("resultOfincCommentCount ===> ",JSON.stringify(resultOfincCommentCount))
 

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import PostLikesControllers from "../../controller/postLikes/index.js";
+import CommentLikesControllers from "../../controller/commentLikes/index.js";
 import { requireAuth } from "../../middleware/authMiddleware.js";
 import { rateLimit } from "express-rate-limit";
 
@@ -13,7 +13,8 @@ const limiter = rateLimit({
   },
 });
 const router = Router();
-const { likePostController, dislikePostController } = PostLikesControllers;
-router.post("/post/like", requireAuth, limiter, likePostController);
-router.post("/post/dislike", requireAuth, limiter, dislikePostController);
+const { likeCommentController, dislikeCommentController } =
+  CommentLikesControllers;
+router.post("/comment/like", requireAuth, limiter, likeCommentController);
+router.post("/comment/dislike", requireAuth, limiter, dislikeCommentController);
 export default router;

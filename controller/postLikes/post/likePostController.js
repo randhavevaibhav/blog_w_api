@@ -6,10 +6,8 @@ import {
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
-export const likePostController = catchAsync(async (req, res) => {
-  const userId = req.params.userId;
-  const postId = req.params.postId;
-  const { createdAt } = req.body;
+export const likePostController = catchAsync(async (req, res, next) => {
+  const { userId, postId, createdAt } = req.body;
 
   if (!userId || !postId || !createdAt) {
     return next(
@@ -18,7 +16,7 @@ export const likePostController = catchAsync(async (req, res) => {
   }
 
   //check if post is already liked by user
-  const isPostLiked = await isPostLikedByUser({userId, postId});
+  const isPostLiked = await isPostLikedByUser({ userId, postId });
 
   if (isPostLiked) {
     return res.status(304).send({
@@ -28,7 +26,11 @@ export const likePostController = catchAsync(async (req, res) => {
   }
 
   //if not like post
-  const createPostLikeResult = await createPostLike({userId, postId, createdAt});
+  const createPostLikeResult = await createPostLike({
+    userId,
+    postId,
+    createdAt,
+  });
 
   const incPostLikeResult = await incPostLike(postId);
   return res.status(200).send({

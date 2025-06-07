@@ -37,16 +37,15 @@ export const getAllPostComments = async ({ postId }) => {
   return result;
 };
 
-
-
-export const updateCommentAsGhost = async ({
-  commentId
-}) => {
-  const result = await PostComments.update({content:"NA-#GOHST"},{
-    where:{
-      id:commentId
+export const updateCommentAsGhost = async ({ commentId }) => {
+  const result = await PostComments.update(
+    { content: "NA-#GOHST" },
+    {
+      where: {
+        id: commentId,
+      },
     }
-  });
+  );
 
   return result;
 };
@@ -70,8 +69,6 @@ export const deletePostComments = async ({ postId }) => {
 
   return result;
 };
-
-
 
 export const getReplies = async ({ commentId }) => {
   const res = await PostComments.findAll({
@@ -118,4 +115,26 @@ export const getOwnRecentComment = async ({ userId }) => {
     order by pc.created_at desc;`);
 
   return result;
+};
+
+export const incPostCommentLike = async ({ commentId }) => {
+  const res = await PostComments.increment("likes", {
+    by: 1,
+    where: {
+      id: commentId,
+    },
+  });
+
+  return res;
+};
+
+export const decPostCommentLike = async ({ commentId }) => {
+  const res = await PostComments.decrement("likes", {
+    by: 1,
+    where: {
+      id: commentId,
+    },
+  });
+
+  return res;
 };

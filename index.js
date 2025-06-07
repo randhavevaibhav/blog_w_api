@@ -2,12 +2,13 @@ import express from "express";
 import sq from "./db.js";
 import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
-import bookmarkRoutes from "./routes/bookmark/bookmarkRoutes.js"
+import bookmarkRoutes from "./routes/bookmark/bookmarkRoutes.js";
 import dashboardRoutes from "./routes/dashboard/dashboardRoutes.js";
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import userRoutes from "./routes/user/userRoutes.js";
 import commentsRoute from "./routes/comments/commentsRoute.js";
 import postLikesRoute from "./routes/postLikes/PostLikesRoute.js";
+import commentLikesRoute from "./routes/commentLikes/CommentLikes.js";
 import convertRoutes from "./routes/convert/convertRoutes.js";
 
 import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
@@ -44,6 +45,7 @@ app.use(bookmarkRoutes);
 app.use(userRoutes);
 app.use(commentsRoute);
 app.use(postLikesRoute);
+app.use(commentLikesRoute);
 app.use(refreshTokenRoute);
 app.use(uploadFileRoute);
 app.use(convertRoutes);

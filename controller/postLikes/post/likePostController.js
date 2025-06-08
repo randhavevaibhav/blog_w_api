@@ -1,7 +1,7 @@
 import { incPostLike } from "../../../model/PostAnalytics/quries.js";
 import {
   createPostLike,
-  isPostLikedByUser,
+  checkIfPostLikedByUser,
 } from "../../../model/PostLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -16,7 +16,7 @@ export const likePostController = catchAsync(async (req, res, next) => {
   }
 
   //check if post is already liked by user
-  const isPostLiked = await isPostLikedByUser({ userId, postId });
+  const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
 
   if (isPostLiked) {
     return res.status(304).send({

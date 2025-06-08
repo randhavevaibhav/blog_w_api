@@ -41,6 +41,7 @@ export const createPostCommentController = catchAsync(
         content,
         created_at: createdAt,
         parentId: result.parent_id,
+        likes: "0",
       },
     });
   }

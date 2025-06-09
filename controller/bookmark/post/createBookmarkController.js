@@ -20,7 +20,10 @@ export const createBookmarkController = catchAsync(async (req, res, next) => {
   });
 
   if (isAlreadyBookmarked) {
-    return res.sendStatus(304)
+    return res.status(200).send({
+      message: "already bookmarked !",
+      bookmarked: true,
+    });
   }
   const result = await createBookmark({
     userId,
@@ -31,5 +34,6 @@ export const createBookmarkController = catchAsync(async (req, res, next) => {
 
   res.status(201).send({
     message: `successfully marked post as bookmark.`,
+    bookmarked: true,
   });
 });

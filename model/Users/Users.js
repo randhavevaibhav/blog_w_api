@@ -69,6 +69,9 @@ export const Users = sq.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+     refresh_token: {
+      type: DataTypes.STRING
+    },
   },
   {
     createdAt: false,

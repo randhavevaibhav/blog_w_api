@@ -2,7 +2,10 @@ import {
   decCommentLike,
   getCommentAnalytics,
 } from "../../../model/CommentAnalytics/quries.js";
-import { removeCommentLike } from "../../../model/CommentLikes/quries.js";
+import {
+  isCommentLikedByUser,
+  removeCommentLike,
+} from "../../../model/CommentLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
@@ -13,6 +16,14 @@ export const dislikeCommentController = catchAsync(async (req, res, next) => {
     return next(
       new AppError(`Please send all required fields. commentId,userId.`, 400)
     );
+  }
+  const isCommentLiked = await isCommentLikedByUser({ userId, commentId });
+
+  if (!isCommentLiked) {
+    return res.status(200).send({
+      message: "comment already disliked",
+      liked: true,
+    });
   }
 
   const totalCommentLikes = await getCommentAnalytics({ commentId });

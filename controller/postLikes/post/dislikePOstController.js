@@ -2,7 +2,10 @@ import {
   decPostLike,
   getPostAnalytics,
 } from "../../../model/PostAnalytics/quries.js";
-import { removeUserPostLike } from "../../../model/PostLikes/quries.js";
+import {
+  checkIfPostLikedByUser,
+  removeUserPostLike,
+} from "../../../model/PostLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
@@ -16,6 +19,15 @@ export const dislikePostController = catchAsync(async (req, res, next) => {
         400
       )
     );
+  }
+
+  const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
+
+  if (!isPostLiked) {
+    return res.status(200).send({
+      message: "post already disliked",
+      liked: true,
+    });
   }
 
   const totalLikes = await getPostAnalytics({ postId });

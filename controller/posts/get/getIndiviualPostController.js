@@ -50,10 +50,10 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     userId: currentUserId,
     postId,
   });
-  if (isPostLikedByUser) {
+  if (isPostBookmarked) {
     postBookmarked = true;
   }
-  if (isPostBookmarked) {
+  if (isPostLikedByUser) {
     postlikedByUser = true;
   }
 

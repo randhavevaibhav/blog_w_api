@@ -19,10 +19,14 @@ export const removeBookmarkController = catchAsync(async (req, res, next) => {
 
   // console.log("removeBookmark result ===> ", result);
   if (result == 0) {
-    return res.sendStatus(304);
+    return res.status(200).send({
+      message: `already removed from bookmarked !`,
+      bookmarked: false,
+    });
   }
 
-  res.status(200).send({
+  return res.status(200).send({
     message: `successfully removed bookmark.`,
+    bookmarked: false,
   });
 });

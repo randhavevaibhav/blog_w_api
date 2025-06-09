@@ -38,9 +38,9 @@ export const updateUser = async ({
   userMail,
   profileImgUrl,
   incriptedPassword,
-  userBio=null,
-  userWebsiteURL=null,
-  userLocation=null
+  userBio = null,
+  userWebsiteURL = null,
+  userLocation = null,
 }) => {
   const result = await Users.update(
     {
@@ -48,9 +48,9 @@ export const updateUser = async ({
       email: userMail,
       profile_img_url: profileImgUrl,
       password_hash: incriptedPassword,
-      bio:userBio,
-      website_url:userWebsiteURL,
-      location:userLocation
+      bio: userBio,
+      website_url: userWebsiteURL,
+      location: userLocation,
     },
     {
       where: {
@@ -65,10 +65,46 @@ export const updateUser = async ({
 export const getUserInfo = async ({ userId }) => {
   // const result = sequelize.query(`select u.first_name,u.registered_at,u.email from users u where u.id= ${userId}`);
   const result = Users.findOne({
-    attributes: ["first_name", "email", "registered_at", "profile_img_url","bio","website_url","location"],
+    attributes: [
+      "first_name",
+      "email",
+      "registered_at",
+      "profile_img_url",
+      "bio",
+      "website_url",
+      "location",
+    ],
     where: {
       id: userId,
     },
   });
   return result;
+};
+
+export const updateRefeshToken = async ({ userId, refreshToken }) => {
+  const res = await Users.update(
+    {
+      refresh_token: refreshToken,
+    },
+    {
+      where: {
+        id: userId,
+  
+      },
+    }
+    
+  );
+
+  return res;
+};
+
+export const getRefreshToken = async ({ userId }) => {
+  const res = await Users.findOne({
+    attributes: ["refresh_token"],
+    where: {
+      id: userId,
+    },
+  });
+
+  return res.refresh_token;
 };

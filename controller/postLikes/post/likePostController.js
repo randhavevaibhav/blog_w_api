@@ -19,7 +19,7 @@ export const likePostController = catchAsync(async (req, res, next) => {
   const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
 
   if (isPostLiked) {
-    return res.status(304).send({
+    return res.status(200).send({
       message: "post already liked",
       liked: true,
     });

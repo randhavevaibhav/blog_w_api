@@ -32,7 +32,8 @@ export const requireAuth = (req, res, next) => {
           })
         );
       }
-      if (dbRefreshToken != clientRefreshToken) {
+
+      if (dbRefreshToken && dbRefreshToken != clientRefreshToken) {
         return next(
           new AppError(`access forbidden`, 403, {
             terminate: true,

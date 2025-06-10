@@ -28,6 +28,7 @@ export const requireAuth = (req, res, next) => {
       if (!dbRefreshToken) {
         return next(
           new AppError(`access forbidden`, 403, {
+            reason: "db refresh token is not present",
             terminate: true,
           })
         );
@@ -36,6 +37,7 @@ export const requireAuth = (req, res, next) => {
       if (dbRefreshToken && dbRefreshToken != clientRefreshToken) {
         return next(
           new AppError(`access forbidden`, 403, {
+            reason: "db refresh token is not equal to client refersh token",
             terminate: true,
           })
         );

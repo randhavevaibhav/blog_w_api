@@ -9,7 +9,7 @@ import { catchAsync } from "../../../../utils/catchAsync.js";
 import { AppError } from "../../../../utils/appError.js";
 
 export const signinController = catchAsync(async (req, res, next) => {
-  const { email, password, persist } = req.body;
+  const { email, password } = req.body;
 
   if (!email || !password) {
     return next(new AppError(`email or password is missing`, 400));
@@ -19,7 +19,9 @@ export const signinController = catchAsync(async (req, res, next) => {
   const user = await checkIfUserExistWithMail({ email });
 
   if (!user) {
-    return next(new AppError(`user with mail:${email} not found!`, 400));
+    return next(new AppError(`user with mail:${email} not found!`, 400,{
+        SessionTerminated: true,
+      }));
   }
 
   const refreshToken = await getRefreshToken({
@@ -59,12 +61,11 @@ export const signinController = catchAsync(async (req, res, next) => {
       expiresIn: "10h",
     });
 
-    if (persist) {
-      await updateRefeshToken({
+   
+    await updateRefeshToken({
         userId: user.id,
         refreshToken,
       });
-    }
     //below options required to persist cookie on reload
     // sameSite:"none",
     // secure:true
@@ -80,6 +81,8 @@ export const signinController = catchAsync(async (req, res, next) => {
       accessToken,
     });
   } else {
-    return next(new AppError(`Invalid password !`, 400));
+    return next(new AppError(`Invalid password !`, 400,{
+        SessionTerminated: true,
+      }));
   }
 });

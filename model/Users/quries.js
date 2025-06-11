@@ -1,7 +1,6 @@
 import { Users } from "./Users.js";
-import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
+
 export const createUser = async ({
   firstName,
   email,
@@ -26,8 +25,8 @@ export const checkIfUserExistWithMail = async ({ email }) => {
   return user;
 };
 
-export const checkIfUserExistWithId = async ({ id }) => {
-  const user = await Users.findOne({ where: { id: id } });
+export const checkIfUserExistWithId = async ({ userId }) => {
+  const user = await Users.findOne({ where: { id: userId } });
 
   return user;
 };

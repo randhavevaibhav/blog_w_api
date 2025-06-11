@@ -7,6 +7,8 @@ import { catchAsync } from "../../../../utils/catchAsync.js";
 import { AppError } from "../../../../utils/appError.js";
 
 export const singupController = catchAsync(async (req, res, next) => {
+
+  return next(new AppError("new Signups are disabled !!"))
   const { firstName, email, password, registered_at, profileImgUrl } = req.body;
 
   if (!firstName || !email || !password || !registered_at) {

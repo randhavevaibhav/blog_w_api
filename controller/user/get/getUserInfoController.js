@@ -12,7 +12,7 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
     return next(new AppError(`Please send all required field. userId`, 400));
   }
 
-  const isUserExist = await checkIfUserExistWithId({ id: userId });
+  const isUserExist = await checkIfUserExistWithId({  userId });
 
   if (!isUserExist) {
     return next(new AppError(`User with id ${userId} does not exist.`, 404));

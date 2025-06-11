@@ -5,9 +5,11 @@ import { incript } from "../../../utils/utils.js";
 import bcrypt from "bcrypt";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
-  const { userMail, userName, password, profileImgUrl, oldPassword,userBio,userWebsiteURL,userLocation } = req.body;
+  //  return next(new AppError("updating user is disabled !!"))
+  
+  const { userId,userMail, userName, password, profileImgUrl, oldPassword,userBio,userWebsiteURL,userLocation } = req.body;
   if (!userId || !userMail || !userName || !password || !oldPassword) {
+
     return next(
       new AppError(
         `Please send all required fields. userId,userName,userMail,oldPassword,password`

@@ -16,18 +16,14 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
   const postId = req.params.postId;
   const currentUserId = req.params.currentUserId;
 
-  if (!userId || !postId || !currentUserId) {
-    return next(
-      new AppError(
-        `Please send all required fields. userId,currentUserId,postId`
-      )
-    );
+ 
+
+  if (!userId || !postId) {
+    return next(new AppError(`Please send all required fields. userId,postId`));
   }
 
-  if (!Number(userId) || !Number(postId) || !Number(currentUserId)) {
-    return next(
-      new AppError(`Please send correct user id, post id, current user id`)
-    );
+  if (!Number(userId) || !Number(postId)) {
+    return next(new AppError(`Please send correct user id, post id`));
   }
 
   const postResult = await getPost({ postId });
@@ -41,20 +37,22 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
   let postBookmarked = false;
   let postData = null;
 
-  const isPostLikedByUser = await checkIfPostLikedByUser({
-    userId: currentUserId,
-    postId,
-  });
+  if (currentUserId) {
+    const isPostLikedByUser = await checkIfPostLikedByUser({
+      userId: currentUserId,
+      postId,
+    });
 
-  const isPostBookmarked = await checkIfAlreadyBookmarked({
-    userId: currentUserId,
-    postId,
-  });
-  if (isPostBookmarked) {
-    postBookmarked = true;
-  }
-  if (isPostLikedByUser) {
-    postlikedByUser = true;
+    const isPostBookmarked = await checkIfAlreadyBookmarked({
+      userId: currentUserId,
+      postId,
+    });
+    if (isPostBookmarked) {
+      postBookmarked = true;
+    }
+    if (isPostLikedByUser) {
+      postlikedByUser = true;
+    }
   }
 
   postData = {
@@ -78,13 +76,18 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
   const getComments = (commentArr) => {
     return commentArr.map(async (comment) => {
       let replies = [];
+      let likedByuser = false;
       const commetLikes = await getCommentAnalytics({
         commentId: comment.id,
       });
-      const isCmtLikedByUser = await isCommentLikedByUser({
-        userId: currentUserId,
-        commentId: comment.id,
-      });
+      if (currentUserId) {
+        const isCmtLikedByUser = await isCommentLikedByUser({
+          userId: currentUserId,
+          commentId: comment.id,
+        });
+        likedByuser = isCmtLikedByUser ? true : false
+      }
+
       const repliesResult = await getReplies({
         commentId: comment.id,
       });
@@ -102,7 +105,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
         content: comment.content,
         created_at: comment.created_at,
         likes: commetLikes ? commetLikes.likes : 0,
-        isCmtLikedByUser: isCmtLikedByUser ? true : false,
+        isCmtLikedByUser: likedByuser,
         userName: comment.users.first_name,
         userProfileImg: comment.users.profile_img_url,
         userId: comment.users.id,

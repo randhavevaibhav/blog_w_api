@@ -6,6 +6,6 @@ import userControllers from "../../controller/user/index.js"
 const router = Router();
 const {updateUserController,getUserInfoController} = userControllers;
 router.patch("/update/user",requireAuth,adminMiddleware,updateUserController)
-router.get("/user/:userId",requireAuth,getUserInfoController)
+router.get("/user/:userId",getUserInfoController)
 
 export default router;

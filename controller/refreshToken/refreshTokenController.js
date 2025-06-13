@@ -31,6 +31,7 @@ export const refreshTokenController = async (req, res, next) => {
       userMail,
       userProfileImg,
       userBio,
+      userSkills,
       userWebsiteURL,
       userLocation,
     } = decoded;
@@ -41,6 +42,7 @@ export const refreshTokenController = async (req, res, next) => {
       userMail,
       userProfileImg,
       userBio,
+      userSkills,
       userWebsiteURL,
       userLocation,
     };

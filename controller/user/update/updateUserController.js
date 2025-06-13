@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 export const updateUserController = catchAsync(async (req, res, next) => {
   //  return next(new AppError("updating user is disabled !!"))
   
-  const { userId,userMail, userName, password, profileImgUrl, oldPassword,userBio,userWebsiteURL,userLocation } = req.body;
+  const { userId,userMail, userName, password, profileImgUrl, oldPassword,userBio,userSkills,userWebsiteURL,userLocation } = req.body;
   if (!userId || !userMail || !userName || !password || !oldPassword) {
 
     return next(
@@ -47,6 +47,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     profileImgUrl,
     incriptedPassword,
     userBio,
+    userSkills,
     userWebsiteURL,
     userLocation
   };

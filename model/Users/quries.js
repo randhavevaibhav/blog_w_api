@@ -38,6 +38,7 @@ export const updateUser = async ({
   profileImgUrl,
   incriptedPassword,
   userBio = null,
+  userSkills=null,
   userWebsiteURL = null,
   userLocation = null,
 }) => {
@@ -50,6 +51,7 @@ export const updateUser = async ({
       bio: userBio,
       website_url: userWebsiteURL,
       location: userLocation,
+      skills:userSkills
     },
     {
       where: {
@@ -70,6 +72,7 @@ export const getUserInfo = async ({ userId }) => {
       "registered_at",
       "profile_img_url",
       "bio",
+      "skills",
       "website_url",
       "location",
     ],

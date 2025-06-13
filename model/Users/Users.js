@@ -61,6 +61,10 @@ export const Users = sq.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    skills: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     website_url: {
       type: DataTypes.STRING,
       allowNull: true,

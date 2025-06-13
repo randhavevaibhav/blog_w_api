@@ -53,6 +53,7 @@ export const signinController = catchAsync(async (req, res, next) => {
       userMail: user.email,
       userProfileImg: user.profile_img_url,
       userBio: user.bio,
+      userSkills: user.skills,
       userWebsiteURL: user.website_url,
       userLocation: user.location,
     };

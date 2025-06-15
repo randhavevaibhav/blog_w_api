@@ -1,8 +1,8 @@
-
 import { getUserInfoController } from "./get/getUserInfoController.js";
 import { updateUserController } from "./update/updateUserController.js";
-export default{
-    
-    updateUserController,
-    getUserInfoController
-}
+import { getUserStatController } from "./get/getUserStatController.js";
+export default {
+  updateUserController,
+  getUserInfoController,
+  getUserStatController,
+};

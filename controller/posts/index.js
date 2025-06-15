@@ -10,5 +10,5 @@ export default {
   getIndiviualPostController,
   getAllPostsController,
   deletePostController,
-  updatePostController
+  updatePostController,
 };

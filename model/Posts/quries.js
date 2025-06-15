@@ -24,23 +24,20 @@ export const createPost = async ({
   return result;
 };
 
-export const isPostBelongsToUser=async ({userId,postId})=>{
-
+export const isPostBelongsToUser = async ({ userId, postId }) => {
   const result = await Posts.findOne({
-    where:{
-      id:postId,
-      user_id:userId
-    }
-  })
+    where: {
+      id: postId,
+      user_id: userId,
+    },
+  });
 
-  if(!result)
-  {
+  if (!result) {
     return false;
-  }else{
+  } else {
     return true;
   }
-
-}
+};
 
 export const getAllPosts = async ({ offset }) => {
   const result = await sequelize.query(`select
@@ -65,18 +62,24 @@ limit ${POST_LIMIT}
   return result[0];
 };
 
-
-export const getAllUserPosts = async({userId})=>{
+export const getAllUserPosts = async ({ userId }) => {
   const result = await Posts.findAll({
-    where:{
-      user_id:userId
-    }
-  })
+    where: {
+      user_id: userId,
+    },
+  });
 
   return result;
-}
+};
 
-export const getAllOwnPosts = async ({ userId,offset }) => {
+export const getAllOwnPosts = async ({ userId, offset, sortBy = "desc" }) => {
+  const sortByOptions = {
+    asc: "p.created_at asc",
+    desc: "p.created_at desc",
+    name: "p.title asc",
+  };
+  const orderBy = sortByOptions[sortBy];
+
   const result = await sequelize.query(`SELECT 
     u.id as user_id, 
 	u.first_name,
@@ -97,7 +100,7 @@ GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
   p.content,
   pa.likes,
   pa.comments
-ORDER BY p.created_at desc
+ORDER BY ${orderBy}
 limit ${POST_LIMIT}
 offset ${offset}`);
   return result;
@@ -114,7 +117,6 @@ WHERE
   p.user_id=${userId};`);
 
   return result[0][0].total_likes ? result[0][0].total_likes : 0;
-  
 };
 
 export const getPost = async ({ postId }) => {
@@ -136,7 +138,7 @@ join post_analytics pa on pa.post_id=p.id
 join users u on u.id=p.user_id
 where p.id=${postId}`);
 
-  return result[0][0]?result[0][0]:null;
+  return result[0][0] ? result[0][0] : null;
 };
 export const deletePost = async ({ postId }) => {
   const result = await Posts.destroy({
@@ -171,4 +173,3 @@ export const updatePost = async ({
 
   return result;
 };
-

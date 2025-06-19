@@ -12,10 +12,10 @@ const {
   deletePostController,
   updatePostController,
 } = postControllers;
-router.post("/createpost", requireAuth, createPostsController);
-router.get("/posts/:userId", requireAuth, getAllOwnPostsController);
+router.post("/post", requireAuth, createPostsController);
+router.get("/posts/own/:userId", requireAuth, getAllOwnPostsController);
 router.get("/post/:currentUserId?/:userId/:postId", getIndiviualPostController);
-router.get("/getallposts", getAllPostsController);
+router.get("/posts/all", getAllPostsController);
 router.delete(
   "/post/delete/:postId",
   requireAuth,
@@ -23,7 +23,7 @@ router.delete(
   deletePostController
 );
 router.patch(
-  "/edit",
+  "/post/edit",
   requireAuth,
   authPostActionsMiddleware,
   updatePostController

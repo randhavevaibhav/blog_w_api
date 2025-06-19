@@ -4,5 +4,5 @@ import { refreshTokenController } from "../../controller/refreshToken/refreshTok
 const router = Router();
 
 // router.get("/refreshtoken/:userId", refreshTokenController);
-router.get("/refreshtoken", refreshTokenController);
+router.get("/refresh", refreshTokenController);
 export default router;

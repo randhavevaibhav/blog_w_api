@@ -3,6 +3,7 @@ import { incCommentCount } from "../../../model/PostAnalytics/quries.js";
 import { createPostComment } from "../../../model/PostComments/quiries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const createPostCommentController = catchAsync(
   async (req, res, next) => {
@@ -22,6 +23,16 @@ export const createPostCommentController = catchAsync(
       );
     }
 
+    const formattedUserId = parseInt(userId);
+    const formattedPostId = parseInt(postId);
+
+    if (
+      !isPositiveInteger(formattedUserId) ||
+      !isPositiveInteger(formattedPostId)
+    ) {
+      return next(new AppError(`userId, postId must be numbers`));
+    }
+
     const commentData = { userId, postId, content, createdAt, parentId };
     const result = await createPostComment(commentData);
 
@@ -37,9 +48,9 @@ export const createPostCommentController = catchAsync(
       message: "submitted new comment",
       comment: {
         userId,
-        id: result.id,
+        commentId: result.id,
         content,
-        created_at: createdAt,
+        createdAt,
         parentId: result.parent_id,
         likes: "0",
       },

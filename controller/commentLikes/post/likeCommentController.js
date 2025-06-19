@@ -5,6 +5,7 @@ import {
 } from "../../../model/CommentLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const likeCommentController = catchAsync(async (req, res, next) => {
   const { userId, commentId, createdAt } = req.body;
@@ -17,24 +18,34 @@ export const likeCommentController = catchAsync(async (req, res, next) => {
     );
   }
 
+  const formattedCommentId = parseInt(commentId);
+  const formattedUserId = parseInt(userId);
+
+  if (
+    !isPositiveInteger(formattedUserId) ||
+    !isPositiveInteger(formattedCommentId)
+  ) {
+    return next(new AppError(`userId, commentId must be numbers`));
+  }
+
   //check if comment is already liked by user
   const isCommentLiked = await isCommentLikedByUser({ userId, commentId });
 
   if (isCommentLiked) {
-    return res.status(200).send({
+    return res.status(406).send({
       message: "comment already liked",
       liked: true,
     });
   }
 
   //if not like post
-  const createPostLikeResult = await createCommentLike({
+  const createCommentLikeResult = await createCommentLike({
     userId,
     commentId,
     createdAt,
   });
 
-  const incPostLikeResult = await incCommentLike({ commentId });
+  const incCommentLiketResult = await incCommentLike({ commentId });
 
   return res.status(200).send({
     message: "liked a comment !",

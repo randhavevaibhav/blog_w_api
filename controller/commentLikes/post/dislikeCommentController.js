@@ -8,6 +8,7 @@ import {
 } from "../../../model/CommentLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const dislikeCommentController = catchAsync(async (req, res, next) => {
   const { commentId, userId } = req.body;
@@ -17,10 +18,20 @@ export const dislikeCommentController = catchAsync(async (req, res, next) => {
       new AppError(`Please send all required fields. commentId,userId.`, 400)
     );
   }
+  const formattedCommentId = parseInt(commentId);
+  const formattedUserId = parseInt(userId);
+
+  if (
+    !isPositiveInteger(formattedUserId) ||
+    !isPositiveInteger(formattedCommentId)
+  ) {
+    return next(new AppError(`userId, commentId must be numbers`));
+  }
+
   const isCommentLiked = await isCommentLikedByUser({ userId, commentId });
 
   if (!isCommentLiked) {
-    return res.status(200).send({
+    return res.status(406).send({
       message: "comment already disliked",
       liked: true,
     });

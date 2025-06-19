@@ -16,6 +16,7 @@ export const signinController = catchAsync(async (req, res, next) => {
   }
 
   // const user = await checkIfUserExistWithMail(email);
+  //very time costly operation ==>
   const user = await checkIfUserExistWithMail({ email });
 
   if (!user) {
@@ -38,7 +39,7 @@ export const signinController = catchAsync(async (req, res, next) => {
   }
 
   //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
-  const auth = await bcrypt.compare(password, user.dataValues.password_hash);
+  const auth = await bcrypt.compare(password, user.password_hash);
 
   if (auth) {
     const accessToken = jwt.sign(

@@ -1,6 +1,6 @@
 import {
   decPostLike,
-  getPostAnalytics,
+  getLikePostAnalytics,
 } from "../../../model/PostAnalytics/quries.js";
 import {
   checkIfPostLikedByUser,
@@ -8,6 +8,7 @@ import {
 } from "../../../model/PostLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const dislikePostController = catchAsync(async (req, res, next) => {
   const { userId, postId } = req.body;
@@ -21,16 +22,26 @@ export const dislikePostController = catchAsync(async (req, res, next) => {
     );
   }
 
+    const formattedUserId = parseInt(userId);
+    const formattedPostId = parseInt(postId);
+  
+    if (
+      !isPositiveInteger(formattedUserId) ||
+      !isPositiveInteger(formattedPostId)
+    ) {
+      return next(new AppError(`userId, postId must be numbers`));
+    }
+
   const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
 
   if (!isPostLiked) {
-    return res.status(200).send({
+    return res.status(406).send({
       message: "post already disliked",
       liked: true,
     });
   }
 
-  const totalLikes = await getPostAnalytics({ postId });
+  const totalLikes = await getLikePostAnalytics({ postId });
   // console.log("totalLikes ===> ",Number(totalLikes.likes));
 
   if (Number(totalLikes.likes) > 0) {

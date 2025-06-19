@@ -1,6 +1,7 @@
 import { removeBookmark } from "../../../model/Bookmark/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const removeBookmarkController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
@@ -12,6 +13,15 @@ export const removeBookmarkController = catchAsync(async (req, res, next) => {
     );
   }
 
+  const formattedUserId = parseInt(userId);
+  const formattedPostId = parseInt(postId);
+
+  if(!isPositiveInteger(formattedUserId)||!isPositiveInteger(formattedPostId))
+  {
+    return next(
+      new AppError(`userId, postId must be numbers`)
+    );
+  }
   const result = await removeBookmark({
     userId,
     postId,

@@ -19,9 +19,19 @@ export const deletePostAnalytics = async ({postId})=>{
   return result;
 }
 
-export const getPostAnalytics = async ({postId}) => {
+export const getLikePostAnalytics = async ({postId}) => {
   const result = await PostAnalytics.findOne({
     attributes:["likes"],
+    where: {
+      post_id: postId,
+    },
+  });
+
+  return result;
+};
+export const getCommentPostAnalytics = async ({postId}) => {
+  const result = await PostAnalytics.findOne({
+    attributes:["comments"],
     where: {
       post_id: postId,
     },

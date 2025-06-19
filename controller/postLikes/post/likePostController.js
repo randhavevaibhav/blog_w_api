@@ -5,6 +5,7 @@ import {
 } from "../../../model/PostLikes/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const likePostController = catchAsync(async (req, res, next) => {
   const { userId, postId, createdAt } = req.body;
@@ -14,12 +15,21 @@ export const likePostController = catchAsync(async (req, res, next) => {
       new AppError(`Please send all required fields. userId,postId,createdAt.`)
     );
   }
+  const formattedUserId = parseInt(userId);
+  const formattedPostId = parseInt(postId);
+
+  if (
+    !isPositiveInteger(formattedUserId) ||
+    !isPositiveInteger(formattedPostId)
+  ) {
+    return next(new AppError(`userId, postId must be numbers`));
+  }
 
   //check if post is already liked by user
   const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
 
   if (isPostLiked) {
-    return res.status(200).send({
+    return res.status(406).send({
       message: "post already liked",
       liked: true,
     });

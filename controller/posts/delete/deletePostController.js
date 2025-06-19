@@ -5,6 +5,7 @@ import { deletePost, getPost } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import {  supabaseDeleteStorageFile } from "../../../utils/supabase.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 const getFilePathFromURL = (postTitleImgUrl) => {
   const urlArr = postTitleImgUrl.split("/");
@@ -20,6 +21,14 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   if (!postId) {
     return next(new AppError(`please send all required field postId`));
   }
+
+   const formattedPostId = parseInt(postId);
+  
+    if (
+      !isPositiveInteger(formattedPostId)
+    ) {
+      return next(new AppError(`userId, postId must be numbers`));
+    }
 
   //get postTitleImgUrl
   const { title_img_url: postTitleImgUrl } = await getPost({ postId });

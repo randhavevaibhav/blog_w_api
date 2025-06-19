@@ -2,6 +2,7 @@ import { createPostAnalytics } from "../../../model/PostAnalytics/quries.js";
 import { createPost, getAllUserPosts } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const createPostsController = catchAsync(async (req, res, next) => {
   const { userId, title, titleImgURL, content, createdAt, updatedAt, likes } =
@@ -14,15 +15,18 @@ export const createPostsController = catchAsync(async (req, res, next) => {
       )
     );
   }
-  const totalOwnPosts = await getAllUserPosts({userId})
+
+  const formattedUserId = parseInt(userId);
+
+  if (!isPositiveInteger(formattedUserId)) {
+    return next(new AppError(`userId must be numbers`));
+  }
+  const totalOwnPosts = await getAllUserPosts({ userId });
   const totalOwnPostsCount = totalOwnPosts.length;
 
-  if(totalOwnPostsCount>=20)
-  {
-      return next(
-      new AppError(
-        `Can not create more posts. Post limit reached !!`
-      )
+  if (totalOwnPostsCount >= 20) {
+    return next(
+      new AppError(`Can not create more posts. Post limit reached !!`)
     );
   }
 
@@ -37,10 +41,10 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   };
   const result = await createPost(postData);
   const postId = result.id;
-  await createPostAnalytics({postId});
+  await createPostAnalytics({ postId });
 
   res.status(201).send({
     message: `successfully created new post.`,
-    postId
+    postId,
   });
 });

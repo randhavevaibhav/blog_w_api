@@ -3,18 +3,18 @@ import {
   isCommentCountZero,
 } from "../../../model/PostAnalytics/quries.js";
 import {
-  deleteAllCmtReplies,
   deleteSinglePostComment,
   updateCommentAsGhost,
 } from "../../../model/PostComments/quiries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 export const deleteCommentController = catchAsync(async (req, res, next) => {
   const { userId, commentId, postId, hasReplies } = req.body;
 
-  const numHasReplies = Number(hasReplies)
+  const numHasReplies = parseInt(hasReplies);
 
-  if (!Number(userId) || !Number(commentId) || !Number(postId)) {
+  if (!userId || !commentId || !postId) {
     return next(
       new AppError(
         `Please send all required fields. userId,commentId,postId`,
@@ -22,6 +22,21 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
       )
     );
   }
+
+  const formattedUserId = parseInt(userId);
+  const formattedPostId = parseInt(postId);
+  const formattedCommentId = parseInt(commentId);
+
+  if (
+    !isPositiveInteger(formattedUserId) ||
+    !isPositiveInteger(formattedPostId)||
+     !isPositiveInteger(formattedCommentId)
+  ) {
+    return next(new AppError(`userId, postId, commentId must be numbers`));
+  }
+
+
+
   let result = null;
   let ghosted = false;
 
@@ -29,25 +44,19 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
   const isCommentCount = await isCommentCountZero(postId);
   // console.log("isCommentCountZero ===> ",isCommentCount)
 
-  // if (parentId) {
-  //   const deleteAllCmtRepliesResult = await deleteAllCmtReplies({ commentId });
-  // }
-
   if (!isCommentCount && !numHasReplies) {
     await decCommentCount(postId);
     result = await deleteSinglePostComment({ userId, commentId });
   }
 
   if (numHasReplies) {
-    ghosted=true
+    ghosted = true;
     await updateCommentAsGhost({ commentId, postId });
   }
 
- 
-
   // console.log("result from deleteSinglePostComment ===> ", result);
 
-  if (!result&&!ghosted) {
+  if (!result && !ghosted) {
     return res.sendStatus(304);
   }
 

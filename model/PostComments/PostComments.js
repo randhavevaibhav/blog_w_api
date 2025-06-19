@@ -1,6 +1,7 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
 import { Users } from "../Users/Users.js";
+import { CommentAnalytics } from "../CommentAnalytics/CommentAnalytics.js";
 
 export const PostComments = sq.define(
   "post_comments",
@@ -41,10 +42,6 @@ export const PostComments = sq.define(
         },
       },
     },
-    likes: {
-      type: DataTypes.BIGINT,
-      allowNull: true,
-    },
     parent_id: {
       type: DataTypes.BIGINT,
     },
@@ -56,3 +53,4 @@ export const PostComments = sq.define(
 );
 
 PostComments.belongsTo(Users, { foreignKey: "user_id" });
+PostComments.belongsTo(CommentAnalytics,{foreignKey:"id",targetKey:"comment_id"});

@@ -1,6 +1,7 @@
 import { updatePost } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const updatePostController = catchAsync(async (req, res, next) => {
   const { postId, title, content, titleImgURL, updatedAt } = req.body;
@@ -8,6 +9,12 @@ export const updatePostController = catchAsync(async (req, res, next) => {
 
   if (!postId || !title || !content || !updatedAt) {
     return next(new AppError(`please send all required fields postId`));
+  }
+
+  const formattedPostId = parseInt(postId);
+
+  if (!isPositiveInteger(formattedPostId)) {
+    return next(new AppError(`postId must be number`));
   }
 
   const updatePostData = { postId, title, content, titleImgURL, updatedAt };

@@ -1,7 +1,7 @@
 import { checkIfUserExistWithMail, updateUser } from "../../../model/Users/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { incript } from "../../../utils/utils.js";
+import { incript, isPositiveInteger } from "../../../utils/utils.js";
 import bcrypt from "bcrypt";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
@@ -16,6 +16,11 @@ export const updateUserController = catchAsync(async (req, res, next) => {
       )
     );
   }
+   const formattedUserId = parseInt(userId);
+  
+    if (!isPositiveInteger(formattedUserId)) {
+      return next(new AppError(`userId must be number`));
+    }
 
   const user = await checkIfUserExistWithMail({ email: userMail });
 

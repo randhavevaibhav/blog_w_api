@@ -10,6 +10,7 @@ export const createCommentLike = async ({ userId, commentId, createdAt }) => {
 };
 
 export const isCommentLikedByUser = async ({ userId, commentId }) => {
+  // console.log(" userId, commentId isCommentLikedByUser ===> ", userId, commentId )
   const result = await CommentLikes.findOne({
     where: {
       user_id: userId,

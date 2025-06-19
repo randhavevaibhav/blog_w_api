@@ -5,12 +5,19 @@ import {
 } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
+import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getUserStatController = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 
   if (!userId) {
     return next(new AppError(`userId is not present`, 400));
+  }
+
+  const formattedUserId = parseInt(userId);
+
+  if (!isPositiveInteger(formattedUserId)) {
+    return next(new AppError(`userId must be number`));
   }
 
   const totalOwnPosts = await getAllUserPosts({ userId });
@@ -32,8 +39,8 @@ export const getUserStatController = catchAsync(async (req, res, next) => {
 
   return res.status(200).send({
     message: "posts found !",
-    total_post_count: totalOwnPostsCount,
-    total_likes_count: totalOwnPostsLikes,
-    total_post_comments: totalOwnPostsComments,
+    totalPosts: totalOwnPostsCount,
+    totalLikes: totalOwnPostsLikes,
+    totalComments: totalOwnPostsComments,
   });
 });

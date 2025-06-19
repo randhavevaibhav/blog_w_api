@@ -52,3 +52,7 @@ export const getFileInfo = ({ file }) => {
     fileSize,
   };
 };
+
+export const  isPositiveInteger=(num)=> {
+  return typeof num === 'number' && Number.isInteger(num) && num >= 0;
+}

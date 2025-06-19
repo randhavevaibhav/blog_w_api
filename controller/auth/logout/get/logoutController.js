@@ -42,6 +42,6 @@ export const logoutController = catchAsync(async (req, res) => {
   });
 
   return res.status(200).send({
-    message: "cookies cleared!",
+    message: "logged out!",
   });
 });

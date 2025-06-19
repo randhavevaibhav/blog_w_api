@@ -103,7 +103,10 @@ GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
 ORDER BY ${orderBy}
 limit ${POST_LIMIT}
 offset ${offset}`);
-  return result;
+
+if(result&&result[1])
+  
+  return result[1].rows;
 };
 
 export const getTotalOwnPostsLikesCount = async ({ userId }) => {

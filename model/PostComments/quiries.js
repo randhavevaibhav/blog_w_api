@@ -1,6 +1,6 @@
-import { Users } from "../Users/Users.js";
 import { PostComments } from "./PostComments.js";
 import sequelize from "../../db.js";
+import { COMMENT_LIMIT } from "../../utils/constants.js";
 
 export const createPostComment = async ({
   userId,
@@ -20,21 +20,44 @@ export const createPostComment = async ({
   return result;
 };
 
-export const getAllPostComments = async ({ postId }) => {
-  const result = await PostComments.findAll({
-    attributes: ["id", "content", "created_at", "likes", "parent_id"],
-    where: {
-      post_id: postId,
+export const getAllPostComments = async ({
+  postId,
+  offset = 0,
+  sort = "desc",
+}) => {
+  const sortOptions = {
+    desc: {
+      column: "pc.created_at",
+      type: "desc",
     },
-    include: [
-      {
-        model: Users,
-        attributes: ["first_name", "id", "profile_img_url"],
-      },
-    ],
-  });
+    asc: {
+      column: "pc.created_at",
+      type: "asc",
+    },
+    likes: {
+      column: "ca.likes",
+      type: "desc",
+    },
+  };
 
-  return result;
+  const sortBy = sortOptions[sort];
+  const result = await sequelize.query(`select pc.id as comment_id,
+pc.content,
+pc.created_at,
+ca.likes,
+pc.parent_id,
+pc.user_id,
+u.first_name,
+u.profile_img_url from post_comments pc 
+join users u on u.id=pc.user_id
+join comment_analytics ca on ca.comment_id=pc.id
+where pc.post_id=${postId} and pc.parent_id is null
+order by ${sortBy.column} ${sortBy.type},pc.created_at desc
+limit ${COMMENT_LIMIT}
+offset ${offset}`);
+  if (result && result[1]) {
+    return result[1].rows;
+  }
 };
 
 export const updateCommentAsGhost = async ({ commentId }) => {
@@ -52,12 +75,12 @@ export const updateCommentAsGhost = async ({ commentId }) => {
 
 export const getTotalOwnPostCommentsCount = async ({ userId }) => {
   const result = await sequelize.query(
-    `select COUNT(pc.id) as total_comments_count from posts p 
-join post_comments pc on pc.post_id=p.id
-where p.user_id=${userId}; `
+    `select sum(comments) as comments from posts p
+    join post_analytics pa on p.id=pa.post_id
+    where p.user_id=${userId}`
   );
 
-  return result ? result[0][0].total_comments_count : null;
+  return result ? result[0][0].comments : null;
 };
 
 export const deletePostComments = async ({ postId }) => {
@@ -71,19 +94,23 @@ export const deletePostComments = async ({ postId }) => {
 };
 
 export const getReplies = async ({ commentId }) => {
-  const res = await PostComments.findAll({
-    where: {
-      parent_id: commentId,
-    },
-    include: [
-      {
-        model: Users,
-        attributes: ["first_name", "id", "profile_img_url"],
-      },
-    ],
-  });
+  const result = await sequelize.query(`select pc.id as comment_id,
+pc.content,
+pc.created_at,
+ca.likes,
+pc.parent_id,
+u.first_name,
+u.id as user_id,
+u.profile_img_url from post_comments pc 
+join users u on u.id=pc.user_id
+join comment_analytics ca on ca.comment_id=pc.id
+where pc.parent_id=${commentId}
+order by created_at desc
+`);
 
-  return res;
+  if (result && result[1]) {
+    return result[1].rows;
+  }
 };
 
 export const deleteSinglePostComment = async ({ userId, commentId }) => {

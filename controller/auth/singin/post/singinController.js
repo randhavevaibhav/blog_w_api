@@ -20,9 +20,23 @@ export const signinController = catchAsync(async (req, res, next) => {
   const user = await checkIfUserExistWithMail({ email });
 
   if (!user) {
-    return next(new AppError(`user with mail:${email} not found!`, 400,{
+    return next(
+      new AppError(`user with mail:${email} not found!`, 400, {
         SessionTerminated: true,
-      }));
+      })
+    );
+  }
+
+  //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
+
+  const auth = await bcrypt.compare(password, user.password_hash);
+
+  if (!auth) {
+    return next(
+      new AppError(`Invalid password !`, 400, {
+        SessionTerminated: true,
+      })
+    );
   }
 
   const refreshToken = await getRefreshToken({
@@ -38,53 +52,43 @@ export const signinController = catchAsync(async (req, res, next) => {
     );
   }
 
-  //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
-  const auth = await bcrypt.compare(password, user.password_hash);
+  const accessToken = jwt.sign(
+    { userId: user.id },
+    process.env.ACCESS_TOKEN_SCERET,
+    { expiresIn: "4m" }
+  );
 
-  if (auth) {
-    const accessToken = jwt.sign(
-      { userId: user.id },
-      process.env.ACCESS_TOKEN_SCERET,
-      { expiresIn: "4m" }
-    );
+  const userInfo = {
+    userId: user.id,
+    userName: user.first_name,
+    userMail: user.email,
+    userProfileImg: user.profile_img_url,
+    userBio: user.bio,
+    userSkills: user.skills,
+    userWebsiteURL: user.website_url,
+    userLocation: user.location,
+  };
 
-    const userInfo = {
-      userId: user.id,
-      userName: user.first_name,
-      userMail: user.email,
-      userProfileImg: user.profile_img_url,
-      userBio: user.bio,
-      userSkills: user.skills,
-      userWebsiteURL: user.website_url,
-      userLocation: user.location,
-    };
+  const newRefreshToken = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SCERET, {
+    expiresIn: "10h",
+  });
 
-    const refreshToken = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SCERET, {
-      expiresIn: "10h",
-    });
-
-   
-    await updateRefeshToken({
-        userId: user.id,
-        refreshToken,
-      });
-    //below options required to persist cookie on reload
-    // sameSite:"none",
-    // secure:true
-    res.cookie("jwt", refreshToken, {
-      httpOnly: true,
-      maxAge: 10 * 60 * 60 * 1000,
-      sameSite: "none",
-      secure: true,
-    });
-    return res.status(200).send({
-      message: `user with mail: ${email} validated !!!`,
-      userInfo,
-      accessToken,
-    });
-  } else {
-    return next(new AppError(`Invalid password !`, 400,{
-        SessionTerminated: true,
-      }));
-  }
+  await updateRefeshToken({
+    userId: user.id,
+    refreshToken: newRefreshToken,
+  });
+  //below options required to persist cookie on reload
+  // sameSite:"none",
+  // secure:true
+  res.cookie("jwt", newRefreshToken, {
+    httpOnly: true,
+    maxAge: 10 * 60 * 60 * 1000,
+    sameSite: "none",
+    secure: true,
+  });
+  return res.status(200).send({
+    message: `user with mail: ${email} validated !!!`,
+    userInfo,
+    accessToken,
+  });
 });

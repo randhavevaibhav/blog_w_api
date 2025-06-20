@@ -32,10 +32,8 @@ export const likeCommentController = catchAsync(async (req, res, next) => {
   const isCommentLiked = await isCommentLikedByUser({ userId, commentId });
 
   if (isCommentLiked) {
-    return res.status(406).send({
-      message: "comment already liked",
-      liked: true,
-    });
+    //already liked
+    return res.sendStatus(204);
   }
 
   //if not like post

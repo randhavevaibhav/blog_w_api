@@ -11,17 +11,25 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
   }
   const formattedUserId = parseInt(userId);
 
-  if(!isPositiveInteger(formattedUserId))
-  {
-     return next(
-      new AppError(`userId must be a number`)
-    );
+  if (!isPositiveInteger(formattedUserId)) {
+    return next(new AppError(`userId must be a number`));
   }
 
   const result = await getUserBookmarks({ userId });
 
-  //   console.log("result getUserBookmarksController ==> ",result);
-
+  const formatedResult = result.map((bookmark) => {
+    return {
+      userId: bookmark.user_id,
+      autherId: bookmark.auther_id,
+      autherName: bookmark.auther_name,
+      postId: bookmark.post_id,
+      titleImgURL: bookmark.title_img_url,
+      title: bookmark.title,
+      createdAt: bookmark.created_at,
+      profileImgURL: bookmark.profile_img_url,
+    };
+  });
+  // console.log("formatedResult getUserBookmarksController ==> ", formatedResult);
   if (result.length == 0) {
     return res.status(404).send({
       message: `No bookmarks found.`,
@@ -31,6 +39,6 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
 
   return res.status(200).send({
     message: "found bookmarks",
-    bookmarks: result,
+    bookmarks: formatedResult,
   });
 });

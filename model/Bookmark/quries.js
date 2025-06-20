@@ -38,6 +38,7 @@ export const getUserBookmarks = async ({ userId }) => {
  p.user_id as auther_id,
  u.first_name as auther_name,
  p.id as post_id,
+ p.title_img_url,
  p.title,
  p.created_at,
  u.profile_img_url

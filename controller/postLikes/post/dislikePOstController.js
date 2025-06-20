@@ -35,10 +35,8 @@ export const dislikePostController = catchAsync(async (req, res, next) => {
   const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
 
   if (!isPostLiked) {
-    return res.status(406).send({
-      message: "post already disliked",
-      liked: true,
-    });
+    //already dis-liked !
+     return res.sendStatus(204)
   }
 
   const totalLikes = await getLikePostAnalytics({ postId });

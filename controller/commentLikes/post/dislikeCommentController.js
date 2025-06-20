@@ -31,10 +31,8 @@ export const dislikeCommentController = catchAsync(async (req, res, next) => {
   const isCommentLiked = await isCommentLikedByUser({ userId, commentId });
 
   if (!isCommentLiked) {
-    return res.status(406).send({
-      message: "comment already disliked",
-      liked: true,
-    });
+    //already dis-liked !
+    return res.sendStatus(204)
   }
 
   const totalCommentLikes = await getCommentAnalytics({ commentId });

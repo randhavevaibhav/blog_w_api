@@ -138,7 +138,7 @@ export const getOwnRecentComment = async ({ userId }) => {
   const result =
     sequelize.query(`select p.user_id, p.id as post_id,p.title as post_title,pc.content,pc.created_at  from post_comments pc
     join posts p on p.id = pc.post_id
-    where pc.user_id =${userId}
+    where pc.user_id =${userId} and pc.content!='NA-#GOHST'
     order by pc.created_at desc;`);
 
   return result;

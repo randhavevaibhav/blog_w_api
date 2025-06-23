@@ -8,6 +8,21 @@ import jwt from "jsonwebtoken";
 import { catchAsync } from "../../../../utils/catchAsync.js";
 import { AppError } from "../../../../utils/appError.js";
 
+function isTokenExpired({ token }) {
+  try {
+    jwt.verify(token, process.env.REFRESH_TOKEN_SCERET);
+    return false; // Token is valid and not expired
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      console.log("JWT Token has expired.");
+      return true;
+    } else {
+      console.error("JWT Verification Error:", error.message);
+      return true; // Other verification errors also indicate invalidity
+    }
+  }
+}
+
 export const signinController = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -44,7 +59,7 @@ export const signinController = catchAsync(async (req, res, next) => {
   });
   // console.log("refreshToken from db ==> ",refreshToken)
 
-  if (refreshToken) {
+  if (refreshToken && !isTokenExpired({ token: refreshToken })) {
     return next(
       new AppError("invalid session", 403, {
         SessionTerminated: false,

@@ -4,6 +4,7 @@ import { getIndiviualPostController } from "./get/getIndiviualPostController.js"
 import { deletePostController } from "./delete/deletePostController.js";
 import { updatePostController } from "./update/updatePostController.js";
 import { getAllPostsController } from "./get/getAllPostsController.js";
+import { getSearchedPostsController } from "./get/getSearchedPostsController.js";
 export default {
   createPostsController,
   getAllOwnPostsController,
@@ -11,4 +12,5 @@ export default {
   getAllPostsController,
   deletePostController,
   updatePostController,
+  getSearchedPostsController
 };

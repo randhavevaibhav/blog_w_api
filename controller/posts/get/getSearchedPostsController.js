@@ -1,24 +1,31 @@
-import { getAllPosts } from "../../../model/Posts/quries.js";
+import { getAllSearchedPosts } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
-export const getAllPostsController = catchAsync(async (req, res, next) => {
-  const { offset } = req.query;
+export const getSearchedPostsController = catchAsync(async (req, res, next) => {
+  const { query, offset,sortby } = req.query;
   const formattedOffset = parseInt(offset);
+ const sortOptionList = {
+    asc: "asc",
+    desc: "desc",
+  };
+  const sortOption = sortOptionList[sortby];
 
-  if (!isPositiveInteger(formattedOffset)) {
-    return next(new AppError(`offset needs to be number`, 400));
+  if (!query || !isPositiveInteger(formattedOffset)) {
+    return next(new AppError(`please provide correct query,offset value`, 400));
   }
+   if (!sortOption) {
+      return next(new AppError(`please provide correct sort option. desc, asc.`, 400));
+    }
 
-  const result = await getAllPosts({ offset });
+  const result = await getAllSearchedPosts({ query, offset,sort:sortOption });
 
   let responseData = null;
 
   if (result.length) {
     responseData = result.reduce((acc, rec) => {
-      // console.log("rec from getAllOwnPosts ==>  ", rec);
       acc.push({
         postId: rec.post_id,
         firstName: rec.first_name,
@@ -34,16 +41,16 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
       return acc;
     }, []);
     return res.status(200).send({
-      message: "found posts. get all",
+      message: "found posts",
       posts: responseData,
-      total_posts_count: responseData.length,
+      totalPosts: responseData.length,
       offset: Number(offset) + POST_OFFSET,
     });
   } else {
     return res.status(200).send({
       message: "No posts found",
       posts: [],
-      total_posts_count: 0,
+      totalPosts: 0,
     });
   }
 });

@@ -1,6 +1,6 @@
 import { Posts } from "./Posts.js";
 import sequelize from "../../db.js";
-import { POST_LIMIT } from "../../utils/constants.js";
+import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
 
 export const createPost = async ({
   userId,
@@ -62,6 +62,42 @@ limit ${POST_LIMIT}
   return result[0];
 };
 
+export const getAllSearchedPosts = async ({ query, offset, sort = "desc" }) => {
+  const sortOptions = {
+    desc: {
+      column: "p.created_at",
+      type: "desc",
+    },
+    asc: {
+      column: "p.created_at",
+      type: "asc",
+    },
+  };
+
+  const sortBy = sortOptions[sort];
+  const result = await sequelize.query(`select
+p.id as post_id,
+u.id as user_id,
+u.first_name,
+u.profile_img_url,
+p.title , 
+p.created_at,
+p.title_img_url,
+pa.likes,
+pa.comments as total_comments
+from posts p
+join post_analytics pa on pa.post_id=p.id
+join users u on u.id = p.user_id
+where LOWER(p.title) like LOWER('%${query}%')
+order by ${sortBy.column} ${sortBy.type},p.created_at desc,
+p.id desc
+offset ${offset}
+limit ${SEARCH_POST_LIMIT}
+`);
+
+  return result[0];
+};
+
 export const getAllUserPosts = async ({ userId }) => {
   const result = await Posts.findAll({
     where: {
@@ -104,9 +140,7 @@ ORDER BY ${orderBy}
 limit ${POST_LIMIT}
 offset ${offset}`);
 
-if(result&&result[1])
-  
-  return result[1].rows;
+  if (result && result[1]) return result[1].rows;
 };
 
 export const getTotalOwnPostsLikesCount = async ({ userId }) => {

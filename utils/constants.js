@@ -6,3 +6,4 @@ export const POST_OFFSET=5
 export const COMMENT_OFFSET = 5
 export const COMMENT_LIMIT = 5
 export const POST_LIMIT=5
+export const SEARCH_POST_LIMIT=10

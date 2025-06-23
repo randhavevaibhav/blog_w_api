@@ -11,11 +11,13 @@ const {
   getAllPostsController,
   deletePostController,
   updatePostController,
+getSearchedPostsController
 } = postControllers;
 router.post("/post", requireAuth, createPostsController);
 router.get("/posts/own/:userId", requireAuth, getAllOwnPostsController);
 router.get("/post/:currentUserId?/:userId/:postId", getIndiviualPostController);
 router.get("/posts/all", getAllPostsController);
+router.get("/posts/search",getSearchedPostsController);
 router.delete(
   "/post/delete/:postId",
   requireAuth,

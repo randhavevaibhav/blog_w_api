@@ -62,7 +62,8 @@ limit ${POST_LIMIT}
   return result[0];
 };
 
-export const getAllSearchedPosts = async ({ query, offset, sort = "desc" }) => {
+export const getAllSearchedPosts = async ({ query, offset, sort = "desc",limit }) => {
+  const postLimit = limit?limit:SEARCH_POST_LIMIT;
   const sortOptions = {
     desc: {
       column: "p.created_at",
@@ -92,7 +93,7 @@ where LOWER(p.title) like LOWER('%${query}%')
 order by ${sortBy.column} ${sortBy.type},p.created_at desc,
 p.id desc
 offset ${offset}
-limit ${SEARCH_POST_LIMIT}
+limit ${postLimit}
 `);
 
   return result[0];

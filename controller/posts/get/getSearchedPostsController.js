@@ -1,13 +1,16 @@
 import { getAllSearchedPosts } from "../../../model/Posts/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { POST_OFFSET } from "../../../utils/constants.js";
+import { POST_OFFSET, SEARCH_POST_LIMIT } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getSearchedPostsController = catchAsync(async (req, res, next) => {
-  const { query, offset,sortby } = req.query;
+  const { query, offset, sortby, limit } = req.query;
   const formattedOffset = parseInt(offset);
- const sortOptionList = {
+  const formattedLimit = parseInt(limit);
+
+  
+  const sortOptionList = {
     asc: "asc",
     desc: "desc",
   };
@@ -16,11 +19,22 @@ export const getSearchedPostsController = catchAsync(async (req, res, next) => {
   if (!query || !isPositiveInteger(formattedOffset)) {
     return next(new AppError(`please provide correct query,offset value`, 400));
   }
-   if (!sortOption) {
-      return next(new AppError(`please provide correct sort option. desc, asc.`, 400));
-    }
 
-  const result = await getAllSearchedPosts({ query, offset,sort:sortOption });
+  if(limit)
+  {
+    if(!isPositiveInteger(formattedLimit))
+    {
+       return next(new AppError(`please provide correct limit value`, 400));
+    }
+  }
+  
+  if (!sortOption) {
+    return next(
+      new AppError(`please provide correct sort option. desc, asc.`, 400)
+    );
+  }
+
+  const result = await getAllSearchedPosts({ query, offset, sort: sortOption,limit});
 
   let responseData = null;
 

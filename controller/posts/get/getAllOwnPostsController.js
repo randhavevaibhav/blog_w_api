@@ -55,14 +55,14 @@ export const getAllOwnPostsController = catchAsync(async (req, res, next) => {
     // console.log("responseData =======================> ", responseData);
     return res.status(200).send({
       message: `found user posts.`,
-      posts: `${JSON.stringify(responseData)}`,
+      posts: responseData,
 
       offset: Number(offset) + POST_OFFSET,
     });
   } else {
     return res.status(200).send({
       message: `No post found.`,
-      posts: `[]`,
+      posts: [],
     });
   }
 });

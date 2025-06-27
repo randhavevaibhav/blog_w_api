@@ -7,11 +7,13 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const createBookmarkController = catchAsync(async (req, res, next) => {
-  const { userId, postId } = req.body;
+  const { userId, postId, createdAt } = req.body;
 
-  if (!userId || !postId) {
+  if (!userId || !postId || !createdAt) {
     return next(
-      new AppError(`please provide all required fields. ==>  userId, postId`)
+      new AppError(
+        `please provide all required fields. ==>  userId, postId,createdAt`
+      )
     );
   }
   const formattedUserId = parseInt(userId);
@@ -38,6 +40,7 @@ export const createBookmarkController = catchAsync(async (req, res, next) => {
   const result = await createBookmark({
     userId,
     postId,
+    createdAt
   });
 
   // console.log("createBookmark result ===> ", result);

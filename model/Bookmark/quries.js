@@ -1,10 +1,11 @@
 import sequelize from "../../db.js";
 import { Bookmarks } from "./Bookmark.js";
 
-export const createBookmark = async ({ userId, postId }) => {
+export const createBookmark = async ({ userId, postId,createdAt }) => { 
   const result = await Bookmarks.create({
     user_id: userId,
     post_id: postId,
+    created_at:createdAt
   });
 
   return result;
@@ -32,7 +33,12 @@ export const checkIfAlreadyBookmarked = async ({ userId, postId }) => {
   return result;
 };
 
-export const getUserBookmarks = async ({ userId }) => {
+export const getUserBookmarks = async ({ userId, sort}) => {
+  const sortByOptions = {
+    asc: "b.created_at asc",
+    desc: "b.created_at desc",
+  };
+  const orderBy = sortByOptions[sort];
   const result = await sequelize.query(`select 
  b.user_id as user_id,
  p.user_id as auther_id,
@@ -45,7 +51,9 @@ export const getUserBookmarks = async ({ userId }) => {
  from bookmarks b
  join posts p on p.id=b.post_id
  join users u on u.id= p.user_id 
- where b.user_id=${userId}`);
+ where b.user_id=${userId}
+ order by ${orderBy}
+ `);
 
   return result[0];
 };

@@ -5,7 +5,14 @@ import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getUserBookmarksController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
+  const { sort } = req.query;
 
+  const sortOptionList = {
+    asc: "asc",
+    desc: "desc",
+  };
+
+  const sortOption = sortOptionList[sort];
   if (!userId) {
     return next(new AppError(`userId is not present`, 400));
   }
@@ -15,7 +22,13 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
     return next(new AppError(`userId must be a number`));
   }
 
-  const result = await getUserBookmarks({ userId });
+  if (!sortOption) {
+    return next(
+      new AppError(`Pleae provide correct sort option. asc, desc.`, 400)
+    );
+  }
+
+  const result = await getUserBookmarks({ userId ,sort:sortOption});
 
   const formatedResult = result.map((bookmark) => {
     return {

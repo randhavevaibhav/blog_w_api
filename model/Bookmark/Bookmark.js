@@ -22,6 +22,15 @@ export const Bookmarks = sq.define(
          },
        },
      },
+      created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "created_at can not be empty.",
+        },
+      },
+    },
    },
    {
      createdAt: false,

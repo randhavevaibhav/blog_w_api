@@ -60,6 +60,22 @@ offset ${offset}`);
   }
 };
 
+export const getRecentComments = async ({ limit = 2, postId }) => {
+  const result = await sequelize.query(`select pc.content,
+pc.post_id,
+pc.user_id,
+pc.created_at,
+u.first_name,
+u.profile_img_url 
+from post_comments pc
+join users u on u.id=pc.user_id
+where pc.post_id=${postId} and pc.content!='NA-#GOHST'
+order by pc.created_at desc
+limit ${limit};`);
+
+  return result[0];
+};
+
 export const updateCommentAsGhost = async ({ commentId }) => {
   const result = await PostComments.update(
     { content: "NA-#GOHST" },

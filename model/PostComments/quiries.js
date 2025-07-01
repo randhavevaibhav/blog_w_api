@@ -69,7 +69,7 @@ u.first_name,
 u.profile_img_url 
 from post_comments pc
 join users u on u.id=pc.user_id
-where pc.post_id=${postId} and pc.content!='NA-#GOHST'
+where pc.post_id=${postId} and pc.content!='NA-#GOHST' and pc.parent_id is null
 order by pc.created_at desc
 limit ${limit};`);
 

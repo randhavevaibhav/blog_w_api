@@ -12,7 +12,7 @@ router.patch(
   adminMiddleware,
   updateUserController
 );
-router.get("/user/:userId", getUserInfoController);
+router.get("/user/info/:currentUserId?/:userId", getUserInfoController);
 router.get("/user/stat/:userId", getUserStatController);
 
 export default router;

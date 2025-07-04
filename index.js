@@ -3,6 +3,7 @@ import sq from "./db.js";
 import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
 import bookmarkRoutes from "./routes/bookmark/bookmarkRoutes.js";
+import followerRoutes from "./routes/follower/followerRoutes.js"
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import userRoutes from "./routes/user/userRoutes.js";
 import commentsRoute from "./routes/comments/commentsRoute.js";
@@ -40,6 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(authRoutes);
 app.use(postsRoutes);
 app.use(bookmarkRoutes);
+app.use(followerRoutes);
 app.use(userRoutes);
 app.use(commentsRoute);
 app.use(postLikesRoute);
@@ -58,8 +60,6 @@ app.all("*", (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
 });
 
-app.use(globalErrorController);
-
 app.listen(PORT, () =>
   console.log(`server started at port ${PORT} http://localhost:${PORT}`)
 );
@@ -71,3 +71,7 @@ sq.authenticate()
   .catch((err) => {
     console.log("Error while connecting to database.", err);
   });
+
+
+app.use(globalErrorController);
+

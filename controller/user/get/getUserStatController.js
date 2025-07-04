@@ -1,3 +1,4 @@
+import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quries.js";
 import { getTotalOwnPostCommentsCount } from "../../../model/PostComments/quiries.js";
 import {
   getAllUserPosts,
@@ -10,6 +11,9 @@ import { isPositiveInteger } from "../../../utils/utils.js";
 export const getUserStatController = catchAsync(async (req, res, next) => {
   const { userId } = req.params;
 
+  let totalFollowers = 0;
+  let totalFollowings = 0;
+
   if (!userId) {
     return next(new AppError(`userId is not present`, 400));
   }
@@ -20,7 +24,17 @@ export const getUserStatController = catchAsync(async (req, res, next) => {
     return next(new AppError(`userId must be number`));
   }
 
-  const totalOwnPosts = await getAllUserPosts({ userId });
+ 
+  const getUserFollowerAnalyticsResult = await getFollowerAnalytics({
+    userId,
+  });
+
+  if (getUserFollowerAnalyticsResult) {
+    totalFollowers = getUserFollowerAnalyticsResult.followers;
+    totalFollowings = getUserFollowerAnalyticsResult.following;
+  }
+
+   const totalOwnPosts = await getAllUserPosts({ userId });
   const totalOwnPostsCount = totalOwnPosts.length;
 
   if (totalOwnPostsCount <= 0) {
@@ -29,6 +43,8 @@ export const getUserStatController = catchAsync(async (req, res, next) => {
       total_post_count: 0,
       total_likes_count: 0,
       total_post_comments: 0,
+      totalFollowers,
+      totalFollowings
     });
   }
 
@@ -42,5 +58,7 @@ export const getUserStatController = catchAsync(async (req, res, next) => {
     totalPosts: totalOwnPostsCount,
     totalLikes: totalOwnPostsLikes,
     totalComments: totalOwnPostsComments,
+    totalFollowers,
+    totalFollowings
   });
 });

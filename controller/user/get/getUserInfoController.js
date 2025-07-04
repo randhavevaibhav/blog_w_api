@@ -7,8 +7,13 @@ import {
 import { getAllUserPosts } from "../../../model/Posts/quries.js";
 import { getOwnRecentComment } from "../../../model/PostComments/quiries.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
+import { checkIfAlreadyFollowed } from "../../../model/Followers/quries.js";
+import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quries.js";
 export const getUserInfoController = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
+  const { userId, currentUserId } = req.params;
+  let isFollowed = false;
+  let totalFollowers = 0;
+  let totalFollowings = 0;
   if (!userId) {
     return next(new AppError(`Please send all required field. userId`, 400));
   }
@@ -17,6 +22,29 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
 
   if (!isPositiveInteger(formattedUserId)) {
     return next(new AppError(`userId must be number`));
+  }
+
+  if (currentUserId) {
+    const formattedCurrentUserId = parseInt(currentUserId);
+    if (!isPositiveInteger(formattedCurrentUserId)) {
+      return next(new AppError(`currentUserId must be number`));
+    }
+    const isAlreadyFollowed = await checkIfAlreadyFollowed({
+      userId: currentUserId,
+      followingUserId: userId,
+    });
+    if (isAlreadyFollowed) {
+      isFollowed = true;
+    }
+  }
+
+  const getUserFollowerAnalyticsResult = await getFollowerAnalytics({
+    userId,
+  });
+
+  if (getUserFollowerAnalyticsResult) {
+    totalFollowers = getUserFollowerAnalyticsResult.followers;
+    totalFollowings = getUserFollowerAnalyticsResult.following;
   }
 
   const isUserExist = await checkIfUserExistWithId({ userId });
@@ -39,6 +67,9 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
       skills: userInfo.skills,
       websiteURL: userInfo.website_url,
       location: userInfo.location,
+      isFollowed,
+      totalFollowers,
+      totalFollowings
     };
   }
 

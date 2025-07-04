@@ -1,5 +1,5 @@
+import sequelize from "../../db.js";
 import { Users } from "./Users.js";
-
 
 export const createUser = async ({
   firstName,
@@ -38,7 +38,7 @@ export const updateUser = async ({
   profileImgUrl,
   incriptedPassword,
   userBio = null,
-  userSkills=null,
+  userSkills = null,
   userWebsiteURL = null,
   userLocation = null,
 }) => {
@@ -51,7 +51,7 @@ export const updateUser = async ({
       bio: userBio,
       website_url: userWebsiteURL,
       location: userLocation,
-      skills:userSkills
+      skills: userSkills,
     },
     {
       where: {
@@ -64,7 +64,16 @@ export const updateUser = async ({
 };
 
 export const getUserInfo = async ({ userId }) => {
-  // const result = sequelize.query(`select u.first_name,u.registered_at,u.email from users u where u.id= ${userId}`);
+  //   const result = await sequelize.query(`select
+  // u.first_name,
+  // u.registered_at,
+  // u.profile_img_url,
+  // u.bio,
+  // u.skills,
+  // u.website_url,
+  // u.email,
+  // u.location
+  // from users u where u.id= ${userId}`);
   const result = Users.findOne({
     attributes: [
       "first_name",
@@ -80,6 +89,7 @@ export const getUserInfo = async ({ userId }) => {
       id: userId,
     },
   });
+  //  return result[0][0];
   return result;
 };
 
@@ -91,10 +101,8 @@ export const updateRefeshToken = async ({ userId, refreshToken }) => {
     {
       where: {
         id: userId,
-  
       },
     }
-    
   );
 
   return res;

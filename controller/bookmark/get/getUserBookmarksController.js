@@ -19,7 +19,7 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
   const formattedUserId = parseInt(userId);
 
   if (!isPositiveInteger(formattedUserId)) {
-    return next(new AppError(`userId must be a number`));
+    return next(new AppError(`userId must be a number`,400));
   }
 
   if (!sortOption) {

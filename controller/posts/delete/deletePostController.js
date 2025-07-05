@@ -2,9 +2,10 @@ import { deletePostAnalytics } from "../../../model/PostAnalytics/quries.js";
 import { deletePostComments } from "../../../model/PostComments/quiries.js";
 import { removeAllPostLikes } from "../../../model/PostLikes/quries.js";
 import { deletePost, getPost } from "../../../model/Posts/quries.js";
+import { decUserPostsCount } from "../../../model/Users/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import {  supabaseDeleteStorageFile } from "../../../utils/supabase.js";
+import { supabaseDeleteStorageFile } from "../../../utils/supabase.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 const getFilePathFromURL = (postTitleImgUrl) => {
@@ -18,17 +19,20 @@ const getFilePathFromURL = (postTitleImgUrl) => {
 export const deletePostController = catchAsync(async (req, res, next) => {
   const bucket = `post-title-imgs`;
   const postId = req.params.postId;
+  const userId = req.params.userId;
   if (!postId) {
     return next(new AppError(`please send all required field postId`));
   }
 
-   const formattedPostId = parseInt(postId);
-  
-    if (
-      !isPositiveInteger(formattedPostId)
-    ) {
-      return next(new AppError(`userId, postId must be numbers`));
-    }
+  const formattedPostId = parseInt(postId);
+  const formattedUserId = parseInt(userId);
+
+  if (
+    !isPositiveInteger(formattedPostId) ||
+    !isPositiveInteger(formattedUserId)
+  ) {
+    return next(new AppError(`userId, postId must be numbers`));
+  }
 
   //get postTitleImgUrl
   const { title_img_url: postTitleImgUrl } = await getPost({ postId });
@@ -40,7 +44,10 @@ export const deletePostController = catchAsync(async (req, res, next) => {
 
     //delete from supabase storage
 
-    const { data, error } = await supabaseDeleteStorageFile({filePath,bucket})
+    const { data, error } = await supabaseDeleteStorageFile({
+      filePath,
+      bucket,
+    });
 
     if (error) {
       throw new Error(`Error while deleting file on supabase ==> ${error}`);
@@ -53,6 +60,11 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   const result = await deletePost({ postId });
   //delete all comments related to that post
   const deletePostCommentsResult = await deletePostComments({ postId });
+
+  await decUserPostsCount({
+    userId,
+  });
+
   //delete post analytics
   await deletePostAnalytics({ postId });
   //delete post likes

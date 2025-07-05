@@ -1,27 +1,26 @@
 import { PostAnalytics } from "./PostAnalytics.js";
 
-
-export const createPostAnalytics = async ({postId}) => {
+export const createPostAnalytics = async ({ postId }) => {
   const result = await PostAnalytics.create({
     post_id: postId,
     likes: 0,
-    comments:0
+    comments: 0,
   });
   return result;
 };
 
-export const deletePostAnalytics = async ({postId})=>{
+export const deletePostAnalytics = async ({ postId }) => {
   const result = await PostAnalytics.destroy({
-    where:{
-      post_id:postId
-    }
+    where: {
+      post_id: postId,
+    },
   });
   return result;
-}
+};
 
-export const getLikePostAnalytics = async ({postId}) => {
+export const getLikePostAnalytics = async ({ postId }) => {
   const result = await PostAnalytics.findOne({
-    attributes:["likes"],
+    attributes: ["likes"],
     where: {
       post_id: postId,
     },
@@ -29,9 +28,9 @@ export const getLikePostAnalytics = async ({postId}) => {
 
   return result;
 };
-export const getCommentPostAnalytics = async ({postId}) => {
+export const getCommentPostAnalytics = async ({ postId }) => {
   const result = await PostAnalytics.findOne({
-    attributes:["comments"],
+    attributes: ["comments"],
     where: {
       post_id: postId,
     },
@@ -40,17 +39,7 @@ export const getCommentPostAnalytics = async ({postId}) => {
   return result;
 };
 
-
-
-
-
-
-
-
-
-export const incPostLike = async ( postId ) => {
-
-    
+export const incPostLike = async (postId) => {
   const result = await PostAnalytics.increment("likes", {
     by: 1,
     where: {
@@ -61,23 +50,18 @@ export const incPostLike = async ( postId ) => {
   return result;
 };
 
+export const decPostLike = async (postId) => {
+  const result = await PostAnalytics.decrement("likes", {
+    by: 1,
+    where: {
+      post_id: postId,
+    },
+  });
 
-export const decPostLike = async ( postId ) => {
+  return result;
+};
 
-    
-    const result = await PostAnalytics.decrement("likes", {
-      by: 1,
-      where: {
-        post_id: postId,
-      },
-    });
-  
-    return result;
-  };
-
-
-export const incCommentCount = async (postId)=>{
-   
+export const incCommentCount = async (postId) => {
   const result = await PostAnalytics.increment("comments", {
     by: 1,
     where: {
@@ -86,11 +70,9 @@ export const incCommentCount = async (postId)=>{
   });
 
   return result;
-}
+};
 
-
-export const decCommentCount = async (postId)=>{
-   
+export const decCommentCount = async (postId) => {
   const result = await PostAnalytics.decrement("comments", {
     by: 1,
     where: {
@@ -99,25 +81,19 @@ export const decCommentCount = async (postId)=>{
   });
 
   return result;
-}
+};
 
-export const isCommentCountZero = async(postId)=>{
-  const result = await PostAnalytics.findOne( {
-  attributes:["comments"],
+export const isCommentCountZero = async (postId) => {
+  const result = await PostAnalytics.findOne({
+    attributes: ["comments"],
     where: {
       post_id: postId,
     },
   });
 
-
-  if(Number(result.comments)===0)
-  {
+  if (Number(result.comments) === 0) {
     return true;
-  }
-  else{
+  } else {
     return false;
   }
-
-}
-
-
+};

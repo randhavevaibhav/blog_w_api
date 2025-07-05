@@ -2,9 +2,11 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { AppError } from "../../../utils/appError.js";
 import {
   checkIfUserExistWithId,
+  getTotalCommentCountOfUser,
+  getTotalUserPosts,
   getUserInfo,
 } from "../../../model/Users/quries.js";
-import { getAllUserPosts } from "../../../model/Posts/quries.js";
+import { getUserRecentPost } from "../../../model/Posts/quries.js";
 import { getOwnRecentComment } from "../../../model/PostComments/quiries.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 import { checkIfAlreadyFollowed } from "../../../model/Followers/quries.js";
@@ -12,8 +14,16 @@ import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quries.js
 export const getUserInfoController = catchAsync(async (req, res, next) => {
   const { userId, currentUserId } = req.params;
   let isFollowed = false;
-  let totalFollowers = 0;
-  let totalFollowings = 0;
+  let totalUserPosts = 0;
+  let totalUserComments = 0;
+  let totalUserFollowers = 0;
+  let totalUserFollowings = 0;
+  let userRecentPost = null;
+  let userRecentComment = null;
+  let formattedRecentPost = null;
+  let formattedUserInfo = null;
+  let formattedRecentComment = null;
+
   if (!userId) {
     return next(new AppError(`Please send all required field. userId`, 400));
   }
@@ -22,6 +32,12 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
 
   if (!isPositiveInteger(formattedUserId)) {
     return next(new AppError(`userId must be number`));
+  }
+
+  const isUserExist = await checkIfUserExistWithId({ userId });
+
+  if (!isUserExist) {
+    return next(new AppError(`User with id ${userId} does not exist.`, 404));
   }
 
   if (currentUserId) {
@@ -43,70 +59,60 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
   });
 
   if (getUserFollowerAnalyticsResult) {
-    totalFollowers = getUserFollowerAnalyticsResult.followers;
-    totalFollowings = getUserFollowerAnalyticsResult.following;
-  }
-
-  const isUserExist = await checkIfUserExistWithId({ userId });
-
-  if (!isUserExist) {
-    return next(new AppError(`User with id ${userId} does not exist.`, 404));
-  }
-
-  const userInfo = await getUserInfo({ userId });
-
-  let formattedUserInfo = null;
-
-  if (userInfo) {
-    formattedUserInfo = {
-      firstName: userInfo.first_name,
-      email: userInfo.email,
-      registeredAt: userInfo.registered_at,
-      profileImgURL: userInfo.profile_img_url,
-      bio: userInfo.bio,
-      skills: userInfo.skills,
-      websiteURL: userInfo.website_url,
-      location: userInfo.location,
-      isFollowed,
-      totalFollowers,
-      totalFollowings
-    };
+    totalUserFollowers = getUserFollowerAnalyticsResult.followers;
+    totalUserFollowings = getUserFollowerAnalyticsResult.following;
   }
 
   // console.log("user info =====> ", formattedUserInfo);
 
-  let totalComments = 0;
-  let userPosts = await getAllUserPosts({ userId });
-  let totalPosts = 0;
-  let userComments = await getOwnRecentComment({ userId });
-
-  let recentPost = null;
-  let recentComment = null;
-
-  if (!userPosts.length) {
-    recentPost = null;
-    totalPosts = 0;
-  } else {
-    let soretedUserPosts = userPosts.sort((a, b) => {
-      return new Date(b.created_at) - new Date(a.created_at);
-    });
-
-    recentPost = soretedUserPosts[0];
-    totalPosts = userPosts.length;
+  userRecentPost = await getUserRecentPost({ userId });
+  if (userRecentPost) {
+    formattedRecentPost = {
+      postId: userRecentPost.id,
+      userId: userRecentPost.user_id,
+      title: userRecentPost.title,
+      createdAt: userRecentPost.created_at,
+      titleImgURL: userRecentPost.title_img_url,
+    };
   }
-  if (!userComments[0].length) {
-    recentComment = null;
-  } else {
-    recentComment = userComments[0][0];
-    totalComments = userComments[0].length;
+  userRecentComment = await getOwnRecentComment({ userId });
+  if (userRecentComment) {
+    formattedRecentComment = {
+      commentId: userRecentComment.id,
+      userId: userRecentComment.user_id,
+      postId: userRecentComment.post_id,
+      content: userRecentComment.content,
+      parentId: userRecentComment.parent_id,
+      createdAt: userRecentComment.created_at,
+    };
   }
+  let totalUserPostsResult = await getTotalUserPosts({ userId });
+  let totalUserCommentsResult = await getTotalCommentCountOfUser({ userId });
+  totalUserPosts = totalUserPostsResult.dataValues.posts;
+  totalUserComments = totalUserCommentsResult.dataValues.comments;
+
+  const userInfo = await getUserInfo({ userId });
+
+  formattedUserInfo = {
+    firstName: userInfo.first_name,
+    email: userInfo.email,
+    registeredAt: userInfo.registered_at,
+    profileImgURL: userInfo.profile_img_url,
+    bio: userInfo.bio,
+    skills: userInfo.skills,
+    websiteURL: userInfo.website_url,
+    location: userInfo.location,
+    isFollowed,
+    totalUserFollowers,
+    totalUserFollowings,
+    totalUserPosts,
+    totalUserComments,
+  };
 
   return res.status(200).send({
     message: `fetched user info.`,
     userInfo: formattedUserInfo,
-    totalComments,
-    totalPosts,
-    recentPost,
-    recentComment,
+    recentPost: formattedRecentPost,
+    recentComment: formattedRecentComment,
   });
 });

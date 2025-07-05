@@ -6,6 +6,7 @@ import {
   deleteSinglePostComment,
   updateCommentAsGhost,
 } from "../../../model/PostComments/quiries.js";
+import { decUserCommentsCount } from "../../../model/Users/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -29,19 +30,22 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
 
   if (
     !isPositiveInteger(formattedUserId) ||
-    !isPositiveInteger(formattedPostId)||
-     !isPositiveInteger(formattedCommentId)
+    !isPositiveInteger(formattedPostId) ||
+    !isPositiveInteger(formattedCommentId)
   ) {
     return next(new AppError(`userId, postId, commentId must be numbers`));
   }
-
-
 
   let result = null;
   let ghosted = false;
 
   //decrease the comment count in post_analytics table if it is not zero
   const isCommentCount = await isCommentCountZero(postId);
+
+  await decUserCommentsCount({
+    userId,
+  });
+
   // console.log("isCommentCountZero ===> ",isCommentCount)
 
   if (!isCommentCount && !numHasReplies) {

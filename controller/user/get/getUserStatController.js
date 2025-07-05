@@ -1,9 +1,7 @@
 import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quries.js";
-import { getTotalOwnPostCommentsCount } from "../../../model/PostComments/quiries.js";
-import {
-  getAllUserPosts,
-  getTotalOwnPostsLikesCount,
-} from "../../../model/Posts/quries.js";
+import { getTotalOwnPostsCommentCount } from "../../../model/PostComments/quiries.js";
+import { getTotalOwnPostsLikesCount } from "../../../model/Posts/quries.js";
+import { getTotalUserPosts } from "../../../model/Users/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -24,7 +22,6 @@ export const getUserStatController = catchAsync(async (req, res, next) => {
     return next(new AppError(`userId must be number`));
   }
 
- 
   const getUserFollowerAnalyticsResult = await getFollowerAnalytics({
     userId,
   });
@@ -34,31 +31,31 @@ export const getUserStatController = catchAsync(async (req, res, next) => {
     totalFollowings = getUserFollowerAnalyticsResult.following;
   }
 
-   const totalOwnPosts = await getAllUserPosts({ userId });
-  const totalOwnPostsCount = totalOwnPosts.length;
+  const totalUserPostsResult = await getTotalUserPosts({ userId });
+  let totalUserPosts = totalUserPostsResult.dataValues.posts;
 
-  if (totalOwnPostsCount <= 0) {
+  if (totalUserPosts <= 0) {
     return res.status(200).send({
       message: "no posts found !",
       total_post_count: 0,
       total_likes_count: 0,
       total_post_comments: 0,
       totalFollowers,
-      totalFollowings
+      totalFollowings,
     });
   }
 
   const totalOwnPostsLikes = await getTotalOwnPostsLikesCount({ userId });
-  const totalOwnPostsComments = await getTotalOwnPostCommentsCount({
+  const totalOwnPostsComments = await getTotalOwnPostsCommentCount({
     userId,
   });
 
   return res.status(200).send({
     message: "posts found !",
-    totalPosts: totalOwnPostsCount,
+    totalPosts: totalUserPosts,
     totalLikes: totalOwnPostsLikes,
     totalComments: totalOwnPostsComments,
     totalFollowers,
-    totalFollowings
+    totalFollowings,
   });
 });

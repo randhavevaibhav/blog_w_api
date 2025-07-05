@@ -62,8 +62,13 @@ limit ${POST_LIMIT}
   return result[0];
 };
 
-export const getAllSearchedPosts = async ({ query, offset, sort = "desc",limit }) => {
-  const postLimit = limit?limit:SEARCH_POST_LIMIT;
+export const getAllSearchedPosts = async ({
+  query,
+  offset,
+  sort = "desc",
+  limit,
+}) => {
+  const postLimit = limit ? limit : SEARCH_POST_LIMIT;
   const sortOptions = {
     desc: {
       column: "p.created_at",
@@ -99,11 +104,12 @@ limit ${postLimit}
   return result[0];
 };
 
-export const getAllUserPosts = async ({ userId }) => {
-  const result = await Posts.findAll({
+export const getUserRecentPost = async ({ userId }) => {
+  const result = await Posts.findOne({
     where: {
       user_id: userId,
     },
+    order: [["created_at", "DESC"]],
   });
 
   return result;

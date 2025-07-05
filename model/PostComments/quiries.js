@@ -1,6 +1,7 @@
 import { PostComments } from "./PostComments.js";
 import sequelize from "../../db.js";
 import { COMMENT_LIMIT } from "../../utils/constants.js";
+import { Op } from "sequelize";
 
 export const createPostComment = async ({
   userId,
@@ -89,14 +90,18 @@ export const updateCommentAsGhost = async ({ commentId }) => {
   return result;
 };
 
-export const getTotalOwnPostCommentsCount = async ({ userId }) => {
+export const getTotalOwnPostsCommentCount = async ({ userId }) => {
   const result = await sequelize.query(
-    `select sum(comments) as comments from posts p
-    join post_analytics pa on p.id=pa.post_id
-    where p.user_id=${userId}`
+    ` select SUM(pa.comments) AS total_comments
+    FROM
+      post_analytics pa
+    JOIN
+      posts p ON p.id = pa.post_id
+    WHERE
+      p.user_id=${userId}`
   );
 
-  return result ? result[0][0].comments : null;
+  return result ? result[0][0].total_comments : null;
 };
 
 export const deletePostComments = async ({ postId }) => {
@@ -151,11 +156,15 @@ export const deleteAllCmtReplies = async ({ commentId }) => {
 };
 
 export const getOwnRecentComment = async ({ userId }) => {
-  const result =
-    sequelize.query(`select p.user_id, p.id as post_id,p.title as post_title,pc.content,pc.created_at  from post_comments pc
-    join posts p on p.id = pc.post_id
-    where pc.user_id =${userId} and pc.content!='NA-#GOHST'
-    order by pc.created_at desc;`);
+  const result = await PostComments.findOne({
+    where: {
+      content: {
+        [Op.ne]: "NA-#GOHST",
+      },
+      user_id: userId,
+    },
+    order: [["created_at", "DESC"]],
+  });
 
   return result;
 };

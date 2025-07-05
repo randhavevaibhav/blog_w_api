@@ -64,16 +64,6 @@ export const updateUser = async ({
 };
 
 export const getUserInfo = async ({ userId }) => {
-  //   const result = await sequelize.query(`select
-  // u.first_name,
-  // u.registered_at,
-  // u.profile_img_url,
-  // u.bio,
-  // u.skills,
-  // u.website_url,
-  // u.email,
-  // u.location
-  // from users u where u.id= ${userId}`);
   const result = Users.findOne({
     attributes: [
       "first_name",
@@ -117,4 +107,68 @@ export const getRefreshToken = async ({ userId }) => {
   });
 
   return res.refresh_token;
+};
+
+export const getTotalUserPosts = async ({ userId }) => {
+  const result = await Users.findOne({
+    where: {
+      id: userId,
+    },
+    attributes: ["posts"],
+  });
+
+  return result;
+};
+export const getTotalCommentCountOfUser = async ({ userId }) => {
+  const result = await Users.findOne({
+    where: {
+      id: userId,
+    },
+    attributes: ["comments"],
+  });
+  return result;
+};
+
+export const incUserPostsCount = async ({ userId }) => {
+  const result = await Users.increment("posts", {
+    by: 1,
+    where: {
+      id: userId,
+    },
+  });
+
+  return result;
+};
+
+export const decUserPostsCount = async ({ userId }) => {
+  const result = await sequelize.query(`UPDATE users
+  SET posts = CASE
+      WHEN posts > 0 THEN posts - 1
+      ELSE 0
+  END
+  WHERE id = ${userId};`);
+
+  return result;
+};
+
+export const incUserCommentsCount = async ({ userId }) => {
+  const result = await Users.increment("comments", {
+    by: 1,
+    where: {
+      id: userId,
+    },
+  });
+
+  return result;
+};
+
+export const decUserCommentsCount = async ({ userId }) => {
+  const result = await sequelize.query(`UPDATE users
+  SET comments = CASE
+      WHEN comments > 0 THEN comments - 1
+      ELSE 0
+  END
+  WHERE id = ${userId};`);
+
+  return result;
 };

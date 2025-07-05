@@ -22,39 +22,30 @@ export const dislikePostController = catchAsync(async (req, res, next) => {
     );
   }
 
-    const formattedUserId = parseInt(userId);
-    const formattedPostId = parseInt(postId);
-  
-    if (
-      !isPositiveInteger(formattedUserId) ||
-      !isPositiveInteger(formattedPostId)
-    ) {
-      return next(new AppError(`userId, postId must be numbers`));
-    }
+  const formattedUserId = parseInt(userId);
+  const formattedPostId = parseInt(postId);
+
+  if (
+    !isPositiveInteger(formattedUserId) ||
+    !isPositiveInteger(formattedPostId)
+  ) {
+    return next(new AppError(`userId, postId must be numbers`));
+  }
 
   const isPostLiked = await checkIfPostLikedByUser({ userId, postId });
 
   if (!isPostLiked) {
     //already dis-liked !
-     return res.sendStatus(204)
+    return res.sendStatus(204);
   }
 
-  const totalLikes = await getLikePostAnalytics({ postId });
-  // console.log("totalLikes ===> ",Number(totalLikes.likes));
+  const removePostLikeResult = await removeUserPostLike({ userId, postId });
+  const decPostLikeResult = await decPostLike(postId);
+  // console.log("result in removePostLikeResult =======> ",removePostLikeResult);
+  // console.log("result in removePostLikeResult =======> ",decPostLikeResult);
 
-  if (Number(totalLikes.likes) > 0) {
-    const removePostLikeResult = await removeUserPostLike({ userId, postId });
-    const decPostLikeResult = await decPostLike(postId);
-    // console.log("result in removePostLikeResult =======> ",removePostLikeResult);
-    // console.log("result in removePostLikeResult =======> ",decPostLikeResult);
-
-    return res.status(200).send({
-      message: "un-liked a post !",
-      liked: false,
-    });
-  } else {
-    return res.status(304).send({
-      message: "invalid",
-    });
-  }
+  return res.status(200).send({
+    message: "un-liked a post !",
+    liked: false,
+  });
 });

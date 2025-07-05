@@ -1,7 +1,4 @@
-import {
-  decCommentLike,
-  getCommentAnalytics,
-} from "../../../model/CommentAnalytics/quries.js";
+import { decCommentLike } from "../../../model/CommentAnalytics/quries.js";
 import {
   isCommentLikedByUser,
   removeCommentLike,
@@ -32,25 +29,18 @@ export const dislikeCommentController = catchAsync(async (req, res, next) => {
 
   if (!isCommentLiked) {
     //already dis-liked !
-    return res.sendStatus(204)
+    return res.sendStatus(204);
   }
 
-  const totalCommentLikes = await getCommentAnalytics({ commentId });
-  // console.log("totalLikes ===> ",Number(totalLikes.likes));
+  const removeCommentLikeResult = await removeCommentLike({
+    userId,
+    commentId,
+  });
+  const decCommentLikeResult = await decCommentLike({ commentId });
+  // console.log("result in decCommentLikeResult =======> ",decCommentLikeResult);
 
-  if (Number(totalCommentLikes.likes) > 0) {
-    const removeCommentLikeResult = await removeCommentLike({
-      userId,
-      commentId,
-    });
-    const decCommentLikeResult = await decCommentLike({ commentId });
-    // console.log("result in decCommentLikeResult =======> ",decCommentLikeResult);
-
-    return res.status(200).send({
-      message: "un-liked a comment !",
-      liked: false,
-    });
-  } else {
-    return res.sendStatus(304);
-  }
+  return res.status(200).send({
+    message: "un-liked a comment !",
+    liked: false,
+  });
 });

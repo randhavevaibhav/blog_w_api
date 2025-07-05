@@ -1,3 +1,4 @@
+import sequelize from "../../db.js";
 import { PostAnalytics } from "./PostAnalytics.js";
 
 export const createPostAnalytics = async ({ postId }) => {
@@ -51,12 +52,12 @@ export const incPostLike = async (postId) => {
 };
 
 export const decPostLike = async (postId) => {
-  const result = await PostAnalytics.decrement("likes", {
-    by: 1,
-    where: {
-      post_id: postId,
-    },
-  });
+  const result = await sequelize.query(`UPDATE post_analytics
+  SET likes = CASE
+      WHEN likes > 0 THEN likes - 1
+      ELSE 0
+  END
+  WHERE post_id = ${postId};`);
 
   return result;
 };
@@ -73,27 +74,12 @@ export const incCommentCount = async (postId) => {
 };
 
 export const decCommentCount = async (postId) => {
-  const result = await PostAnalytics.decrement("comments", {
-    by: 1,
-    where: {
-      post_id: postId,
-    },
-  });
+  const result = await sequelize.query(`UPDATE post_analytics
+  SET comments = CASE
+      WHEN comments > 0 THEN comments - 1
+      ELSE 0
+  END
+  WHERE post_id = ${postId};`);
 
   return result;
-};
-
-export const isCommentCountZero = async (postId) => {
-  const result = await PostAnalytics.findOne({
-    attributes: ["comments"],
-    where: {
-      post_id: postId,
-    },
-  });
-
-  if (Number(result.comments) === 0) {
-    return true;
-  } else {
-    return false;
-  }
 };

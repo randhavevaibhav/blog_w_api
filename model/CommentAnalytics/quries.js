@@ -1,3 +1,4 @@
+import sequelize from "../../db.js";
 import { CommentAnalytics } from "./CommentAnalytics.js";
 
 export const createCommentAnalytics = async ({ commentId }) => {
@@ -40,12 +41,12 @@ export const incCommentLike = async ({ commentId }) => {
 };
 
 export const decCommentLike = async ({ commentId }) => {
-  const result = await CommentAnalytics.decrement("likes", {
-    by: 1,
-    where: {
-      comment_id: commentId,
-    },
-  });
+  const result = await sequelize.query(`UPDATE comment_analytics
+  SET likes = CASE
+      WHEN likes > 0 THEN likes - 1
+      ELSE 0
+  END
+  WHERE comment_id = ${commentId};`);
 
   return result;
 };

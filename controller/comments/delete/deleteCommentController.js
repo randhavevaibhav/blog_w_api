@@ -1,7 +1,4 @@
-import {
-  decCommentCount,
-  isCommentCountZero,
-} from "../../../model/PostAnalytics/quries.js";
+import { decCommentCount } from "../../../model/PostAnalytics/quries.js";
 import {
   deleteSinglePostComment,
   updateCommentAsGhost,
@@ -40,15 +37,12 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
   let ghosted = false;
 
   //decrease the comment count in post_analytics table if it is not zero
-  const isCommentCount = await isCommentCountZero(postId);
 
   await decUserCommentsCount({
     userId,
   });
 
-  // console.log("isCommentCountZero ===> ",isCommentCount)
-
-  if (!isCommentCount && !numHasReplies) {
+  if (!numHasReplies) {
     await decCommentCount(postId);
     result = await deleteSinglePostComment({ userId, commentId });
   }

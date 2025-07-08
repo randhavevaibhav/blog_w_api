@@ -1,6 +1,7 @@
 import { Posts } from "./Posts.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
+import { QueryTypes } from "sequelize";
 
 export const createPost = async ({
   userId,
@@ -40,7 +41,8 @@ export const isPostBelongsToUser = async ({ userId, postId }) => {
 };
 
 export const getAllPosts = async ({ offset }) => {
-  const result = await sequelize.query(`select
+  const result = await sequelize.query(
+    `select
 p.id as post_id,
 u.id as user_id,
 u.first_name,
@@ -55,11 +57,18 @@ join post_analytics pa on pa.post_id=p.id
 join users u on u.id = p.user_id
 order by p.created_at desc,
 p.id desc
-offset ${offset}
+offset :offset
 limit ${POST_LIMIT}
-`);
+`,
+    {
+      replacements: {
+        offset,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
-  return result[0];
+  return result;
 };
 
 export const getAllSearchedPosts = async ({
@@ -81,7 +90,8 @@ export const getAllSearchedPosts = async ({
   };
 
   const sortBy = sortOptions[sort];
-  const result = await sequelize.query(`select
+  const result = await sequelize.query(
+    `select
 p.id as post_id,
 u.id as user_id,
 u.first_name,
@@ -94,14 +104,22 @@ pa.comments as total_comments
 from posts p
 join post_analytics pa on pa.post_id=p.id
 join users u on u.id = p.user_id
-where LOWER(p.title) like LOWER('%${query}%')
+where LOWER(p.title) like LOWER(:query)
 order by ${sortBy.column} ${sortBy.type},p.created_at desc,
 p.id desc
-offset ${offset}
+offset :offset
 limit ${postLimit}
-`);
+`,
+    {
+      replacements: {
+        offset,
+        query: `%${query}%`,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
-  return result[0];
+  return result;
 };
 
 export const getUserRecentPost = async ({ userId }) => {
@@ -115,7 +133,37 @@ export const getUserRecentPost = async ({ userId }) => {
   return result;
 };
 
-export const getAllOwnPosts = async ({ userId, offset, sortBy = "desc" }) => {
+export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
+  const result = await sequelize.query( `
+select 
+p.id as post_id,
+u.first_name,
+u.profile_img_url,
+p.title_img_url,
+p.title,
+p.created_at,
+pa.likes as likes,
+pa.comments as total_comments,
+u.id as user_id
+from posts p
+join users u on u.id=p.user_id
+join post_analytics pa on pa.post_id=p.id
+where p.user_id in 
+(select user_id from followers where follower_id=:userId)
+offset :offset`,
+    {
+      replacements: {
+        userId,
+        offset
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  return result;
+};
+
+export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const sortByOptions = {
     asc: "p.created_at asc",
     desc: "p.created_at desc",
@@ -123,7 +171,8 @@ export const getAllOwnPosts = async ({ userId, offset, sortBy = "desc" }) => {
   };
   const orderBy = sortByOptions[sortBy];
 
-  const result = await sequelize.query(`SELECT 
+  const result = await sequelize.query(
+    `SELECT 
     u.id as user_id, 
 	u.first_name,
     p.id as post_id,
@@ -136,7 +185,7 @@ FROM users u
 JOIN posts p ON u.id = p.user_id
 LEFT JOIN post_comments pc ON p.id = pc.post_id
 LEFT JOIN post_analytics pa ON p.id = pa.post_id
-WHERE u.id=${userId}
+WHERE u.id=:userId
 GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
 	p.likes,
 	p.title_img_url,
@@ -145,26 +194,42 @@ GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
   pa.comments
 ORDER BY ${orderBy}
 limit ${POST_LIMIT}
-offset ${offset}`);
+offset :offset`,
+    {
+      replacements: {
+        userId,
+        offset,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
-  if (result && result[1]) return result[1].rows;
+  return result;
 };
 
 export const getTotalOwnPostsLikesCount = async ({ userId }) => {
-  const result = await sequelize.query(`SELECT
+  const result = await sequelize.query(
+    `SELECT
   SUM(pa.likes) AS total_likes
 FROM
   posts p
 JOIN
   post_analytics pa ON p.id = pa.post_id
 WHERE
-  p.user_id=${userId};`);
-
-  return result[0][0].total_likes ? result[0][0].total_likes : 0;
+  p.user_id=:userId;`,
+    {
+      replacements: {
+        userId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
+  return result[0].total_likes ? result[0].total_likes : 0;
 };
 
 export const getPost = async ({ postId }) => {
-  const result = await sequelize.query(`select 
+  const result = await sequelize.query(
+    `select 
 p.id,
 u.first_name,
 u.profile_img_url,
@@ -180,9 +245,16 @@ pa.comments
 from posts p
 join post_analytics pa on pa.post_id=p.id
 join users u on u.id=p.user_id
-where p.id=${postId}`);
+where p.id=:postId`,
+    {
+      replacements: {
+        postId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
-  return result[0][0] ? result[0][0] : null;
+  return result[0];
 };
 export const deletePost = async ({ postId }) => {
   const result = await Posts.destroy({

@@ -1,3 +1,4 @@
+import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { PostAnalytics } from "./PostAnalytics.js";
 
@@ -52,12 +53,20 @@ export const incPostLike = async (postId) => {
 };
 
 export const decPostLike = async (postId) => {
-  const result = await sequelize.query(`UPDATE post_analytics
+  const result = await sequelize.query(
+    `UPDATE post_analytics
   SET likes = CASE
       WHEN likes > 0 THEN likes - 1
       ELSE 0
   END
-  WHERE post_id = ${postId};`);
+  WHERE post_id=:postId`,
+    {
+      replacements: {
+        postId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
   return result;
 };
@@ -79,7 +88,12 @@ export const decCommentCount = async (postId) => {
       WHEN comments > 0 THEN comments - 1
       ELSE 0
   END
-  WHERE post_id = ${postId};`);
+  WHERE post_id=:postId`,{
+    replacements:{
+      postId
+    },
+    type:QueryTypes.SELECT
+  });
 
   return result;
 };

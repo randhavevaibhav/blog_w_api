@@ -1,3 +1,4 @@
+import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { FollowerAnalytics } from "./FollowerAnalytics.js";
 
@@ -47,7 +48,10 @@ export const decFollowerCount = async ({ userId }) => {
       WHEN followers > 0 THEN followers - 1
       ELSE 0
   END
-  WHERE user_id = ${userId};`);
+  WHERE user_id=:userId`,{
+    replacements:{userId},
+    type:QueryTypes.SELECT
+  });
 
   return result;
 };

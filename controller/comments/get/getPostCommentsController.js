@@ -75,6 +75,7 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           userId: comment.user_id,
           parentId: comment.parent_id,
           replies: await Promise.all(getComments(repliesResult)),
+          page:parseInt(offset)/COMMENT_OFFSET,
         };
       } else {
         return {
@@ -88,6 +89,7 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           userId: comment.user_id,
           parentId: comment.parent_id,
           replies,
+          page:parseInt(offset)/COMMENT_OFFSET,
         };
       }
     });

@@ -1,3 +1,4 @@
+import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { Users } from "./Users.js";
 
@@ -146,7 +147,12 @@ export const decUserPostsCount = async ({ userId }) => {
       WHEN posts > 0 THEN posts - 1
       ELSE 0
   END
-  WHERE id = ${userId};`);
+  WHERE id =:userId`,{
+    replacements:{
+      userId
+    },
+    type:QueryTypes.SELECT
+  });
 
   return result;
 };
@@ -168,7 +174,12 @@ export const decUserCommentsCount = async ({ userId }) => {
       WHEN comments > 0 THEN comments - 1
       ELSE 0
   END
-  WHERE id = ${userId};`);
+  WHERE id =:userId`,{
+    replacements:{
+      userId
+    },
+    type:QueryTypes.SELECT
+  });
 
   return result;
 };

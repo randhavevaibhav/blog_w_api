@@ -8,7 +8,7 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const dislikeCommentController = catchAsync(async (req, res, next) => {
-  const { commentId, userId } = req.body;
+  const { commentId, userId,page=0 } = req.body;
 
   if (!commentId || !userId) {
     return next(

@@ -1,7 +1,7 @@
 import { getUserFollowers } from "../../../model/Followers/quries.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { FOLLOWERS_OFFSET } from "../../../utils/constants.js";
+import { FOLLOWERS_LIMIT, FOLLOWERS_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getFollowersController = catchAsync(async (req, res, next) => {

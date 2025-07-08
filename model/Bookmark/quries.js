@@ -1,11 +1,12 @@
+import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { Bookmarks } from "./Bookmark.js";
 
-export const createBookmark = async ({ userId, postId,createdAt }) => { 
+export const createBookmark = async ({ userId, postId, createdAt }) => {
   const result = await Bookmarks.create({
     user_id: userId,
     post_id: postId,
-    created_at:createdAt
+    created_at: createdAt,
   });
 
   return result;
@@ -33,13 +34,14 @@ export const checkIfAlreadyBookmarked = async ({ userId, postId }) => {
   return result;
 };
 
-export const getUserBookmarks = async ({ userId, sort}) => {
+export const getUserBookmarks = async ({ userId, sort }) => {
   const sortByOptions = {
-    asc: "b.created_at asc",
-    desc: "b.created_at desc",
+    asc: "asc",
+    desc: "desc",
   };
   const orderBy = sortByOptions[sort];
-  const result = await sequelize.query(`select 
+  const result = await sequelize.query(
+    `select 
  b.user_id as user_id,
  p.user_id as auther_id,
  u.first_name as auther_name,
@@ -51,9 +53,13 @@ export const getUserBookmarks = async ({ userId, sort}) => {
  from bookmarks b
  join posts p on p.id=b.post_id
  join users u on u.id= p.user_id 
- where b.user_id=${userId}
- order by ${orderBy}
- `);
+ where b.user_id=:userId
+ order by b.created_at ${orderBy}`,
+    {
+      replacements: { userId },
 
-  return result[0];
+      type: QueryTypes.SELECT,
+    }
+  );
+  return result;
 };

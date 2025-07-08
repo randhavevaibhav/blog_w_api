@@ -6,7 +6,8 @@ import { authPostActionsMiddleware } from "../../middleware/authPostActionsMiddl
 const router = Router();
 const {
   createPostsController,
-  getAllOwnPostsController,
+  getAllUserPostsController,
+  getAllFollowingUsersPostsController,
   getIndiviualPostController,
   getAllPostsController,
   deletePostController,
@@ -14,9 +15,10 @@ const {
   getSearchedPostsController,
 } = postControllers;
 router.post("/post", requireAuth, createPostsController);
-router.get("/posts/own/:userId", requireAuth, getAllOwnPostsController);
+router.get("/user/posts/:userId", requireAuth, getAllUserPostsController);
+router.get("/following/posts/:userId", requireAuth, getAllFollowingUsersPostsController);
 router.get("/post/:currentUserId?/:userId/:postId", getIndiviualPostController);
-router.get("/posts/all", getAllPostsController);
+router.get("/posts/all/:userId?", getAllPostsController);
 router.get("/posts/search", getSearchedPostsController);
 router.delete(
   "/post/delete/:userId/:postId",

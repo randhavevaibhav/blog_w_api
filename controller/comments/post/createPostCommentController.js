@@ -9,7 +9,7 @@ import { isPositiveInteger } from "../../../utils/utils.js";
 export const createPostCommentController = catchAsync(
   async (req, res, next) => {
     // console.log("req.body ===> ", req.body);
-    const { userId, postId, parentId = null, content, createdAt } = req.body;
+    const { userId, postId, parentId = null, content, createdAt ,page=0} = req.body;
 
     // console.log("postId,content,createdAt,likes ===> ", postId);
 
@@ -56,6 +56,7 @@ export const createPostCommentController = catchAsync(
         createdAt,
         parentId: result.parent_id,
         likes: "0",
+        page
       },
     });
   }

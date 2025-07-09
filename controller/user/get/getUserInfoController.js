@@ -94,6 +94,7 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
   const userInfo = await getUserInfo({ userId });
 
   formattedUserInfo = {
+    userId,
     firstName: userInfo.first_name,
     email: userInfo.email,
     registeredAt: userInfo.registered_at,

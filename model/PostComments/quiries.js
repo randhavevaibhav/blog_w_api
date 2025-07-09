@@ -106,6 +106,34 @@ export const updateCommentAsGhost = async ({ commentId }) => {
   return result;
 };
 
+export const updateComment = async ({ commentId, content }) => {
+  const result = await PostComments.update(
+    { content },
+    {
+      where: {
+        id: commentId,
+      },
+    }
+  );
+
+  return result;
+};
+
+export const isCommentBelongsToUser = async ({ userId, commentId }) => {
+  const result = await PostComments.findOne({
+    where: {
+      id: commentId,
+      user_id: userId,
+    },
+  });
+
+  if (!result) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 export const getTotalOwnPostsCommentCount = async ({ userId }) => {
   const result = await sequelize.query(
     ` select SUM(pa.comments) AS total_comments

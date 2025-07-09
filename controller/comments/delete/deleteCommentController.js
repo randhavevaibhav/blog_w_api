@@ -8,7 +8,7 @@ import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 export const deleteCommentController = catchAsync(async (req, res, next) => {
-  const { userId, commentId, postId, hasReplies } = req.body;
+  const { userId, commentId, postId, hasReplies } = req.params;
 
   const numHasReplies = parseInt(hasReplies);
 

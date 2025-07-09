@@ -20,6 +20,18 @@ import {
   REMOTE_CLIENT_ORIGIN,
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
+import rateLimit from "express-rate-limit";
+
+
+const limiter = rateLimit({
+  windowMs: 1000, // 1 sec
+  limit: 20, // each IP can make up to 20 requests per `windowsMs` (1 sec)
+  standardHeaders: true, // add the `RateLimit-*` headers to the response
+  legacyHeaders: false, // remove the `X-RateLimit-*` headers from the response
+  message: {
+    message: "Too many requests",
+  },
+});
 
 //no exports from index js
 
@@ -27,6 +39,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(limiter)
 
 const corsOptions = {
   origin: [LOCAL_CLIENT_ORIGIN, REMOTE_CLIENT_ORIGIN, "http://127.0.0.1:5173"],

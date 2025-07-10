@@ -1,4 +1,4 @@
-import { updateComment } from "../../../model/PostComments/quiries.js";
+import { updateComment } from "../../../model/PostComments/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

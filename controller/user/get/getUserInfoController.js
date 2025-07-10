@@ -5,12 +5,12 @@ import {
   getTotalCommentCountOfUser,
   getTotalUserPosts,
   getUserInfo,
-} from "../../../model/Users/quries.js";
-import { getUserRecentPost } from "../../../model/Posts/quries.js";
-import { getOwnRecentComment } from "../../../model/PostComments/quiries.js";
+} from "../../../model/Users/quires.js";
+import { getUserRecentPost } from "../../../model/Posts/quires.js";
+import { getOwnRecentComment } from "../../../model/PostComments/quires.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
-import { checkIfAlreadyFollowed } from "../../../model/Followers/quries.js";
-import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quries.js";
+import { checkIfAlreadyFollowed } from "../../../model/Followers/quires.js";
+import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quires.js";
 export const getUserInfoController = catchAsync(async (req, res, next) => {
   const { userId, currentUserId } = req.params;
   let isFollowed = false;

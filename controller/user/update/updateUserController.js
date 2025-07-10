@@ -1,7 +1,7 @@
-import { checkIfUserExistWithMail, updateUser } from "../../../model/Users/quries.js";
+import { checkIfUserExistWithMail, updateUser } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { incript, isPositiveInteger } from "../../../utils/utils.js";
+import { encrypt, isPositiveInteger } from "../../../utils/utils.js";
 import bcrypt from "bcrypt";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
@@ -39,18 +39,18 @@ export const updateUserController = catchAsync(async (req, res, next) => {
   if (password.length > 20 || password.length < 6) {
     return next(
       new AppError(
-        `Password must have charaters greater than 6 and less than 20.`,
+        `Password must have characters greater than 6 and less than 20.`,
         400
       )
     );
   }
-  const incriptedPassword = await incript(password);
+  const encryptedPassword = await encrypt(password);
   const updateUserData = {
     userId,
     userName,
     userMail,
     profileImgUrl,
-    incriptedPassword,
+    encryptedPassword,
     userBio,
     userSkills,
     userWebsiteURL,

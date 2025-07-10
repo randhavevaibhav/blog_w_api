@@ -1,5 +1,5 @@
-import { decFollowerCount, decFollowingCount } from "../../../model/FollowerAnalytics/quries.js";
-import { removeFollower } from "../../../model/Followers/quries.js";
+import { decFollowerCount, decFollowingCount } from "../../../model/FollowerAnalytics/quires.js";
+import { removeFollower } from "../../../model/Followers/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

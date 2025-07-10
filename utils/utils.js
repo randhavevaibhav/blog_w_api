@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
 import { Jimp } from "jimp";
 import * as path from "path";
-export const incript = async (item) => {
+export const encrypt = async (item) => {
   const salt = await bcrypt.genSalt();
-  const incripteditem = await bcrypt.hash(item, salt);
-  return incripteditem;
+  const encryptedItem = await bcrypt.hash(item, salt);
+  return encryptedItem;
 };
 
 export const compressImage = async ({

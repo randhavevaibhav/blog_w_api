@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { updateRefeshToken } from "../../../../model/Users/quries.js";
+import { updateRefreshToken } from "../../../../model/Users/quires.js";
 import { catchAsync } from "../../../../utils/catchAsync.js";
 
 export const logoutController = catchAsync(async (req, res) => {
@@ -15,18 +15,18 @@ export const logoutController = catchAsync(async (req, res) => {
 
   jwt.verify(
     refreshToken,
-    process.env.REFRESH_TOKEN_SCERET,
+    process.env.REFRESH_TOKEN_SECRET,
     async (err, decoded) => {
       const userId = decoded.userId;
 
-      await updateRefeshToken({
+      await updateRefreshToken({
         refreshToken: null,
         userId,
       });
     }
   );
 
-  /* below options should be excatly same as in sigin controller i.e when user sign and we set the jwt cookie to refresh token
+  /* below options should be exactly same as in sign controller i.e when user sign and we set the jwt cookie to refresh token
     otherwise jwt cookie will not be cleared from the client 
       {
       httpOnly: true,

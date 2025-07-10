@@ -1,10 +1,10 @@
-import { getCommentAnalytics } from "../../../model/CommentAnalytics/quries.js";
-import { isCommentLikedByUser } from "../../../model/CommentLikes/quries.js";
-import { getCommentPostAnalytics } from "../../../model/PostAnalytics/quries.js";
+import { getCommentAnalytics } from "../../../model/CommentAnalytics/quires.js";
+import { isCommentLikedByUser } from "../../../model/CommentLikes/quires.js";
+import { getCommentPostAnalytics } from "../../../model/PostAnalytics/quires.js";
 import {
   getAllPostComments,
   getReplies,
-} from "../../../model/PostComments/quiries.js";
+} from "../../../model/PostComments/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { COMMENT_OFFSET } from "../../../utils/constants.js";
@@ -46,8 +46,8 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
   const getComments = (commentArr) => {
     return commentArr.map(async (comment) => {
       let replies = [];
-      let likedByuser = false;
-      const commetLikes = await getCommentAnalytics({
+      let likedByUser = false;
+      const commentLikes = await getCommentAnalytics({
         commentId: comment.comment_id,
       });
 
@@ -57,7 +57,7 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           commentId: comment.comment_id,
         });
 
-        likedByuser = isCmtLikedByUser ? true : false;
+        likedByUser = isCmtLikedByUser ? true : false;
       }
 
       const repliesResult = await getReplies({
@@ -68,8 +68,8 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           commentId: comment.comment_id,
           content: comment.content,
           createdAt: comment.created_at,
-          likes: commetLikes ? commetLikes.likes : 0,
-          isCmtLikedByUser: likedByuser,
+          likes: commentLikes ? commentLikes.likes : 0,
+          isCmtLikedByUser: likedByUser,
           userName: comment.first_name,
           userProfileImg: comment.profile_img_url,
           userId: comment.user_id,
@@ -82,8 +82,8 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           commentId: comment.comment_id,
           content: comment.content,
           createdAt: comment.created_at,
-          likes: commetLikes ? commetLikes.likes : 0,
-          isCmtLikedByUser: likedByuser,
+          likes: commentLikes ? commentLikes.likes : 0,
+          isCmtLikedByUser: likedByUser,
           userName: comment.first_name,
           userProfileImg: comment.profile_img_url,
           userId: comment.user_id,

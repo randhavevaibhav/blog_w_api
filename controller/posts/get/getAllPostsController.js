@@ -1,6 +1,6 @@
-import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quries.js";
-import { getRecentComments } from "../../../model/PostComments/quiries.js";
-import { getAllPosts } from "../../../model/Posts/quries.js";
+import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quires.js";
+import { getRecentComments } from "../../../model/PostComments/quires.js";
+import { getAllPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
@@ -92,7 +92,7 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
         });
       })
       .catch((err) => {
-        return next(new AppError(`Internl server error ===> ${err}`, 500));
+        return next(new AppError(`Internal server error ===> ${err}`, 500));
       });
   } else {
     return res.status(200).send({

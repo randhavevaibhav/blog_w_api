@@ -1,7 +1,7 @@
-import { getAllSearchedPosts } from "../../../model/Posts/quries.js";
+import { getAllSearchedPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { POST_OFFSET, SEARCH_POST_LIMIT } from "../../../utils/constants.js";
+import { POST_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getSearchedPostsController = catchAsync(async (req, res, next) => {

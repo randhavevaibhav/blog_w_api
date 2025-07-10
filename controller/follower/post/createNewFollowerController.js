@@ -3,11 +3,11 @@ import {
   getFollowerAnalytics,
   incFollowerCount,
   incFollowingCount,
-} from "../../../model/FollowerAnalytics/quries.js";
+} from "../../../model/FollowerAnalytics/quires.js";
 import {
   checkIfAlreadyFollowed,
   createNewFollower,
-} from "../../../model/Followers/quries.js";
+} from "../../../model/Followers/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 

@@ -15,11 +15,11 @@ export const markDownToHTMLController = async (req, res) => {
   
    
     res.status(200).send({
-      message: `successfully coverted markdown to HTML`,
+      message: `successfully converted markdown to HTML`,
       html
     });
   } catch (error) {
-    console.log("Error ocuured in createPostsController ==> ", error);
+    console.log("Error occurred in createPostsController ==> ", error);
     return res.status(500).send({
       message: "Internal Server Error",
     });

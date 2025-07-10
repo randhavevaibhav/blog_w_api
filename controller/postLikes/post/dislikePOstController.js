@@ -1,11 +1,11 @@
 import {
   decPostLike,
   getLikePostAnalytics,
-} from "../../../model/PostAnalytics/quries.js";
+} from "../../../model/PostAnalytics/quires.js";
 import {
   checkIfPostLikedByUser,
   removeUserPostLike,
-} from "../../../model/PostLikes/quries.js";
+} from "../../../model/PostLikes/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

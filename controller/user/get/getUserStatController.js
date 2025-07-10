@@ -1,7 +1,7 @@
-import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quries.js";
-import { getTotalOwnPostsCommentCount } from "../../../model/PostComments/quiries.js";
-import { getTotalOwnPostsLikesCount } from "../../../model/Posts/quries.js";
-import { getTotalUserPosts } from "../../../model/Users/quries.js";
+import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quires.js";
+import { getTotalOwnPostsCommentCount } from "../../../model/PostComments/quires.js";
+import { getTotalOwnPostsLikesCount } from "../../../model/Posts/quires.js";
+import { getTotalUserPosts } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

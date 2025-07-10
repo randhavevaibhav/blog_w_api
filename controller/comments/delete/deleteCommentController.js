@@ -1,9 +1,9 @@
-import { decCommentCount } from "../../../model/PostAnalytics/quries.js";
+import { decCommentCount } from "../../../model/PostAnalytics/quires.js";
 import {
   deleteSinglePostComment,
   updateCommentAsGhost,
-} from "../../../model/PostComments/quiries.js";
-import { decUserCommentsCount } from "../../../model/Users/quries.js";
+} from "../../../model/PostComments/quires.js";
+import { decUserCommentsCount } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

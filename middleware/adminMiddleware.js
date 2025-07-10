@@ -1,4 +1,4 @@
-import { checkIfUserExistWithId } from "../model/Users/quries.js";
+import { checkIfUserExistWithId } from "../model/Users/quires.js";
 import { AppError } from "../utils/appError.js";
 import { catchAsync } from "../utils/catchAsync.js";
 
@@ -19,5 +19,5 @@ export const adminMiddleware = catchAsync(async (req, res, next) => {
     return next();
   }
 
-  return next(new AppError(`un-Authorised access`, 400));
+  return next(new AppError(`un-Authorized access`, 400));
 });

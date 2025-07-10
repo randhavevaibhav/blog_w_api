@@ -2,15 +2,15 @@ import bcrypt from "bcrypt";
 import {
   checkIfUserExistWithMail,
   getRefreshToken,
-  updateRefeshToken,
-} from "../../../../model/Users/quries.js";
+  updateRefreshToken,
+} from "../../../../model/Users/quires.js";
 import jwt from "jsonwebtoken";
 import { catchAsync } from "../../../../utils/catchAsync.js";
 import { AppError } from "../../../../utils/appError.js";
 
 function isTokenExpired({ token }) {
   try {
-    jwt.verify(token, process.env.REFRESH_TOKEN_SCERET);
+    jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     return false; // Token is valid and not expired
   } catch (error) {
     if (error.name === "TokenExpiredError") {
@@ -69,7 +69,7 @@ export const signinController = catchAsync(async (req, res, next) => {
 
   const accessToken = jwt.sign(
     { userId: user.id },
-    process.env.ACCESS_TOKEN_SCERET,
+    process.env.ACCESS_TOKEN_SECRET,
     { expiresIn: "4m" }
   );
 
@@ -84,11 +84,11 @@ export const signinController = catchAsync(async (req, res, next) => {
     userLocation: user.location,
   };
 
-  const newRefreshToken = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SCERET, {
+  const newRefreshToken = jwt.sign(userInfo, process.env.REFRESH_TOKEN_SECRET, {
     expiresIn: "10h",
   });
 
-  await updateRefeshToken({
+  await updateRefreshToken({
     userId: user.id,
     refreshToken: newRefreshToken,
   });

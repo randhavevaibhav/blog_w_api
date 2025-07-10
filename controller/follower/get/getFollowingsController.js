@@ -1,4 +1,4 @@
-import { getUserFollowings } from "../../../model/Followers/quries.js";
+import { getUserFollowings } from "../../../model/Followers/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { FOLLOWING_LIMIT, FOLLOWING_OFFSET } from "../../../utils/constants.js";
@@ -24,7 +24,7 @@ export const getFollowingsController = catchAsync(async (req, res, next) => {
 
   const result = await getUserFollowings({ userId ,offset});
 
-  const formatedResult = result.map((followingUser) => {
+  const formattedResult = result.map((followingUser) => {
     return {
       followingUserId: followingUser.id,
       profileImgURL: followingUser.profile_img_url,
@@ -44,7 +44,7 @@ export const getFollowingsController = catchAsync(async (req, res, next) => {
   return res.status(200).send({
     message: "found user followings",
     userId,
-    followings: formatedResult,
+    followings: formattedResult,
      offset: Number(offset) + FOLLOWING_OFFSET,
   });
 });

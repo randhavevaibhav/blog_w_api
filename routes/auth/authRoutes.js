@@ -3,9 +3,9 @@ import authControllers from "../../controller/auth/index.js";
 
 
 const router = Router();
-const {signinController,singupController,logoutController,terminateSessionController} = authControllers;
+const {signinController,signupController,logoutController,terminateSessionController} = authControllers;
 
-router.post("/signup",singupController);
+router.post("/signup",signupController);
 router.post("/signin",signinController);
 router.post("/terminate",terminateSessionController);
 router.get("/logout",logoutController);

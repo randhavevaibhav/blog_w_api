@@ -1,9 +1,9 @@
-import { createPostAnalytics } from "../../../model/PostAnalytics/quries.js";
-import { createPost } from "../../../model/Posts/quries.js";
+import { createPostAnalytics } from "../../../model/PostAnalytics/quires.js";
+import { createPost } from "../../../model/Posts/quires.js";
 import {
   getTotalUserPosts,
   incUserPostsCount,
-} from "../../../model/Users/quries.js";
+} from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

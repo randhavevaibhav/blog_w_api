@@ -1,4 +1,4 @@
-import { getAllOwnPosts } from "../../../model/Posts/quries.js";
+import { getAllOwnPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
@@ -27,7 +27,7 @@ export const getAllOwnPostsController = catchAsync(async (req, res, next) => {
   }
   if(!sortOption)
   {
-    return next(new AppError(`Pleae provide correct sort option. asc, desc, name.`, 400));
+    return next(new AppError(`Please provide correct sort option. asc, desc, name.`, 400));
   }
 
  

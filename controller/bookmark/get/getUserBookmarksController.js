@@ -1,4 +1,4 @@
-import { getUserBookmarks } from "../../../model/Bookmark/quries.js";
+import { getUserBookmarks } from "../../../model/Bookmark/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -24,17 +24,17 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
 
   if (!sortOption) {
     return next(
-      new AppError(`Pleae provide correct sort option. asc, desc.`, 400)
+      new AppError(`Please provide correct sort option. asc, desc.`, 400)
     );
   }
 
   const result = await getUserBookmarks({ userId ,sort:sortOption});
 
-  const formatedResult = result.map((bookmark) => {
+  const formattedResult = result.map((bookmark) => {
     return {
       userId: bookmark.user_id,
-      autherId: bookmark.auther_id,
-      autherName: bookmark.auther_name,
+      authorId: bookmark.author_id,
+      authorName: bookmark.author_name,
       postId: bookmark.post_id,
       titleImgURL: bookmark.title_img_url,
       title: bookmark.title,
@@ -42,7 +42,7 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
       profileImgURL: bookmark.profile_img_url,
     };
   });
-  // console.log("formatedResult getUserBookmarksController ==> ", formatedResult);
+  // console.log("formattedResult getUserBookmarksController ==> ", formattedResult);
   if (result.length == 0) {
     return res.status(404).send({
       message: `No bookmarks found.`,
@@ -52,6 +52,6 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
 
   return res.status(200).send({
     message: "found bookmarks",
-    bookmarks: formatedResult,
+    bookmarks: formattedResult,
   });
 });

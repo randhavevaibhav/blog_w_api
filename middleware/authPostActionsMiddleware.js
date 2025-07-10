@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/appError.js";
 import { catchAsync } from "../utils/catchAsync.js";
-import { isPostBelongsToUser } from "../model/Posts/quries.js";
+import { isPostBelongsToUser } from "../model/Posts/quires.js";
 
 export const authPostActionsMiddleware = catchAsync(async(req, res, next) => {
   const authHeader = req.headers[`authorization`];
@@ -16,7 +16,7 @@ export const authPostActionsMiddleware = catchAsync(async(req, res, next) => {
 
   jwt.verify(
     accessToken,
-    process.env.ACCESS_TOKEN_SCERET,
+    process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
       //all went well
       // console.log("decoded.userId ====> ", decoded.userId);

@@ -1,4 +1,4 @@
-import { checkIfUserExistWithMail, updateRefeshToken } from "../../../../model/Users/quries.js";
+import { checkIfUserExistWithMail, updateRefreshToken } from "../../../../model/Users/quires.js";
 import { AppError } from "../../../../utils/appError.js";
 import { catchAsync } from "../../../../utils/catchAsync.js";
 import bcrypt from "bcrypt";
@@ -16,7 +16,7 @@ export const terminateSessionController = catchAsync(async (req, res, next) => {
   const auth = await bcrypt.compare(password, user.password_hash);
 
   if (auth) {
-    await updateRefeshToken({
+    await updateRefreshToken({
         userId:user.id,
         refreshToken:null
     })

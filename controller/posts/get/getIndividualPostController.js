@@ -1,12 +1,12 @@
-import { checkIfPostLikedByUser } from "../../../model/PostLikes/quries.js";
-import { getPost } from "../../../model/Posts/quries.js";
+import { checkIfPostLikedByUser } from "../../../model/PostLikes/quires.js";
+import { getPost } from "../../../model/Posts/quires.js";
 
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quries.js";
+import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quires.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
-export const getIndiviualPostController = catchAsync(async (req, res, next) => {
+export const getIndividualPostController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const postId = req.params.postId;
   const currentUserId = req.params.currentUserId;
@@ -32,7 +32,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
       message: "Post not found !!",
     });
   }
-  let postlikedByUser = false;
+  let postLikedByUser = false;
   let postBookmarked = false;
   let postData = null;
 
@@ -50,7 +50,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
       postBookmarked = true;
     }
     if (isPostLikedByUser) {
-      postlikedByUser = true;
+      postLikedByUser = true;
     }
   }
 
@@ -66,7 +66,7 @@ export const getIndiviualPostController = catchAsync(async (req, res, next) => {
     totalLikes: postResult.likes,
     createdAt: postResult.created_at,
     totalComments: postResult.comments,
-    postlikedByUser,
+    postLikedByUser,
     postBookmarked,
   };
 

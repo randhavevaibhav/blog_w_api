@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/appError.js";
 import { catchAsync } from "../utils/catchAsync.js";
-import { isCommentBelongsToUser } from "../model/PostComments/quiries.js";
+import { isCommentBelongsToUser } from "../model/PostComments/quires.js";
 
 export const authCommentActionsMiddleware = catchAsync(
   async (req, res, next) => {
@@ -12,14 +12,14 @@ export const authCommentActionsMiddleware = catchAsync(
       : req.body.commentId;
     
     if (!commentId) {
-      return next(new AppError(`please send all required field commnetId`));
+      return next(new AppError(`please send all required field commentId`));
     }
 
     const accessToken = authHeader.split(" ")[1];
 
     jwt.verify(
       accessToken,
-      process.env.ACCESS_TOKEN_SCERET,
+      process.env.ACCESS_TOKEN_SECRET,
       async (err, decoded) => {
        
         // console.log("decoded ====> ", decoded);

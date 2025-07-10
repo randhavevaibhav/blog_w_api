@@ -1,7 +1,7 @@
 import {
   checkIfAlreadyBookmarked,
   createBookmark,
-} from "../../../model/Bookmark/quries.js";
+} from "../../../model/Bookmark/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

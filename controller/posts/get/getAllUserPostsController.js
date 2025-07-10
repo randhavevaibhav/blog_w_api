@@ -1,7 +1,7 @@
-import { getAllUserPosts } from "../../../model/Posts/quries.js";
+import { getAllUserPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { POST_LIMIT, POST_OFFSET } from "../../../utils/constants.js";
+import {  POST_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getAllUserPostsController = catchAsync(async (req, res, next) => {

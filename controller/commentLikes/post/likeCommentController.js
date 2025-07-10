@@ -1,8 +1,8 @@
-import { incCommentLike } from "../../../model/CommentAnalytics/quries.js";
+import { incCommentLike } from "../../../model/CommentAnalytics/quires.js";
 import {
   createCommentLike,
   isCommentLikedByUser,
-} from "../../../model/CommentLikes/quries.js";
+} from "../../../model/CommentLikes/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -43,7 +43,7 @@ export const likeCommentController = catchAsync(async (req, res, next) => {
     createdAt,
   });
 
-  const incCommentLiketResult = await incCommentLike({ commentId });
+  const incCommentLikeResult = await incCommentLike({ commentId });
 
   return res.status(200).send({
     message: "liked a comment !",

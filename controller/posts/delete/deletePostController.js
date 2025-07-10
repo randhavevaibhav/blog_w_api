@@ -1,8 +1,8 @@
-import { deletePostAnalytics } from "../../../model/PostAnalytics/quries.js";
-import { deletePostComments } from "../../../model/PostComments/quiries.js";
-import { removeAllPostLikes } from "../../../model/PostLikes/quries.js";
-import { deletePost, getPost } from "../../../model/Posts/quries.js";
-import { decUserPostsCount } from "../../../model/Users/quries.js";
+import { deletePostAnalytics } from "../../../model/PostAnalytics/quires.js";
+import { deletePostComments } from "../../../model/PostComments/quires.js";
+import { removeAllPostLikes } from "../../../model/PostLikes/quires.js";
+import { deletePost, getPost } from "../../../model/Posts/quires.js";
+import { decUserPostsCount } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { supabaseDeleteStorageFile } from "../../../utils/supabase.js";

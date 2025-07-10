@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "../utils/appError.js";
-import { getRefreshToken } from "../model/Users/quries.js";
+import { getRefreshToken } from "../model/Users/quires.js";
 
 export const requireAuth = (req, res, next) => {
   const cookies = req.cookies;
@@ -16,7 +16,7 @@ export const requireAuth = (req, res, next) => {
 
   jwt.verify(
     accessToken,
-    process.env.ACCESS_TOKEN_SCERET,
+    process.env.ACCESS_TOKEN_SECRET,
     async (err, decoded) => {
       if (err) {
         return next(new AppError(`access forbidden`, 403));

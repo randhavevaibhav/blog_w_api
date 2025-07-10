@@ -1,6 +1,6 @@
 import { createPostsController } from "./post/createPostsController.js";
 import { getAllUserPostsController } from "./get/getAllUserPostsController.js";
-import { getIndiviualPostController } from "./get/getIndiviualPostController.js";
+import { getIndividualPostController } from "./get/getIndividualPostController.js";
 import { deletePostController } from "./delete/deletePostController.js";
 import { updatePostController } from "./update/updatePostController.js";
 import { getAllPostsController } from "./get/getAllPostsController.js";
@@ -10,7 +10,7 @@ export default {
   createPostsController,
   getAllUserPostsController,
   getAllFollowingUsersPostsController,
-  getIndiviualPostController,
+  getIndividualPostController,
   getAllPostsController,
   deletePostController,
   updatePostController,

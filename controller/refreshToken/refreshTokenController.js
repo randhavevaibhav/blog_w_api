@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "../../utils/appError.js";
-import { updateRefeshToken } from "../../model/Users/quries.js";
+
 export const refreshTokenController = async (req, res, next) => {
   const cookies = req.cookies;
   // const {userId} = req.params;
@@ -13,7 +13,7 @@ export const refreshTokenController = async (req, res, next) => {
 
   //eval jwt
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SCERET, (err, decoded) => {
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
     
     if (err) {
    
@@ -21,7 +21,7 @@ export const refreshTokenController = async (req, res, next) => {
     }
     const accessToken = jwt.sign(
       { userId: decoded.userId },
-      process.env.ACCESS_TOKEN_SCERET,
+      process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "2m" }
     );
 

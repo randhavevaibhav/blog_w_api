@@ -5,14 +5,14 @@ import { Users } from "./Users.js";
 export const createUser = async ({
   firstName,
   email,
-  incriptedPassword,
+  encryptedPassword,
   registered_at,
   profileImgUrl,
 }) => {
   const result = await Users.create({
     first_name: firstName,
     email,
-    password_hash: incriptedPassword,
+    password_hash: encryptedPassword,
     registered_at,
     profile_img_url: profileImgUrl,
   });
@@ -37,7 +37,7 @@ export const updateUser = async ({
   userName,
   userMail,
   profileImgUrl,
-  incriptedPassword,
+  encryptedPassword,
   userBio = null,
   userSkills = null,
   userWebsiteURL = null,
@@ -48,7 +48,7 @@ export const updateUser = async ({
       first_name: userName,
       email: userMail,
       profile_img_url: profileImgUrl,
-      password_hash: incriptedPassword,
+      password_hash: encryptedPassword,
       bio: userBio,
       website_url: userWebsiteURL,
       location: userLocation,
@@ -84,7 +84,7 @@ export const getUserInfo = async ({ userId }) => {
   return result;
 };
 
-export const updateRefeshToken = async ({ userId, refreshToken }) => {
+export const updateRefreshToken = async ({ userId, refreshToken }) => {
   const res = await Users.update(
     {
       refresh_token: refreshToken,

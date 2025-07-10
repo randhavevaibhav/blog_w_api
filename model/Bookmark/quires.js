@@ -43,8 +43,8 @@ export const getUserBookmarks = async ({ userId, sort }) => {
   const result = await sequelize.query(
     `select 
  b.user_id as user_id,
- p.user_id as auther_id,
- u.first_name as auther_name,
+ p.user_id as author_id,
+ u.first_name as author_name,
  p.id as post_id,
  p.title_img_url,
  p.title,

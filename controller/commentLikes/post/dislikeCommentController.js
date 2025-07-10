@@ -1,8 +1,8 @@
-import { decCommentLike } from "../../../model/CommentAnalytics/quries.js";
+import { decCommentLike } from "../../../model/CommentAnalytics/quires.js";
 import {
   isCommentLikedByUser,
   removeCommentLike,
-} from "../../../model/CommentLikes/quries.js";
+} from "../../../model/CommentLikes/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

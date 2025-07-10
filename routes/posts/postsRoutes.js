@@ -8,7 +8,7 @@ const {
   createPostsController,
   getAllUserPostsController,
   getAllFollowingUsersPostsController,
-  getIndiviualPostController,
+  getIndividualPostController,
   getAllPostsController,
   deletePostController,
   updatePostController,
@@ -17,7 +17,7 @@ const {
 router.post("/post", requireAuth, createPostsController);
 router.get("/user/posts/:userId", requireAuth, getAllUserPostsController);
 router.get("/following/posts/:userId", requireAuth, getAllFollowingUsersPostsController);
-router.get("/post/:currentUserId?/:userId/:postId", getIndiviualPostController);
+router.get("/post/:currentUserId?/:userId/:postId", getIndividualPostController);
 router.get("/posts/all/:userId?", getAllPostsController);
 router.get("/posts/search", getSearchedPostsController);
 router.delete(

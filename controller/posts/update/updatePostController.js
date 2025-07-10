@@ -1,4 +1,4 @@
-import { updatePost } from "../../../model/Posts/quries.js";
+import { updatePost } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

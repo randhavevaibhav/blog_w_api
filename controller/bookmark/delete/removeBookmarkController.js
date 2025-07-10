@@ -1,4 +1,4 @@
-import { removeBookmark } from "../../../model/Bookmark/quries.js";
+import { removeBookmark } from "../../../model/Bookmark/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";

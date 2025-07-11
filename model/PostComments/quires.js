@@ -212,17 +212,26 @@ export const deleteAllCmtReplies = async ({ commentId }) => {
 };
 
 export const getOwnRecentComment = async ({ userId }) => {
-  const result = await PostComments.findOne({
-    where: {
-      content: {
-        [Op.ne]: "NA-#GOHST",
-      },
-      user_id: userId,
-    },
-    order: [["created_at", "DESC"]],
-  });
 
-  return result;
+const result = await sequelize.query(`select 
+pc.id,
+pc.user_id,
+pc.post_id,
+pc.content,
+pc.parent_id,
+pc.created_at,
+p.user_id as author_id
+from post_comments pc
+join posts p on p.id=pc.post_id 
+where pc.user_id=:userId and pc.content <> 'NA-#GOHST' 
+order by pc.created_at desc limit 1`,{
+  replacements:{
+    userId
+  },
+   type: QueryTypes.SELECT,
+})
+
+  return result[0];
 };
 
 export const incPostCommentLike = async ({ commentId }) => {

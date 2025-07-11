@@ -76,6 +76,7 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
     };
   }
   userRecentComment = await getOwnRecentComment({ userId });
+
   if (userRecentComment) {
     formattedRecentComment = {
       commentId: userRecentComment.id,
@@ -84,6 +85,7 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
       content: userRecentComment.content,
       parentId: userRecentComment.parent_id,
       createdAt: userRecentComment.created_at,
+      authorId: userRecentComment.author_id
     };
   }
   let totalUserPostsResult = await getTotalUserPosts({ userId });

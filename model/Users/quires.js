@@ -20,16 +20,40 @@ export const createUser = async ({
   return result;
 };
 
-export const checkIfUserExistWithMail = async ({ email }) => {
+export const getUser = async ({ email }) => {
   const user = await Users.findOne({ where: { email: email } });
 
   return user;
 };
 
-export const checkIfUserExistWithId = async ({ userId }) => {
-  const user = await Users.findOne({ where: { id: userId } });
+export const checkIfUserExistWithMail = async ({ email }) => {
+  const result = await sequelize.query(
+    `SELECT 1 FROM users WHERE email=:email LIMIT 1`,
+    {
+      replacements: { email },
+      type: QueryTypes.SELECT,
+    }
+  );
+  if (result.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
 
-  return user;
+export const checkIfUserExistWithId = async ({ userId }) => {
+  const result = await sequelize.query(
+    `SELECT 1 FROM users WHERE id=:userId LIMIT 1`,
+    {
+      replacements: { userId },
+      type: QueryTypes.SELECT,
+    }
+  );
+  if (result.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 export const updateUser = async ({
@@ -142,17 +166,20 @@ export const incUserPostsCount = async ({ userId }) => {
 };
 
 export const decUserPostsCount = async ({ userId }) => {
-  const result = await sequelize.query(`UPDATE users
+  const result = await sequelize.query(
+    `UPDATE users
   SET posts = CASE
       WHEN posts > 0 THEN posts - 1
       ELSE 0
   END
-  WHERE id =:userId`,{
-    replacements:{
-      userId
-    },
-    type:QueryTypes.SELECT
-  });
+  WHERE id =:userId`,
+    {
+      replacements: {
+        userId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
   return result;
 };
@@ -169,17 +196,20 @@ export const incUserCommentsCount = async ({ userId }) => {
 };
 
 export const decUserCommentsCount = async ({ userId }) => {
-  const result = await sequelize.query(`UPDATE users
+  const result = await sequelize.query(
+    `UPDATE users
   SET comments = CASE
       WHEN comments > 0 THEN comments - 1
       ELSE 0
   END
-  WHERE id =:userId`,{
-    replacements:{
-      userId
-    },
-    type:QueryTypes.SELECT
-  });
+  WHERE id =:userId`,
+    {
+      replacements: {
+        userId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
   return result;
 };

@@ -1,8 +1,9 @@
 import bcrypt from "bcrypt";
 import {
-  checkIfUserExistWithMail,
+  getUser,
   getRefreshToken,
   updateRefreshToken,
+  checkIfUserExistWithMail,
 } from "../../../../model/Users/quires.js";
 import jwt from "jsonwebtoken";
 import { catchAsync } from "../../../../utils/catchAsync.js";
@@ -30,17 +31,18 @@ export const signinController = catchAsync(async (req, res, next) => {
     return next(new AppError(`email or password is missing`, 400));
   }
 
-  // const user = await checkIfUserExistWithMail(email);
+  // const user = await getUser(email);
   //very time costly operation ==>
-  const user = await checkIfUserExistWithMail({ email });
-
-  if (!user) {
+  const isUserExist = await checkIfUserExistWithMail({ email });
+  if (!isUserExist) {
     return next(
       new AppError(`user with mail:${email} not found!`, 400, {
         SessionTerminated: true,
       })
     );
   }
+
+  const user = await getUser({ email });
 
   //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
 

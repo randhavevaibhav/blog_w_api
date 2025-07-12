@@ -1,14 +1,13 @@
 import { encrypt } from "../../../../utils/utils.js";
 import {
-  checkIfUserExistWithMail,
   createUser,
+  checkIfUserExistWithMail,
 } from "../../../../model/Users/quires.js";
 import { catchAsync } from "../../../../utils/catchAsync.js";
 import { AppError } from "../../../../utils/appError.js";
 
 export const signupController = catchAsync(async (req, res, next) => {
-
-  return next(new AppError("new Signup's are disabled !!"))
+  return next(new AppError("new Signup's are disabled !!"));
   const { firstName, email, password, registered_at, profileImgUrl } = req.body;
 
   if (!firstName || !email || !password || !registered_at) {
@@ -29,9 +28,9 @@ export const signupController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const existingUser = await checkIfUserExistWithMail({ email });
+  const isUserExist = await checkIfUserExistWithMail({ email });
 
-  if (existingUser) {
+  if (isUserExist) {
     //409 code for existing user
     return next(new AppError(`User already exist. Please sign in.`, 409));
   }

@@ -1,5 +1,5 @@
 import {
-  checkIfUserExistWithMail,
+  checkIfUserExistWithId,
   getUser,
   updateUser,
 } from "../../../model/Users/quires.js";
@@ -36,7 +36,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     return next(new AppError(`userId must be number`));
   }
 
-  const isUserExist = await checkIfUserExistWithMail({ email });
+  const isUserExist = await checkIfUserExistWithId({ userId });
   if (!isUserExist) {
     return next(
       new AppError(`user with mail:${email} not found!`, 400, {

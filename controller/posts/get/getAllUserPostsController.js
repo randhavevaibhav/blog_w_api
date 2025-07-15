@@ -1,7 +1,7 @@
 import { getAllUserPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import {  POST_OFFSET } from "../../../utils/constants.js";
+import { POST_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getAllUserPostsController = catchAsync(async (req, res, next) => {
@@ -17,23 +17,24 @@ export const getAllUserPostsController = catchAsync(async (req, res, next) => {
     name: "name",
   };
 
-  const sortOption = sortOptionList[sort]
-  if (!isPositiveInteger(formattedOffset)||!isPositiveInteger(formattedUserId)) {
+  const sortOption = sortOptionList[sort];
+  if (
+    !isPositiveInteger(formattedOffset) ||
+    !isPositiveInteger(formattedUserId)
+  ) {
     return next(new AppError(`offset,userId needs to be numbers`, 400));
   }
 
   if (!userId) {
     return next(new AppError(`userId is not present`, 400));
   }
-  if(!sortOption)
-  {
-    return next(new AppError(`Pleae provide correct sort option. asc, desc, name.`, 400));
+  if (!sortOption) {
+    return next(
+      new AppError(`Pleae provide correct sort option. asc, desc, name.`, 400)
+    );
   }
 
- 
- 
-
-  const result = await getAllUserPosts({ userId, offset, sortBy: sort});
+  const result = await getAllUserPosts({ userId, offset, sortBy: sort });
 
   let responseData = null;
 
@@ -48,7 +49,7 @@ export const getAllUserPostsController = catchAsync(async (req, res, next) => {
         likes: rec.likes ? rec.likes : 0,
         userId: rec.user_id,
         imgURL: rec.title_img_url,
-        totalComments: rec.total_post_comments,
+        comments: rec.total_post_comments,
       });
       return acc;
     }, []);

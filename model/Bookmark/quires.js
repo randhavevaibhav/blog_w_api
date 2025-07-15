@@ -41,17 +41,20 @@ export const getUserBookmarks = async ({ userId, sort }) => {
   };
   const orderBy = sortByOptions[sort];
   const result = await sequelize.query(
-    `select 
+`select 
  b.user_id as user_id,
  p.user_id as author_id,
  u.first_name as author_name,
  p.id as post_id,
  p.title_img_url,
  p.title,
+ pa.likes,
+pa.comments,
  p.created_at,
  u.profile_img_url
  from bookmarks b
  join posts p on p.id=b.post_id
+ join post_analytics pa on p.id = pa.post_id
  join users u on u.id= p.user_id 
  where b.user_id=:userId
  order by b.created_at ${orderBy}`,

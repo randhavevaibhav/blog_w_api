@@ -1,4 +1,5 @@
 import { getUserBookmarks } from "../../../model/Bookmark/quires.js";
+import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -19,7 +20,7 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
   const formattedUserId = parseInt(userId);
 
   if (!isPositiveInteger(formattedUserId)) {
-    return next(new AppError(`userId must be a number`,400));
+    return next(new AppError(`userId must be a number`, 400));
   }
 
   if (!sortOption) {
@@ -28,21 +29,8 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const result = await getUserBookmarks({ userId ,sort:sortOption});
+  const result = await getUserBookmarks({ userId, sort: sortOption });
 
-  const formattedResult = result.map((bookmark) => {
-    return {
-      userId: bookmark.user_id,
-      authorId: bookmark.author_id,
-      authorName: bookmark.author_name,
-      postId: bookmark.post_id,
-      titleImgURL: bookmark.title_img_url,
-      title: bookmark.title,
-      createdAt: bookmark.created_at,
-      profileImgURL: bookmark.profile_img_url,
-    };
-  });
-  // console.log("formattedResult getUserBookmarksController ==> ", formattedResult);
   if (result.length == 0) {
     return res.status(404).send({
       message: `No bookmarks found.`,
@@ -50,8 +38,44 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
     });
   }
 
-  return res.status(200).send({
-    message: "found bookmarks",
-    bookmarks: formattedResult,
+  let postsWithTagsResult = null;
+  let postsWithTags = [];
+
+  postsWithTagsResult = result.map(async (posts) => {
+    const tagList = await getAllPostHashtags({
+      postId: posts.post_id,
+    });
+
+    return {
+      ...posts,
+      tagList,
+    };
   });
+
+  Promise.all(postsWithTagsResult)
+    .then((result) => {
+      postsWithTags = result;
+      const formattedPosts = postsWithTags.map((post) => {
+        return {
+          userId: post.user_id,
+          authorId: post.author_id,
+          authorName: post.author_name,
+          postId: post.post_id,
+          titleImgURL: post.title_img_url,
+          title: post.title,
+          createdAt: post.created_at,
+          profileImgURL: post.profile_img_url,
+          likes:post.likes,
+          comments:post.comments,
+          tagList: post.tagList,
+        };
+      });
+      return res.status(200).send({
+        message: "Found Bookmarks",
+        bookmarks: formattedPosts,
+      });
+    })
+    .catch((err) => {
+      return next(new AppError(`Error while getting tagged posts ${err}`, 400));
+    });
 });

@@ -1,5 +1,6 @@
 import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quires.js";
 import { getRecentComments } from "../../../model/PostComments/quires.js";
+import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
 import { getAllPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -24,8 +25,7 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
     if (!isPositiveInteger(formattedUserId)) {
       return next(new AppError(`userId needs to be number`, 400));
     }
-  }
-
+  }  
   const result = await getAllPosts({ offset });
 
   let responseData = null;
@@ -41,6 +41,9 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
           userId: userId,
           postId: post.post_id,
         }):false,
+        tagList: await getAllPostHashtags({
+          postId:post.post_id
+        })
       };
     });
 
@@ -76,8 +79,8 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
             createdAt: rec.created_at,
             likes: rec.likes ? rec.likes : 0,
             userId: rec.user_id,
-            imgURL: rec.title_img_url,
             totalComments: rec.total_comments,
+            tagList:rec.tagList,
             isBookmarked: rec.isBookmarked ? true : false,
             page: parseInt(offset) / POST_OFFSET,
           });

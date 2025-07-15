@@ -6,6 +6,7 @@ import { updatePostController } from "./update/updatePostController.js";
 import { getAllPostsController } from "./get/getAllPostsController.js";
 import { getSearchedPostsController } from "./get/getSearchedPostsController.js";
 import { getAllFollowingUsersPostsController } from "./get/getAllFollowingUsersPostsController.js";
+import { getAllTaggedPostsController } from "./get/getAllTaggedPostsController.js";
 export default {
   createPostsController,
   getAllUserPostsController,
@@ -14,5 +15,6 @@ export default {
   getAllPostsController,
   deletePostController,
   updatePostController,
-  getSearchedPostsController
+  getSearchedPostsController,
+  getAllTaggedPostsController
 };

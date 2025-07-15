@@ -1,5 +1,6 @@
 import { deletePostAnalytics } from "../../../model/PostAnalytics/quires.js";
 import { deletePostComments } from "../../../model/PostComments/quires.js";
+import { deletePostHashtags } from "../../../model/PostHashtags/quires.js";
 import { removeAllPostLikes } from "../../../model/PostLikes/quires.js";
 import { deletePost, getPost } from "../../../model/Posts/quires.js";
 import { decUserPostsCount } from "../../../model/Users/quires.js";
@@ -69,6 +70,11 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   await deletePostAnalytics({ postId });
   //delete post likes
   await removeAllPostLikes({ postId });
+
+  //delete all post hashtags
+  await deletePostHashtags({
+    postId
+  })
 
   //no post deleted
   if (result === 0) {

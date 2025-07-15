@@ -10,7 +10,7 @@ export const authCommentActionsMiddleware = catchAsync(
     const commentId = req.params.commentId
       ? req.params.commentId
       : req.body.commentId;
-    
+
     if (!commentId) {
       return next(new AppError(`please send all required field commentId`));
     }
@@ -21,8 +21,9 @@ export const authCommentActionsMiddleware = catchAsync(
       accessToken,
       process.env.ACCESS_TOKEN_SECRET,
       async (err, decoded) => {
-       
-        // console.log("decoded ====> ", decoded);
+        if (err) {
+          return next(new AppError(`access forbidden`, 403));
+        }
         userId = decoded.userId;
         // console.log("userId ====> ", userId);
         const resultCommentAuth = await isCommentBelongsToUser({

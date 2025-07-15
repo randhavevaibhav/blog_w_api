@@ -6,6 +6,7 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quires.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 import { checkIfAlreadyFollowed } from "../../../model/Followers/quires.js";
+import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
 
 export const getIndividualPostController = catchAsync(
   async (req, res, next) => {
@@ -41,6 +42,11 @@ export const getIndividualPostController = catchAsync(
     let postLikedByUser = false;
     let postBookmarked = false;
     let postData = null;
+    const tagList = await getAllPostHashtags({
+      postId
+    });
+
+    
 
     if (currentUserId) {
       const isPostLikedByUser = await checkIfPostLikedByUser({
@@ -83,7 +89,8 @@ export const getIndividualPostController = catchAsync(
       totalComments: postResult.comments,
       postLikedByUser,
       postBookmarked,
-      isFollowed
+      isFollowed,
+      tagList
     };
 
     return res.status(200).send({

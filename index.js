@@ -2,6 +2,7 @@ import express from "express";
 import sq from "./db.js";
 import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
+import hashtagsRoutes from "./routes/hashtags/hashtagsRoutes.js"
 import bookmarkRoutes from "./routes/bookmark/bookmarkRoutes.js";
 import followerRoutes from "./routes/follower/followerRoutes.js"
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
@@ -53,6 +54,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(authRoutes);
 app.use(postsRoutes);
+app.use(hashtagsRoutes);
 app.use(bookmarkRoutes);
 app.use(followerRoutes);
 app.use(userRoutes);

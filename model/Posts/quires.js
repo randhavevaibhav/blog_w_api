@@ -150,7 +150,8 @@ join users u on u.id=p.user_id
 join post_analytics pa on pa.post_id=p.id
 where p.user_id in 
 (select user_id from followers where follower_id=:userId)
-offset :offset`,
+offset :offset
+limit ${POST_LIMIT}`,
     {
       replacements: {
         userId,
@@ -162,6 +163,36 @@ offset :offset`,
 
   return result;
 };
+
+export const getAllTaggedPosts = async ({hashtagId,offset})=>{
+  const result = await sequelize.query(`select 
+ph.post_id,
+ph.hashtag_id,
+p.user_id,
+u.first_name,
+u.profile_img_url,
+p.title_img_url,
+p.title,
+p.created_at,
+pa.likes,
+pa.comments
+from post_hashtags ph
+join posts p on p.id=ph.post_id
+join users u on u.id = p.user_id
+join post_analytics pa on p.id = pa.post_id
+where ph.hashtag_id=:hashtagId
+offset :offset
+limit ${POST_LIMIT}`,{
+  replacements:{
+    hashtagId,
+    offset
+  },
+  type:QueryTypes.SELECT
+})
+
+return result
+
+}
 
 export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const sortByOptions = {

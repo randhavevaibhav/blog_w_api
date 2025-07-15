@@ -13,12 +13,14 @@ const {
   deletePostController,
   updatePostController,
   getSearchedPostsController,
+  getAllTaggedPostsController
 } = postControllers;
 router.post("/post", requireAuth, createPostsController);
 router.get("/user/posts/:userId", requireAuth, getAllUserPostsController);
 router.get("/following/posts/:userId", requireAuth, getAllFollowingUsersPostsController);
 router.get("/post/:currentUserId?/:userId/:postId", getIndividualPostController);
 router.get("/posts/all/:userId?", getAllPostsController);
+router.get("/tag/:hashtagId", getAllTaggedPostsController);
 router.get("/posts/search", getSearchedPostsController);
 router.delete(
   "/post/delete/:userId/:postId",

@@ -1,10 +1,14 @@
+import {
+  createPostHashtags,
+  deletePostHashtags,
+} from "../../../model/PostHashtags/quires.js";
 import { updatePost } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const updatePostController = catchAsync(async (req, res, next) => {
-  const { postId, title, content, titleImgURL, updatedAt } = req.body;
+  const { postId, title, content, titleImgURL, updatedAt, tagList } = req.body;
   // console.log("postId, title, content, titleImgURL ,updatedAt =====>",postId, title, content, titleImgURL ,updatedAt)
 
   if (!postId || !title || !content || !updatedAt) {
@@ -15,6 +19,31 @@ export const updatePostController = catchAsync(async (req, res, next) => {
 
   if (!isPositiveInteger(formattedPostId)) {
     return next(new AppError(`postId must be number`));
+  }
+
+  if (tagList) {
+    if (!Array.isArray(tagList)) {
+      return next(new AppError(`tagList must be an array.`));
+    }
+    if(tagList.length===0)
+    {
+       await deletePostHashtags({
+        postId,
+      })
+       
+    }
+    else if (tagList.length > 0) {
+      await deletePostHashtags({
+        postId,
+      }).then(async () => {
+        await createPostHashtags({
+          postId,
+          hashtagIdList: tagList,
+        }).catch((error)=>{
+          return next(new AppError(`Error while updating post hashtags. ${error}`));
+        });
+      });
+    }
   }
 
   const updatePostData = { postId, title, content, titleImgURL, updatedAt };

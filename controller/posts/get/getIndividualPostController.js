@@ -78,9 +78,6 @@ export const getIndividualPostController = catchAsync(
     postData = {
       userName: postResult.first_name,
       userProfileImg: postResult.profile_img_url,
-      userLocation: postResult.location,
-      userEmail: postResult.email,
-      userJoinedOn: postResult.registered_at,
       title: postResult.title,
       content: postResult.content,
       titleImgURL: postResult.title_img_url,

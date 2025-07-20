@@ -2,9 +2,9 @@ import express from "express";
 import sq from "./db.js";
 import authRoutes from "./routes/auth/authRoutes.js";
 import postsRoutes from "./routes/posts/postsRoutes.js";
-import hashtagsRoutes from "./routes/hashtags/hashtagsRoutes.js"
+import hashtagsRoutes from "./routes/hashtags/hashtagsRoutes.js";
 import bookmarkRoutes from "./routes/bookmark/bookmarkRoutes.js";
-import followerRoutes from "./routes/follower/followerRoutes.js"
+import followerRoutes from "./routes/follower/followerRoutes.js";
 import uploadFileRoute from "./routes/uploadFile/uploadFileRoute.js";
 import userRoutes from "./routes/user/userRoutes.js";
 import commentsRoute from "./routes/comments/commentsRoute.js";
@@ -16,13 +16,13 @@ import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { AppError } from "./utils/appError.js";
+import { redisClient } from "./redis.js";
 import {
   LOCAL_CLIENT_ORIGIN,
   REMOTE_CLIENT_ORIGIN,
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
 import rateLimit from "express-rate-limit";
-
 
 const limiter = rateLimit({
   windowMs: 1000, // 1 sec
@@ -40,7 +40,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(limiter)
+app.use(limiter);
 
 const corsOptions = {
   origin: [LOCAL_CLIENT_ORIGIN, REMOTE_CLIENT_ORIGIN, "http://127.0.0.1:5173"],
@@ -87,6 +87,4 @@ sq.authenticate()
     console.log("Error while connecting to database.", err);
   });
 
-
 app.use(globalErrorController);
-

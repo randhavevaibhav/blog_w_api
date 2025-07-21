@@ -5,8 +5,8 @@ export const cacheMiddleware =
   async (req, res, next) => {
     const key = keyGenFn(req);
     const cached = await redisClient.get(key);
+
     if (cached) {
-      console.log("serving from cache");
       return res.json(JSON.parse(cached));
     }
 

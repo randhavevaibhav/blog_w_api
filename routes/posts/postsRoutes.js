@@ -3,7 +3,9 @@ import postControllers from "../../controller/posts/index.js";
 import { requireAuth } from "../../middleware/authMiddleware.js";
 import { authPostActionsMiddleware } from "../../middleware/authPostActionsMiddleware.js";
 import { cacheMiddleware } from "../../middleware/cacheMiddleware.js";
+import { postsRedisKeys } from "../../rediskeygen/posts/postsRedisKeys.js";
 
+const { getIndividualPostRedisKey } = postsRedisKeys();
 const router = Router();
 const {
   createPostsController,
@@ -26,7 +28,10 @@ router.get(
 router.get(
   "/post/:currentUserId?/:userId/:postId",
   cacheMiddleware(
-    (req) => `user_posts:${req.params.userId}_${req.params.postId}`,
+    (req) =>
+      getIndividualPostRedisKey({
+        postId: req.params.postId,
+      }),
     300
   ),
   getIndividualPostController

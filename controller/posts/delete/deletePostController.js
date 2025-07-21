@@ -6,6 +6,7 @@ import { deletePost, getPost } from "../../../model/Posts/quires.js";
 import { decUserPostsCount } from "../../../model/Users/quires.js";
 import { redisClient } from "../../../redis.js";
 import { postsRedisKeys } from "../../../rediskeygen/posts/postsRedisKeys.js";
+import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { supabaseDeleteStorageFile } from "../../../utils/supabase.js";
@@ -24,6 +25,7 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   const postId = req.params.postId;
   const userId = req.params.userId;
   const { getIndividualPostRedisKey } = postsRedisKeys();
+  const { getUserInfoRedisKey } = userRedisKeys();
   if (!postId) {
     return next(new AppError(`please send all required field postId`));
   }
@@ -84,6 +86,12 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   await redisClient.del(
     getIndividualPostRedisKey({
       postId,
+    })
+  );
+
+  await redisClient.del(
+    getUserInfoRedisKey({
+      userId,
     })
   );
 

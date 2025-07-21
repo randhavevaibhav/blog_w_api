@@ -5,6 +5,8 @@ import {
   getTotalUserPosts,
   incUserPostsCount,
 } from "../../../model/Users/quires.js";
+import { redisClient } from "../../../redis.js";
+import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -20,7 +22,7 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     likes,
     tagList,
   } = req.body;
-
+  const { getUserInfoRedisKey } = userRedisKeys();
   // console.log("{userId,title,content,createdAt,updatedAt,likes}",{userId,title,content,createdAt,updatedAt,likes})
   if (!userId || !title || !content || !createdAt) {
     return next(
@@ -64,6 +66,11 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   await incUserPostsCount({
     userId,
   });
+  await redisClient.del(
+    getUserInfoRedisKey({
+      userId,
+    })
+  );
 
   if (tagList.length > 0) {
     await createPostHashtags({

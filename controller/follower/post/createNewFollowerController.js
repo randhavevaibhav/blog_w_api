@@ -8,12 +8,15 @@ import {
   checkIfAlreadyFollowed,
   createNewFollower,
 } from "../../../model/Followers/quires.js";
+import { redisClient } from "../../../redis.js";
+import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const createNewFollowerController = catchAsync(
   async (req, res, next) => {
     const { userId, followingUserId, createdAt } = req.body;
+    const { getUserInfoRedisKey } = userRedisKeys();
 
     if (!userId || !followingUserId || !createdAt) {
       return next(
@@ -52,32 +55,38 @@ export const createNewFollowerController = catchAsync(
     });
 
     const getFollowingAnalyticsResult = await getFollowerAnalytics({
-      userId:followingUserId,
+      userId: followingUserId,
     });
 
-     const getUserFollowingAnalyticsResult = await getFollowerAnalytics({
+    const getUserFollowingAnalyticsResult = await getFollowerAnalytics({
       userId,
     });
 
     if (!getFollowingAnalyticsResult) {
       await createFollowerAnalytics({
-        userId:followingUserId,
+        userId: followingUserId,
       });
     }
 
-     if (!getUserFollowingAnalyticsResult) {
+    if (!getUserFollowingAnalyticsResult) {
       await createFollowerAnalytics({
         userId,
       });
     }
 
     await incFollowerCount({
-      userId:followingUserId
-    })
+      userId: followingUserId,
+    });
 
     await incFollowingCount({
-      userId
-    })
+      userId,
+    });
+
+    await redisClient.del(
+      getUserInfoRedisKey({
+        userId: followingUserId,
+      })
+    );
 
     res.status(201).send({
       message: `followed new user`,

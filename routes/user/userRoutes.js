@@ -17,13 +17,13 @@ router.patch(
 );
 router.get(
   "/user/info/:currentUserId?/:userId",
-  cacheMiddleware(
-    (req) =>
-      getUserInfoRedisKey({
-        userId: req.params.userId,
-      }),
-    300
-  ),
+  // cacheMiddleware(
+  //   (req) =>
+  //     getUserInfoRedisKey({
+  //       userId: req.params.userId,
+  //     }),
+  //   300
+  // ),
   getUserInfoController
 );
 router.get("/user/stat/:userId", getUserStatController);

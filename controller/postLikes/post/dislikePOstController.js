@@ -1,7 +1,4 @@
-import {
-  decPostLike,
-  getLikePostAnalytics,
-} from "../../../model/PostAnalytics/quires.js";
+import { decPostLike } from "../../../model/PostAnalytics/quires.js";
 import {
   checkIfPostLikedByUser,
   removeUserPostLike,

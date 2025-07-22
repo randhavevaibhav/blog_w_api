@@ -20,19 +20,9 @@ export const deletePostAnalytics = async ({ postId }) => {
   return result;
 };
 
-export const getLikePostAnalytics = async ({ postId }) => {
+export const getPostAnalytics = async ({ postId }) => {
   const result = await PostAnalytics.findOne({
-    attributes: ["likes"],
-    where: {
-      post_id: postId,
-    },
-  });
-
-  return result;
-};
-export const getCommentPostAnalytics = async ({ postId }) => {
-  const result = await PostAnalytics.findOne({
-    attributes: ["comments"],
+    attributes: ["likes", "comments"],
     where: {
       post_id: postId,
     },
@@ -83,17 +73,20 @@ export const incCommentCount = async (postId) => {
 };
 
 export const decCommentCount = async (postId) => {
-  const result = await sequelize.query(`UPDATE post_analytics
+  const result = await sequelize.query(
+    `UPDATE post_analytics
   SET comments = CASE
       WHEN comments > 0 THEN comments - 1
       ELSE 0
   END
-  WHERE post_id=:postId`,{
-    replacements:{
-      postId
-    },
-    type:QueryTypes.SELECT
-  });
+  WHERE post_id=:postId`,
+    {
+      replacements: {
+        postId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
   return result;
 };

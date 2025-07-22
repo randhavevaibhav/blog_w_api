@@ -12,7 +12,10 @@ export const cacheMiddleware =
 
     res.sendResponse = res.json;
     res.json = async (body) => {
-      await redisClient.setEx(key, ttl, JSON.stringify(body));
+      // Cache only if response is successful (status code 200–299)
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        await redisClient.setEx(key, ttl, JSON.stringify(body));
+      }
       res.sendResponse(body);
     };
 

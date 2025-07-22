@@ -1,6 +1,6 @@
 import { getCommentAnalytics } from "../../../model/CommentAnalytics/quires.js";
 import { isCommentLikedByUser } from "../../../model/CommentLikes/quires.js";
-import { getCommentPostAnalytics } from "../../../model/PostAnalytics/quires.js";
+import { getPostAnalytics } from "../../../model/PostAnalytics/quires.js";
 import {
   getAllPostComments,
   getReplies,
@@ -27,8 +27,10 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
     return next(new AppError(`offset needs to be number`, 400));
   }
 
-   if (!sortOption) {
-    return next(new AppError(`please provide correct sort option. desc, asc, likes.`, 400));
+  if (!sortOption) {
+    return next(
+      new AppError(`please provide correct sort option. desc, asc, likes.`, 400)
+    );
   }
   if (!postId) {
     return next(new AppError(`please send required field. postId`));
@@ -41,7 +43,8 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
   });
   const commentsResultMapped = commentsResult.map((item) => item);
   // console.log("commentsResultMapped ==> ",commentsResultMapped)
-  const totalComments = await getCommentPostAnalytics({ postId });
+  const postAnalytics = await getPostAnalytics({ postId });
+  const totalComments = postAnalytics?.comments;
 
   const getComments = (commentArr) => {
     return commentArr.map(async (comment) => {
@@ -75,7 +78,7 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           userId: comment.user_id,
           parentId: comment.parent_id,
           replies: await Promise.all(getComments(repliesResult)),
-          page:parseInt(offset)/COMMENT_OFFSET,
+          page: parseInt(offset) / COMMENT_OFFSET,
         };
       } else {
         return {
@@ -89,7 +92,7 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
           userId: comment.user_id,
           parentId: comment.parent_id,
           replies,
-          page:parseInt(offset)/COMMENT_OFFSET,
+          page: parseInt(offset) / COMMENT_OFFSET,
         };
       }
     });

@@ -2,7 +2,6 @@ import { createCommentAnalytics } from "../../../model/CommentAnalytics/quires.j
 import { incCommentCount } from "../../../model/PostAnalytics/quires.js";
 import { createPostComment } from "../../../model/PostComments/quires.js";
 import { incUserCommentsCount } from "../../../model/Users/quires.js";
-import { redisClient } from "../../../redis.js";
 import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -53,12 +52,6 @@ export const createPostCommentController = catchAsync(
     const createCommentAnalyticsRes = await createCommentAnalytics({
       commentId: result.id,
     });
-
-    await redisClient.del(
-      getUserInfoRedisKey({
-        userId,
-      })
-    );
 
     return res.status(200).send({
       message: "submitted new comment",

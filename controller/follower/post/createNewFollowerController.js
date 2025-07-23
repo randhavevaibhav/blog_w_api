@@ -8,8 +8,6 @@ import {
   checkIfAlreadyFollowed,
   createNewFollower,
 } from "../../../model/Followers/quires.js";
-import { redisClient } from "../../../redis.js";
-import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
@@ -81,12 +79,6 @@ export const createNewFollowerController = catchAsync(
     await incFollowingCount({
       userId,
     });
-
-    await redisClient.del(
-      getUserInfoRedisKey({
-        userId: followingUserId,
-      })
-    );
 
     res.status(201).send({
       message: `followed new user`,

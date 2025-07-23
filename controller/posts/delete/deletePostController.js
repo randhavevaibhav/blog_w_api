@@ -4,7 +4,6 @@ import { deletePostHashtags } from "../../../model/PostHashtags/quires.js";
 import { removeAllPostLikes } from "../../../model/PostLikes/quires.js";
 import { deletePost, getPost } from "../../../model/Posts/quires.js";
 import { decUserPostsCount } from "../../../model/Users/quires.js";
-import { redisClient } from "../../../redis.js";
 import { postsRedisKeys } from "../../../rediskeygen/posts/postsRedisKeys.js";
 import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
@@ -80,20 +79,6 @@ export const deletePostController = catchAsync(async (req, res, next) => {
   await deletePostHashtags({
     postId,
   });
-
-  //delete redis cache post
-
-  await redisClient.del(
-    getIndividualPostRedisKey({
-      postId,
-    })
-  );
-
-  await redisClient.del(
-    getUserInfoRedisKey({
-      userId,
-    })
-  );
 
   //no post deleted
   if (result === 0) {

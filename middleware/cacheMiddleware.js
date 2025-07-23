@@ -1,4 +1,4 @@
-import { redisClient } from "../redis.js";
+import { redisClient } from "../utils/redis.js";
 
 export const cacheMiddleware =
   (keyGenFn, ttl = 60) =>
@@ -7,14 +7,14 @@ export const cacheMiddleware =
     const cached = await redisClient.get(key);
 
     if (cached) {
-      return res.json(JSON.parse(cached));
+      return res.json(cached);
     }
 
     res.sendResponse = res.json;
     res.json = async (body) => {
       // Cache only if response is successful (status code 200–299)
       if (res.statusCode >= 200 && res.statusCode < 300) {
-        await redisClient.setEx(key, ttl, JSON.stringify(body));
+        await redisClient.setex(key, ttl, JSON.stringify(body));
       }
       res.sendResponse(body);
     };

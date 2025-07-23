@@ -3,7 +3,6 @@ import {
   deletePostHashtags,
 } from "../../../model/PostHashtags/quires.js";
 import { updatePost } from "../../../model/Posts/quires.js";
-import { redisClient } from "../../../redis.js";
 import { postsRedisKeys } from "../../../rediskeygen/posts/postsRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -55,11 +54,6 @@ export const updatePostController = catchAsync(async (req, res, next) => {
   }
   // Invalidate redis cache
 
-  await redisClient.del(
-    getIndividualPostRedisKey({
-      postId,
-    })
-  );
   // console.log("result in updatePostController ====> ",result);
 
   res.status(200).send({

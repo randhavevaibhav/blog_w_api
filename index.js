@@ -16,7 +16,6 @@ import refreshTokenRoute from "./routes/refreshToken/refreshTokenRoute.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { AppError } from "./utils/appError.js";
-import { redisClient } from "./redis.js";
 import {
   LOCAL_CLIENT_ORIGIN,
   REMOTE_CLIENT_ORIGIN,

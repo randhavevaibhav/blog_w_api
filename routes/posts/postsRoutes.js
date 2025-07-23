@@ -2,10 +2,7 @@ import { Router } from "express";
 import postControllers from "../../controller/posts/index.js";
 import { requireAuth } from "../../middleware/authMiddleware.js";
 import { authPostActionsMiddleware } from "../../middleware/authPostActionsMiddleware.js";
-import { cacheMiddleware } from "../../middleware/cacheMiddleware.js";
-import { postsRedisKeys } from "../../rediskeygen/posts/postsRedisKeys.js";
 
-const { getIndividualPostRedisKey } = postsRedisKeys();
 const router = Router();
 const {
   createPostsController,
@@ -26,29 +23,8 @@ router.get(
   requireAuth,
   getAllFollowingUsersPostsController
 );
-// router.get(
-//   "/post/:currentUserId?/:userId/:postId",
-//   cacheMiddleware(
-//     (req) =>
-//       getIndividualPostRedisKey({
-//         postId: req.params.postId,
-//       }),
-//     300
-//   ),
-//   getIndividualPostController
-// );
 
-router.get(
-  "/post/:userId/:postId",
-  cacheMiddleware(
-    (req) =>
-      getIndividualPostRedisKey({
-        postId: req.params.postId,
-      }),
-    300
-  ),
-  getIndividualPostController
-);
+router.get("/post/:userId/:postId", getIndividualPostController);
 router.get("/posts/all/:userId?", getAllPostsController);
 router.get("/tag/:hashtagId", getAllTaggedPostsController);
 router.get("/posts/search", getSearchedPostsController);

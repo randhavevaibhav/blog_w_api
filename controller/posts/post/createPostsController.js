@@ -5,7 +5,6 @@ import {
   getTotalUserPosts,
   incUserPostsCount,
 } from "../../../model/Users/quires.js";
-import { redisClient } from "../../../redis.js";
 import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -66,11 +65,6 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   await incUserPostsCount({
     userId,
   });
-  await redisClient.del(
-    getUserInfoRedisKey({
-      userId,
-    })
-  );
 
   if (tagList.length > 0) {
     await createPostHashtags({

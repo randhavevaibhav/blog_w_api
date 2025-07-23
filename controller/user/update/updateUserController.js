@@ -3,7 +3,6 @@ import {
   getUser,
   updateUser,
 } from "../../../model/Users/quires.js";
-import { redisClient } from "../../../redis.js";
 import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -83,12 +82,6 @@ export const updateUserController = catchAsync(async (req, res, next) => {
   if (result[0] === 0) {
     return res.sendStatus(304);
   }
-
-  await redisClient.del(
-    getUserInfoRedisKey({
-      userId,
-    })
-  );
 
   // console.log("result of updateUser ===> ",result);
 

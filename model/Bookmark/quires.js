@@ -1,6 +1,7 @@
-import { QueryTypes } from "sequelize";
-import sequelize from "../../db.js";
+import { Op } from "sequelize";
 import { Bookmarks } from "./Bookmark.js";
+import { Posts } from "../Posts/Posts.js";
+
 
 export const createBookmark = async ({ userId, postId, createdAt }) => {
   const result = await Bookmarks.create({
@@ -34,35 +35,26 @@ export const checkIfAlreadyBookmarked = async ({ userId, postId }) => {
   return result;
 };
 
-export const getUserBookmarks = async ({ userId, sort }) => {
-  const sortByOptions = {
-    asc: "asc",
-    desc: "desc",
-  };
-  const orderBy = sortByOptions[sort];
-  const result = await sequelize.query(
-`select 
- b.user_id as user_id,
- p.user_id as author_id,
- u.first_name as author_name,
- p.id as post_id,
- p.title_img_url,
- p.title,
- pa.likes,
-pa.comments,
- p.created_at,
- u.profile_img_url
- from bookmarks b
- join posts p on p.id=b.post_id
- join post_analytics pa on p.id = pa.post_id
- join users u on u.id= p.user_id 
- where b.user_id=:userId
- order by b.created_at ${orderBy}`,
-    {
-      replacements: { userId },
 
-      type: QueryTypes.SELECT,
-    }
-  );
+export const getUserBookmarks = async ({userId,sort='desc'}) => {
+
+  const result = await Bookmarks.findAll({
+    // logging:console.log,
+    where:{
+      user_id:userId
+    },
+    include:[{
+      model:Posts,
+      attributes:["id","user_id","title","title_img_url","created_at"],
+      where:{
+        id:{
+          [Op.ne]:null
+        },
+        
+      },
+    
+    }],
+     order:[ ["created_at",sort],['id', sort]],
+  })
   return result;
 };

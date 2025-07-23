@@ -1,6 +1,8 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
+
 import { Users } from "../Users/Users.js";
+
 
 export const Posts = sq.define(
   "posts",
@@ -61,3 +63,4 @@ export const Posts = sq.define(
 );
 
 Posts.belongsTo(Users, { foreignKey: "user_id" });
+

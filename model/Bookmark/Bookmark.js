@@ -1,5 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
+import { Posts } from "../Posts/Posts.js";
 
 export const Bookmarks = sq.define(
   "bookmarks",
@@ -38,3 +39,8 @@ export const Bookmarks = sq.define(
    }
 );
 
+
+Bookmarks.belongsTo(Posts,{
+  targetKey:"id",
+  foreignKey:"post_id"
+});

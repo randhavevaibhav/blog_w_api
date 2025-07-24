@@ -26,7 +26,7 @@ router.get(
 
 router.get("/post/:userId/:postId", getIndividualPostController);
 router.get("/posts/all/:userId?", getAllPostsController);
-router.get("/tag/:hashtagId", getAllTaggedPostsController);
+router.get("/tag/:hashtagId/:hashtagName", getAllTaggedPostsController);
 router.get("/posts/search", getSearchedPostsController);
 router.get(
   "/post/analytics/:currentUserId?/:userId/:postId",

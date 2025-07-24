@@ -1,6 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
-import { Posts } from "../Posts/Posts.js";
+
 
 
 export const PostAnalytics = sq.define(
@@ -31,10 +31,3 @@ export const PostAnalytics = sq.define(
   }
 );
 
-
-
-
-PostAnalytics.belongsTo(Posts,{
-  foreignKey:`post_id`,
-  targetKey:`id`
-})

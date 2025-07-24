@@ -13,8 +13,7 @@ import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const createNewFollowerController = catchAsync(
   async (req, res, next) => {
-    const { userId, followingUserId, createdAt } = req.body;
-    const { getUserInfoRedisKey } = userRedisKeys();
+    const { userId, followingUserId, createdAt } = req.body
 
     if (!userId || !followingUserId || !createdAt) {
       return next(

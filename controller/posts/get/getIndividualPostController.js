@@ -35,15 +35,14 @@ export const getIndividualPostController = catchAsync(
         message: "Post not found !!",
       });
     }
-
-    let postData = null;
     const tagList = await getAllPostHashtags({
       postId,
     });
 
-    postData = {
-      userName: postResult.first_name,
-      userProfileImg: postResult.profile_img_url,
+    const formattedPost = {
+      postId: postResult.id,
+      userName: postResult.users.first_name,
+      userProfileImg: postResult.users.profile_img_url,
       title: postResult.title,
       content: postResult.content,
       titleImgURL: postResult.title_img_url,
@@ -53,7 +52,7 @@ export const getIndividualPostController = catchAsync(
 
     return res.status(200).send({
       message: `post fetched.`,
-      postData,
+      postData: formattedPost,
     });
   }
 );

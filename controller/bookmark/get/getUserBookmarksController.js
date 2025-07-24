@@ -1,9 +1,4 @@
-import {
-  getUserBookmarks,
-} from "../../../model/Bookmark/quires.js";
-import { getPostAnalytics } from "../../../model/PostAnalytics/quires.js";
-import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
-import { getUserInfo } from "../../../model/Users/quires.js";
+import { getAllUserBookmarkedPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -33,69 +28,40 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const bookmarksRes = await getUserBookmarks({
-    userId,
-    sort,
-  });
+  const bookmarkPostsResult = await getAllUserBookmarkedPosts({ userId, sort });
 
-  if (bookmarksRes.length == 0) {
+  if (bookmarkPostsResult.length <= 0) {
     return res.status(404).send({
       message: `No bookmarks found.`,
       bookmarks: [],
     });
   }
 
-  const formattedBkmRes = bookmarksRes.map(async (bookmark) => {
+  const formattedPosts = bookmarkPostsResult.map((post) => {
     return {
-      userId: bookmark.posts.user_id,
-      postId: bookmark.posts.id,
-      titleImgURL: bookmark.posts.title_img_url,
-      title: bookmark.posts.title,
-      createdAt: bookmark.posts.created_at,
-      postAnalytics: {
-        ...(await getPostAnalytics({
-          postId: bookmark.posts.id,
-        })),
-      },
-      userInfo: {
-        ...(await getUserInfo({
-          userId: bookmark.posts.user_id,
-        })),
-      },
-      tagList: {
-        ...(await getAllPostHashtags({
-          postId: bookmark.posts.id,
-        })),
-      },
+      userId,
+      authorId: post.user_id,
+      postId: post.id,
+      titleImgURL: post.title_img_url,
+      title: post.title,
+      createdAt: post.created_at,
+      authorName: post.users.first_name,
+      profileImgURL: post.users.profile_img_url,
+      comments: post.post_analytics.comments,
+      likes: post.post_analytics.likes,
+      tagList: post.post_hashtags.map((val) => {
+        return {
+          id:val.hashtags.id,
+          name: val.hashtags.name,
+          info: val.hashtags.info,
+          color: val.hashtags.color,
+        };
+      }),
     };
   });
 
-  Promise.all(formattedBkmRes)
-    .then((posts) => {
-      const formattedPosts = posts.map((post) => {
-        // console.log("post.tagList.dataValues.tagList ==>",post.tagList)
-        return {
-          userId,
-          authorId: post.userId,
-          postId: post.postId,
-          titleImgURL: post.titleImgURL,
-          title: post.title,
-          createdAt: post.createdAt,
-          authorName: post.userInfo.dataValues.first_name,
-          profileImgURL: post.userInfo.dataValues.profile_img_url,
-          comments: post.postAnalytics.dataValues.comments,
-          likes: post.postAnalytics.dataValues.likes,
-          tagList: Object.values(post.tagList),
-        };
-      });
-      // console.log("formattedPosts ===> ", formattedPosts);
-
-      return res.status(200).send({
-        message: "Found Bookmarks",
-        bookmarks: formattedPosts,
-      });
-    })
-    .catch((err) => {
-      return next(new AppError(`Error while bookmarked posts ${err}`, 400));
-    });
+  return res.status(200).send({
+    message: "Found Bookmarks",
+    bookmarks: formattedPosts,
+  });
 });

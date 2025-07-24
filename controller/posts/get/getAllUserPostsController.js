@@ -36,34 +36,27 @@ export const getAllUserPostsController = catchAsync(async (req, res, next) => {
 
   const result = await getAllUserPosts({ userId, offset, sortBy: sort });
 
-  let responseData = null;
-
-  if (result.length > 0) {
-    // console.log("totalOwnPostsCount ==> ",totalOwnPostsCount)
-    responseData = result.reduce((acc, rec) => {
-      // console.log("rec from getAllOwnPosts ==>  ", rec);
-      acc.push({
-        postId: rec.post_id,
-        title: rec.title,
-        createdAt: rec.created_at,
-        likes: rec.likes ? rec.likes : 0,
-        userId: rec.user_id,
-        imgURL: rec.title_img_url,
-        comments: rec.total_post_comments,
-      });
-      return acc;
-    }, []);
-    // console.log("responseData =======================> ", responseData);
-    return res.status(200).send({
-      message: `found user posts.`,
-      posts: responseData,
-
-      offset: Number(offset) + POST_OFFSET,
-    });
-  } else {
+  if (result.length <= 0) {
     return res.status(200).send({
       message: `No post found.`,
       posts: [],
     });
   }
+
+  const formattedPosts = result.map((post) => {
+    return {
+      postId: post.id,
+      title: post.title,
+      createdAt: post.created_at,
+      imgURL: post.title_img_url,
+      likes: post.post_analytics.likes,
+      comments: post.post_analytics.comments,
+    };
+  });
+  return res.status(200).send({
+    message: `found user posts.`,
+    posts: formattedPosts,
+
+    offset: Number(offset) + POST_OFFSET,
+  });
 });

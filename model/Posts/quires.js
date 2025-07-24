@@ -1,7 +1,12 @@
 import { Posts } from "./Posts.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
-import { QueryTypes } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
+import { Users } from "../Users/Users.js";
+import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
+import { Bookmarks } from "../Bookmark/Bookmark.js";
+import { PostHashtags } from "../PostHashtags/PostHashtags.js";
+import { Hashtags } from "../Hashtags/Hashtags.js";
 
 export const createPost = async ({
   userId,
@@ -134,7 +139,8 @@ export const getUserRecentPost = async ({ userId }) => {
 };
 
 export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
-  const result = await sequelize.query( `
+  const result = await sequelize.query(
+    `
 select 
 p.id as post_id,
 u.first_name,
@@ -155,7 +161,7 @@ limit ${POST_LIMIT}`,
     {
       replacements: {
         userId,
-        offset
+        offset,
       },
       type: QueryTypes.SELECT,
     }
@@ -164,77 +170,109 @@ limit ${POST_LIMIT}`,
   return result;
 };
 
-export const getAllTaggedPosts = async ({hashtagId,offset})=>{
-  const result = await sequelize.query(`select 
-ph.post_id,
-ph.hashtag_id,
-p.user_id,
-u.first_name,
-u.profile_img_url,
-p.title_img_url,
-p.title,
-p.created_at,
-pa.likes,
-pa.comments
-from post_hashtags ph
-join posts p on p.id=ph.post_id
-join users u on u.id = p.user_id
-join post_analytics pa on p.id = pa.post_id
-where ph.hashtag_id=:hashtagId
-offset :offset
-limit ${POST_LIMIT}`,{
-  replacements:{
-    hashtagId,
-    offset
-  },
-  type:QueryTypes.SELECT
-})
+export const getAllTaggedPosts = async ({ hashtagId,hashtagName, offset }) => {
+  const result = await Posts.findAll({
+    // logging: console.log,
+    include: [
+      {
+        model: PostHashtags,
+        where: {
+          id: {
+            [Op.ne]: null,
+          },
+        },
+        include: [
+          {
+            model: Hashtags,
+           
+            where: {
+              name: hashtagName,
+            },
+          },
+        ],
+      },
+       {
+        model: Users,
+        attributes: ["id", "first_name", "profile_img_url"],
+       },
+        {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
+      },
+    ],
+ 
+    offset,
+    order: [["created_at", "desc"]],
+  });
 
-return result
+  return result;
+};
 
-}
 
 export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const sortByOptions = {
-    asc: "p.created_at asc",
-    desc: "p.created_at desc",
-    name: "p.title asc",
+    asc: ["created_at", "asc"],
+    desc: ["created_at", "desc"],
+    name: ["title", "asc"],
   };
   const orderBy = sortByOptions[sortBy];
 
-  const result = await sequelize.query(
-    `SELECT 
-    u.id as user_id, 
-	u.first_name,
-    p.id as post_id,
-	p.created_at,
-	p.title,
-	p.title_img_url,
-  pa.comments as total_post_comments,
-  pa.likes
-FROM users u
-JOIN posts p ON u.id = p.user_id
-LEFT JOIN post_comments pc ON p.id = pc.post_id
-LEFT JOIN post_analytics pa ON p.id = pa.post_id
-WHERE u.id=:userId
-GROUP BY u.id, p.id,u.first_name,p.created_at,p.title,
-	p.likes,
-	p.title_img_url,
-  p.content,
-  pa.likes,
-  pa.comments
-ORDER BY ${orderBy}
-limit ${POST_LIMIT}
-offset :offset`,
-    {
-      replacements: {
-        userId,
-        offset,
+  const result = await Posts.findAll({
+    where: {
+      user_id: userId,
+    },
+    include: [
+      {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
       },
-      type: QueryTypes.SELECT,
-    }
-  );
+    ],
+    offset,
+    order: [orderBy, ["id", "desc"]],
+  });
+  return result;
+};
 
+export const getAllUserBookmarkedPosts = async ({ userId, sort = "desc" }) => {
+  const result = await Posts.findAll({
+    // logging:console.log,
+    include: [
+      {
+        model: Users,
+        attributes: ["id", "first_name", "profile_img_url"],
+        where: {
+          [Op.and]: [
+            {
+              id: {
+                [Op.ne]: null,
+              },
+            },
+            {
+              id: userId,
+            },
+          ],
+        },
+      },
+      {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
+      },
+      {
+        model: Bookmarks,
+        where: {
+          user_id: userId,
+        },
+      },
+      {
+        model: PostHashtags,
+        include: [Hashtags],
+      },
+    ],
+    order: [
+      [{ model: Bookmarks }, "created_at", sort],
+      ["id", "desc"],
+    ],
+  });
   return result;
 };
 
@@ -259,31 +297,21 @@ WHERE
 };
 
 export const getPost = async ({ postId }) => {
-  const result = await sequelize.query(
-    `select 
-p.id,
-u.first_name,
-u.profile_img_url,
-p.title,
-p.content,
-p.created_at,
-p.title_img_url,
-pa.likes,
-pa.comments
-from posts p
-join post_analytics pa on pa.post_id=p.id
-join users u on u.id=p.user_id
-where p.id=:postId`,
-    {
-      replacements: {
-        postId,
+  const result = await Posts.findOne({
+    where: {
+      id: postId,
+    },
+    include: [
+      {
+        model: Users,
+        attributes: ["first_name", "profile_img_url"],
       },
-      type: QueryTypes.SELECT,
-    }
-  );
+    ],
+  });
 
-  return result[0];
+  return result;
 };
+
 export const deletePost = async ({ postId }) => {
   const result = await Posts.destroy({
     where: {

@@ -54,7 +54,7 @@ export const getUserBookmarks = async ({userId,sort='desc'}) => {
       },
     
     }],
-     order:[ ["created_at",sort],['id', sort]],
+     order:[ ["created_at",sort],['id', "desc"]],
   })
   return result;
 };

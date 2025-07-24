@@ -1,5 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
+import { Hashtags } from "../Hashtags/Hashtags.js";
 
 
 export const PostHashtags = sq.define(
@@ -31,3 +32,4 @@ export const PostHashtags = sq.define(
   }
 );
 
+PostHashtags.belongsTo(Hashtags,{foreignKey:"hashtag_id"})

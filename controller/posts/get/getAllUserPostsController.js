@@ -49,8 +49,8 @@ export const getAllUserPostsController = catchAsync(async (req, res, next) => {
       title: post.title,
       createdAt: post.created_at,
       imgURL: post.title_img_url,
-      likes: post.post_analytics.likes,
-      comments: post.post_analytics.comments,
+      likes: post.post_analytics?.likes,
+      comments: post.post_analytics?.comments,
     };
   });
   return res.status(200).send({

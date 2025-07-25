@@ -42,9 +42,9 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
       titleImgURL: post.title_img_url,
       title: post.title,
       createdAt: post.created_at,
-      likes: post.post_analytics.likes,
+      likes: post.post_analytics?.likes,
       userId: post.users.id,
-      totalComments: post.post_analytics.comments,
+      totalComments: post.post_analytics?.comments,
       tagList: post.post_hashtags.map((val) => {
         return {
           id: val.hashtags.id,

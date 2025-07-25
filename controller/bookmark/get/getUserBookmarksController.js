@@ -47,11 +47,11 @@ export const getUserBookmarksController = catchAsync(async (req, res, next) => {
       createdAt: post.created_at,
       authorName: post.users.first_name,
       profileImgURL: post.users.profile_img_url,
-      comments: post.post_analytics.comments,
-      likes: post.post_analytics.likes,
+      comments: post.post_analytics?.comments,
+      likes: post.post_analytics?.likes,
       tagList: post.post_hashtags.map((val) => {
         return {
-          id:val.hashtags.id,
+          id: val.hashtags.id,
           name: val.hashtags.name,
           info: val.hashtags.info,
           color: val.hashtags.color,

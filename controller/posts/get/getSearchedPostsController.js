@@ -1,4 +1,3 @@
-import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
 import { getAllSearchedPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -39,8 +38,36 @@ export const getSearchedPostsController = catchAsync(async (req, res, next) => {
     limit,
   });
 
-  let responseData = null;
+  if (result.length <= 0) {
+    return res.status(200).send({
+      message: "No posts found",
+      posts: [],
+      totalPosts: 0,
+    });
+  }
 
+  const formattedPost = result.map((post) => {
+    return {
+      postId: post.id,
+      firstName: post.users.first_name,
+      profileImgURL: post.users.profile_img_url,
+      titleImgURL: post.title_img_url,
+      title: post.title,
+      createdAt: post.created_at,
+      likes: post.post_analytics.likes,
+      userId: post.users.id,
+      totalComments: post.post_analytics.comments,
+      tagList: post.post_hashtags.map((val) => {
+        return {
+          id: val.hashtags.id,
+          name: val.hashtags.name,
+          info: val.hashtags.info,
+          color: val.hashtags.color,
+        };
+      }),
+    };
+  });
+ 
   if (result.length === 0) {
     return res.status(200).send({
       message: "No posts found",
@@ -49,46 +76,10 @@ export const getSearchedPostsController = catchAsync(async (req, res, next) => {
     });
   }
 
-  let postsWithTagsResult = null;
-  let postsWithTags = [];
-
-  postsWithTagsResult = result.map(async (posts) => {
-    const tagList = await getAllPostHashtags({
-      postId: posts.post_id,
-    });
-
-    return {
-      ...posts,
-      tagList,
-    };
+  return res.status(200).send({
+    message: "Found posts",
+    posts: formattedPost,
+    totalPosts: formattedPost.length,
+    offset: Number(offset) + POST_OFFSET,
   });
-
-  Promise.all(postsWithTagsResult)
-    .then((result) => {
-      postsWithTags = result;
-      const formattedPosts = postsWithTags.map((post) => {
-        return {
-          postId: post.post_id,
-          firstName: post.first_name,
-          profileImgURL: post.profile_img_url,
-          titleImgURL: post.title_img_url,
-          title: post.title,
-          createdAt: post.created_at,
-          likes: post.likes ? post.likes : 0,
-          userId: post.user_id,
-          imgURL: post.title_img_url,
-          totalComments: post.total_comments,
-          tagList: post.tagList,
-          offset: Number(offset) + POST_OFFSET,
-        };
-      });
-      return res.status(200).send({
-        message: "Found posts",
-        posts: formattedPosts,
-        totalPosts: formattedPosts.length,
-      });
-    })
-    .catch((err) => {
-      return next(new AppError(`Error while getting tagged posts ${err}`, 400));
-    });
 });

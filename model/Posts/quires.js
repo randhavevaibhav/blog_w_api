@@ -7,6 +7,7 @@ import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
 import { Bookmarks } from "../Bookmark/Bookmark.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
 import { Hashtags } from "../Hashtags/Hashtags.js";
+import { getAllUserFollowers } from "../Users/quires.js";
 
 export const createPost = async ({
   userId,
@@ -45,33 +46,43 @@ export const isPostBelongsToUser = async ({ userId, postId }) => {
   }
 };
 
-export const getAllPosts = async ({ offset }) => {
-  const result = await sequelize.query(
-    `select
-p.id as post_id,
-u.id as user_id,
-u.first_name,
-u.profile_img_url,
-p.title , 
-p.created_at,
-p.title_img_url,
-pa.likes,
-pa.comments as total_comments
-from posts p
-join post_analytics pa on pa.post_id=p.id
-join users u on u.id = p.user_id
-order by p.created_at desc,
-p.id desc
-offset :offset
-limit ${POST_LIMIT}
-`,
-    {
-      replacements: {
-        offset,
+export const getAllPosts = async ({ offset, userId }) => {
+  const result = await Posts.findAll({
+    include: [
+      {
+        model: Users,
+        attributes: ["id", "first_name", "profile_img_url"],
+        where: {
+          [Op.and]: [
+            {
+              id: {
+                [Op.ne]: null,
+              },
+            },
+          ],
+        },
       },
-      type: QueryTypes.SELECT,
-    }
-  );
+      {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
+      },
+      {
+        model: PostHashtags,
+        include: [Hashtags],
+      },
+      {
+        model: Bookmarks,
+        attributes: ["id"],
+        where: {
+          user_id: userId ? userId : null,
+        },
+        required: false,
+      },
+    ],
+    offset,
+    order: [["created_at", "desc"]],
+    limit: POST_LIMIT,
+  });
 
   return result;
 };
@@ -84,45 +95,41 @@ export const getAllSearchedPosts = async ({
 }) => {
   const postLimit = limit ? limit : SEARCH_POST_LIMIT;
   const sortOptions = {
-    desc: {
-      column: "p.created_at",
-      type: "desc",
-    },
-    asc: {
-      column: "p.created_at",
-      type: "asc",
-    },
+    desc: ["created_at", "desc"],
+    asc: ["created_at", "asc"],
   };
 
   const sortBy = sortOptions[sort];
-  const result = await sequelize.query(
-    `select
-p.id as post_id,
-u.id as user_id,
-u.first_name,
-u.profile_img_url,
-p.title , 
-p.created_at,
-p.title_img_url,
-pa.likes,
-pa.comments as total_comments
-from posts p
-join post_analytics pa on pa.post_id=p.id
-join users u on u.id = p.user_id
-where LOWER(p.title) like LOWER(:query)
-order by ${sortBy.column} ${sortBy.type},p.created_at desc,
-p.id desc
-offset :offset
-limit ${postLimit}
-`,
-    {
-      replacements: {
-        offset,
-        query: `%${query}%`,
+
+  const result = await Posts.findAll({
+    where: {
+      title: {
+        [Op.iLike]: `%${query}%`,
       },
-      type: QueryTypes.SELECT,
-    }
-  );
+    },
+    include: [
+      {
+        model: Users,
+        attributes: ["id", "first_name", "profile_img_url"],
+        where: {
+          id: {
+            [Op.ne]: null,
+          },
+        },
+      },
+      {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
+      },
+      {
+        model: PostHashtags,
+        include: [Hashtags],
+      },
+    ],
+    offset,
+    order: [sortBy],
+    limit: postLimit,
+  });
 
   return result;
 };
@@ -139,38 +146,48 @@ export const getUserRecentPost = async ({ userId }) => {
 };
 
 export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
-  const result = await sequelize.query(
-    `
-select 
-p.id as post_id,
-u.first_name,
-u.profile_img_url,
-p.title_img_url,
-p.title,
-p.created_at,
-pa.likes as likes,
-pa.comments as total_comments,
-u.id as user_id
-from posts p
-join users u on u.id=p.user_id
-join post_analytics pa on pa.post_id=p.id
-where p.user_id in 
-(select user_id from followers where follower_id=:userId)
-offset :offset
-limit ${POST_LIMIT}`,
-    {
-      replacements: {
-        userId,
-        offset,
+  const followingUsers = await getAllUserFollowers({ userId });
+
+  const followingUsersIds = followingUsers.map((user) => user.id);
+
+  if (followingUsersIds.length <= 0) {
+    return [];
+  }
+
+  const result = await Posts.findAll({
+    // logging:console.log,
+    where: {
+      user_id: followingUsersIds,
+    },
+    include: [
+      {
+        model: Users,
+        attributes: ["id", "first_name", "profile_img_url"],
       },
-      type: QueryTypes.SELECT,
-    }
-  );
+      {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
+      },
+      {
+        model: Bookmarks,
+        attributes: ["id"],
+        where: {
+          user_id: userId,
+        },
+        required: false,
+      },
+      {
+        model: PostHashtags,
+        include: [Hashtags],
+      },
+    ],
+    offset,
+  });
 
   return result;
 };
 
-export const getAllTaggedPosts = async ({ hashtagId,hashtagName, offset }) => {
+export const getAllTaggedPosts = async ({ hashtagId, hashtagName, offset }) => {
   const result = await Posts.findAll({
     // logging: console.log,
     include: [
@@ -184,30 +201,29 @@ export const getAllTaggedPosts = async ({ hashtagId,hashtagName, offset }) => {
         include: [
           {
             model: Hashtags,
-           
+
             where: {
               name: hashtagName,
             },
           },
         ],
       },
-       {
+      {
         model: Users,
         attributes: ["id", "first_name", "profile_img_url"],
-       },
-        {
+      },
+      {
         model: PostAnalytics,
         attributes: ["likes", "comments"],
       },
     ],
- 
+
     offset,
     order: [["created_at", "desc"]],
   });
 
   return result;
 };
-
 
 export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const sortByOptions = {
@@ -235,7 +251,7 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
 
 export const getAllUserBookmarkedPosts = async ({ userId, sort = "desc" }) => {
   const result = await Posts.findAll({
-    // logging:console.log,
+    // logging: console.log,
     include: [
       {
         model: Users,
@@ -246,9 +262,6 @@ export const getAllUserBookmarkedPosts = async ({ userId, sort = "desc" }) => {
               id: {
                 [Op.ne]: null,
               },
-            },
-            {
-              id: userId,
             },
           ],
         },
@@ -293,7 +306,6 @@ WHERE
       type: QueryTypes.SELECT,
     }
   );
-  return result[0].total_likes ? result[0].total_likes : 0;
 };
 
 export const getPost = async ({ postId }) => {

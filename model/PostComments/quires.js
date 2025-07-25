@@ -2,6 +2,7 @@ import { PostComments } from "./PostComments.js";
 import sequelize from "../../db.js";
 import { COMMENT_LIMIT } from "../../utils/constants.js";
 import { Op, QueryTypes } from "sequelize";
+import { Users } from "../Users/Users.js";
 
 export const createPostComment = async ({
   userId,
@@ -70,25 +71,33 @@ offset :offset`,
 };
 
 export const getRecentComments = async ({ limit = 2, postId }) => {
-  const result = await sequelize.query(
-    `select pc.content,
-pc.post_id,
-pc.user_id,
-pc.created_at,
-u.first_name,
-u.profile_img_url 
-from post_comments pc
-join users u on u.id=pc.user_id
-where pc.post_id=:postId and pc.content!='NA-#GOHST' and pc.parent_id is null
-order by pc.created_at desc
-limit ${limit};`,
-    {
-      replacements: {
-        postId,
-      },
-      type: QueryTypes.SELECT,
-    }
-  );
+
+  const result = await PostComments.findAll({
+    // logging:console.log,
+    where: {
+      [Op.and]: [
+        {
+          post_id: postId,
+        },
+        {
+          content: {
+            [Op.ne]: "NA-#GOHST",
+          },
+        },
+        {
+          parent_id: {
+            [Op.eq]: null,
+          },
+        },
+      ],
+    },
+    include:[{
+      model:Users,
+      attributes:["first_name","profile_img_url"]
+    }],
+    order:[["created_at","desc"]],
+    limit,
+  });
 
   return result;
 };
@@ -212,8 +221,8 @@ export const deleteAllCmtReplies = async ({ commentId }) => {
 };
 
 export const getOwnRecentComment = async ({ userId }) => {
-
-const result = await sequelize.query(`select 
+  const result = await sequelize.query(
+    `select 
 pc.id,
 pc.user_id,
 pc.post_id,
@@ -224,12 +233,14 @@ p.user_id as author_id
 from post_comments pc
 join posts p on p.id=pc.post_id 
 where pc.user_id=:userId and pc.content <> 'NA-#GOHST' 
-order by pc.created_at desc limit 1`,{
-  replacements:{
-    userId
-  },
-   type: QueryTypes.SELECT,
-})
+order by pc.created_at desc limit 1`,
+    {
+      replacements: {
+        userId,
+      },
+      type: QueryTypes.SELECT,
+    }
+  );
 
   return result[0];
 };

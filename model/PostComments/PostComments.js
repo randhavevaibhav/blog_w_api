@@ -53,4 +53,4 @@ export const PostComments = sq.define(
 );
 
 PostComments.belongsTo(Users, { foreignKey: "user_id" });
-PostComments.belongsTo(CommentAnalytics,{foreignKey:"id",targetKey:"comment_id"});
+PostComments.belongsTo(CommentAnalytics,{foreignKey:"id",targetKey:"comment_id"});  

@@ -1,6 +1,8 @@
 import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { Users } from "./Users.js";
+import { Followers } from "../Followers/Followers.js";
+
 
 export const createUser = async ({
   firstName,
@@ -211,5 +213,19 @@ export const decUserCommentsCount = async ({ userId }) => {
     }
   );
 
+  return result;
+};
+
+export const getAllUserFollowers = async ({ userId }) => {
+  const result = await Users.findAll({
+    include: [
+      {
+        model: Followers,
+        where: {
+          follower_id: userId,
+        },
+      },
+    ],
+  });
   return result;
 };

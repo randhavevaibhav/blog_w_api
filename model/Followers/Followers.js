@@ -3,26 +3,26 @@ import { DataTypes } from "@sequelize/core";
 
 export const Followers = sq.define(
   "followers",
- {
-     user_id: {
-       type: DataTypes.BIGINT,
-       allowNull: false,
-       validate: {
-         notEmpty: {
-           msg: "user id can not be empty.",
-         },
-       },
-     },
-      follower_id: {
-       type: DataTypes.BIGINT,
-       allowNull: false,
-       validate: {
-         notEmpty: {
-           msg: "follower id can not be empty.",
-         },
-       },
-     },
-      created_at: {
+  {
+    user_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "user id can not be empty.",
+        },
+      },
+    },
+    follower_id: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "follower id can not be empty.",
+        },
+      },
+    },
+    created_at: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
@@ -31,10 +31,9 @@ export const Followers = sq.define(
         },
       },
     },
-   },
-   {
-     createdAt: false,
-     updatedAt: false,
-   }
+  },
+  {
+    createdAt: false,
+    updatedAt: false,
+  }
 );
-

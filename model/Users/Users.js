@@ -1,5 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
+import { Followers } from "../Followers/Followers.js";
 
 
 // IMp to add
@@ -84,3 +85,6 @@ export const Users = sq.define(
   }
 );
 
+Users.hasMany(Followers,{
+  foreignKey:"user_id"
+})

@@ -5,8 +5,6 @@ import { Users } from "../Users/Users.js";
 import { Bookmarks } from "../Bookmark/Bookmark.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
 
-
-
 export const Posts = sq.define(
   "posts",
   {
@@ -66,6 +64,6 @@ export const Posts = sq.define(
 );
 
 Posts.belongsTo(Users, { foreignKey: "user_id" });
-Posts.hasOne(PostAnalytics,{foreignKey:"post_id"});
-Posts.hasMany(Bookmarks,{foreignKey:"post_id"});
-Posts.hasMany(PostHashtags,{foreignKey:"post_id"});
+Posts.hasOne(PostAnalytics, { foreignKey: "post_id" });
+Posts.hasMany(Bookmarks, { foreignKey: "post_id" });
+Posts.hasMany(PostHashtags, { foreignKey: "post_id" });

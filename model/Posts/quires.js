@@ -306,6 +306,7 @@ WHERE
       type: QueryTypes.SELECT,
     }
   );
+  return result ? result[0].total_likes : null;
 };
 
 export const getPost = async ({ postId }) => {

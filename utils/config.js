@@ -12,3 +12,4 @@ const environments = {
 };
 
 export const config = environments[process.env.ENV];
+console.log("config ===> ", config);

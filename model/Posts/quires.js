@@ -227,8 +227,8 @@ export const getAllTaggedPosts = async ({ hashtagId, hashtagName, offset }) => {
 
 export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const sortByOptions = {
-    asc: ["created_at", "asc"],
-    desc: ["created_at", "desc"],
+    asc: ["updated_at", "asc"],
+    desc: ["updated_at", "desc"],
     name: ["title", "asc"],
   };
   const orderBy = sortByOptions[sortBy];

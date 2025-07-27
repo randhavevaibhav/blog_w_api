@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 
-// dotenv.config();
+dotenv.config();
 
 const environments = {
   PROD: {
@@ -12,4 +12,3 @@ const environments = {
 };
 
 export const config = environments[process.env.ENV];
-console.log("config ===> ", config);

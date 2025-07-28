@@ -79,7 +79,7 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
             acc.push({
               content: comment.content,
               postId: comment.post_id,
-              userId: comment.users.user_id,
+              userId: comment.users.id,
               createdAt: comment.created_at,
               firstName: comment.users.first_name,
               profileImgURL: comment.users.profile_img_url,

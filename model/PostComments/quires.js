@@ -71,7 +71,6 @@ offset :offset`,
 };
 
 export const getRecentComments = async ({ limit = 2, postId }) => {
-
   const result = await PostComments.findAll({
     // logging:console.log,
     where: {
@@ -91,11 +90,13 @@ export const getRecentComments = async ({ limit = 2, postId }) => {
         },
       ],
     },
-    include:[{
-      model:Users,
-      attributes:["first_name","profile_img_url"]
-    }],
-    order:[["created_at","desc"]],
+    include: [
+      {
+        model: Users,
+        attributes: ["id", "first_name", "profile_img_url"],
+      },
+    ],
+    order: [["created_at", "desc"]],
     limit,
   });
 

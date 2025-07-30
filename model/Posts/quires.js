@@ -283,7 +283,6 @@ export const getAllUserBookmarkedPosts = async ({ userId, sort = "desc" }) => {
     ],
     order: [
       [{ model: Bookmarks }, "created_at", sort],
-      ["id", "desc"],
     ],
   });
   return result;

@@ -11,8 +11,6 @@ export const compressImage = async ({
   fileBuffer,
   mimetype,
   isProfileImg = false,
-  w = 900,
-  h = 600,
 }) => {
   let processedImage = await Jimp.read(fileBuffer);
 

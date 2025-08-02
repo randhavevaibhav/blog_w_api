@@ -28,8 +28,6 @@ export const uploadUserProfileImgController = catchAsync(
         fileBuffer,
         mimetype,
         isProfileImg: true,
-        w: 320,
-        h: 320,
       });
 
       fileBufferToUpload = compressedImageBuffer;

@@ -7,12 +7,7 @@ const router = Router();
 
 const { updateUserController, getUserInfoController, getUserStatController } =
   userControllers;
-router.patch(
-  "/update/user",
-  requireAuth,
-  adminMiddleware,
-  updateUserController
-);
+router.patch("/update/user", requireAuth, updateUserController);
 router.get("/user/info/:currentUserId?/:userId", getUserInfoController);
 router.get("/user/stat/:userId", getUserStatController);
 

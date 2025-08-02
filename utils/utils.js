@@ -11,6 +11,8 @@ export const compressImage = async ({
   fileBuffer,
   mimetype,
   isProfileImg = false,
+  w = 900,
+  h = 600,
 }) => {
   let processedImage = await Jimp.read(fileBuffer);
 
@@ -18,8 +20,8 @@ export const compressImage = async ({
   if (!isProfileImg) {
     if (processedImage.width > 900 && processedImage.height > 600) {
       processedImage = processedImage.resize({
-        w: 900,
-        h: 600,
+        w,
+        h,
       }); // Adjust width as needed
 
       // console.log("compressing !");
@@ -53,6 +55,6 @@ export const getFileInfo = ({ file }) => {
   };
 };
 
-export const  isPositiveInteger=(num)=> {
-  return typeof num === 'number' && Number.isInteger(num) && num >= 0;
-}
+export const isPositiveInteger = (num) => {
+  return typeof num === "number" && Number.isInteger(num) && num >= 0;
+};

@@ -66,11 +66,13 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     userId,
   });
 
-  if (tagList.length > 0) {
-    await createPostHashtags({
-      postId,
-      hashtagIdList: tagList,
-    });
+  if (tagList) {
+    if (tagList.length > 0) {
+      await createPostHashtags({
+        postId,
+        hashtagIdList: tagList,
+      });
+    }
   }
 
   res.status(201).send({

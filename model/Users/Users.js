@@ -2,7 +2,6 @@ import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
 import { Followers } from "../Followers/Followers.js";
 
-
 // IMp to add
 // {
 //     createdAt: false,
@@ -75,8 +74,26 @@ export const Users = sq.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-     refresh_token: {
-      type: DataTypes.STRING
+    refresh_token: {
+      type: DataTypes.STRING,
+    },
+    posts: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "post count can not be null.",
+        },
+      },
+    },
+    comments: {
+      type: DataTypes.BIGINT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "comments count can not be null.",
+        },
+      },
     },
   },
   {
@@ -85,6 +102,6 @@ export const Users = sq.define(
   }
 );
 
-Users.hasMany(Followers,{
-  foreignKey:"user_id"
-})
+Users.hasMany(Followers, {
+  foreignKey: "user_id",
+});

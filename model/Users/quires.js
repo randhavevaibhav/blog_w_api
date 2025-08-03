@@ -3,7 +3,6 @@ import sequelize from "../../db.js";
 import { Users } from "./Users.js";
 import { Followers } from "../Followers/Followers.js";
 
-
 export const createUser = async ({
   firstName,
   email,
@@ -17,6 +16,8 @@ export const createUser = async ({
     password_hash: encryptedPassword,
     registered_at,
     profile_img_url: profileImgUrl,
+    posts: 0,
+    comments: 0,
   });
 
   return result;

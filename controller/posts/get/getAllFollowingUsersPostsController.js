@@ -5,6 +5,29 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
+const getTagList = ({ colors, names, ids }) => {
+  let tagList = [];
+
+  if (colors && names && ids) {
+    let colorList = colors.split("),").map((val, i, arr) => {
+      if (i < arr.length - 1) {
+        return val + ")";
+      }
+      return val;
+    });
+    let nameList = names.split(",");
+    tagList = ids.split(",").map((id, i) => {
+      return {
+        id:parseInt(id),
+        color: colorList[i],
+        name: nameList[i].trim(),
+      };
+    });
+  }
+
+  return tagList;
+};
+
 export const getAllFollowingUsersPostsController = catchAsync(
   async (req, res, next) => {
     const { userId } = req.params;
@@ -25,7 +48,9 @@ export const getAllFollowingUsersPostsController = catchAsync(
     }
 
     const result = await getAllFollowingUsersPosts({ userId, offset });
-
+    // result.map((posts) => {
+    //   console.log("posts ==> ", posts.id);
+    // });
     if (result.length <= 0) {
       return res.status(200).send({
         message: "No following user posts found",
@@ -37,27 +62,35 @@ export const getAllFollowingUsersPostsController = catchAsync(
     const formattedPosts = result.map((post) => {
       return {
         postId: post.id,
-        firstName: post.users.first_name,
-        profileImgURL: post.users.profile_img_url,
+        firstName: post["users.first_name"],
+        profileImgURL: post["users.profile_img_url"],
         titleImgURL: post.title_img_url,
         title: post.title,
         createdAt: post.created_at,
-        likes: post.post_analytics?.likes,
-        userId: post.users.id,
-        totalComments: post.post_analytics?.comments,
-        tagList: post.post_hashtags.map((val) => {
-          return {
-            id: val.hashtags.id,
-            name: val.hashtags.name,
-            info: val.hashtags.info,
-            color: val.hashtags.color,
-          };
+        likes: post["post_analytics.likes"],
+        userId: post["users.id"],
+        totalComments: post["post_analytics.comments"],
+        // tagList:getTagList({colors:post['post_hashtags.hashtags.color'],names:post['post_hashtags.hashtags.name']}),
+        // tagList: post.post_hashtags.map((val) => {
+        //   return {
+        //     id: val.hashtags.id,
+        //     name: val.hashtags.name,
+        //     info: val.hashtags.info,
+        //     color: val.hashtags.color,
+        //   };
+        // }),
+        tagList: getTagList({
+          colors: post["post_hashtags.hashtags.color"],
+          names: post["post_hashtags.hashtags.name"],
+          ids: post["post_hashtags.hashtags.id"],
         }),
-        isBookmarked: post.bookmarks?.length ? true : false,
+        isBookmarked: post["bookmarks.id"] ? true : false,
       };
     });
 
     let responseData = null;
+
+    // console.log("formattedPosts ===> ",formattedPosts[9])
 
     responseData = formattedPosts.map(async (post) => {
       return {

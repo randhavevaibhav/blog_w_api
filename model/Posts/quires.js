@@ -154,40 +154,68 @@ export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
     return [];
   }
 
-  const result = await Posts.findAll({
-    // logging:console.log,
-    where: {
-      user_id: followingUsersIds,
-    },
-    include: [
-      {
-        model: Users,
-        attributes: ["id", "first_name", "profile_img_url"],
+  const result = await sequelize.query(
+    `
+      SELECT
+  	"posts"."id",
+  	"posts"."user_id",
+  	"posts"."title",
+  	"posts"."content",
+  	"posts"."created_at",
+  	"posts"."updated_at",
+  	"posts"."title_img_url",
+  	"users"."id" AS "users.id",
+    "users"."first_name" AS "users.first_name",
+  	"users"."profile_img_url" AS "users.profile_img_url",
+  	"post_analytics"."id" AS "post_analytics.id",
+  	"post_analytics"."likes" AS "post_analytics.likes",
+  	"post_analytics"."comments" AS "post_analytics.comments",
+  	"bookmarks"."id" AS "bookmarks.id",
+  	STRING_AGG("post_hashtags->hashtags"."color"::TEXT, ', ') AS "post_hashtags.hashtags.color",
+  	STRING_AGG("post_hashtags->hashtags"."name"::TEXT, ', ') AS "post_hashtags.hashtags.name",
+    STRING_AGG("post_hashtags->hashtags"."id"::TEXT, ', ') AS "post_hashtags.hashtags.id"
+  FROM
+  	"posts" AS "posts"
+  	LEFT OUTER JOIN "users" AS "users" ON "posts"."user_id" = "users"."id"
+  	LEFT OUTER JOIN "post_analytics" AS "post_analytics" ON "posts"."id" = "post_analytics"."post_id"
+  	LEFT OUTER JOIN "bookmarks" AS "bookmarks" ON "posts"."id" = "bookmarks"."post_id"
+  	AND "bookmarks"."user_id" =:userId
+  	LEFT OUTER JOIN "post_hashtags" AS "post_hashtags" ON "posts"."id" = "post_hashtags"."post_id"
+  	LEFT OUTER JOIN "hashtags" AS "post_hashtags->hashtags" ON "post_hashtags"."hashtag_id" = "post_hashtags->hashtags"."id"
+  WHERE
+  	"posts"."user_id" IN (${followingUsersIds})
+  GROUP BY
+  	"posts"."id",
+  	"posts"."user_id",
+  	"posts"."title",
+  	"posts"."content",
+  	"posts"."created_at",
+  	"posts"."updated_at",
+  	"posts"."title_img_url",
+  	"users"."id",
+    "users.first_name",
+  	"users"."profile_img_url",
+  	"post_analytics"."id",
+  	"post_analytics"."likes",
+  	"post_analytics"."comments",
+  	"bookmarks"."id"
+  ORDER BY
+  	"posts"."id"
+  OFFSET :offset;
+      `,
+    {
+      replacements: {
+        userId,
+        offset,
       },
-      {
-        model: PostAnalytics,
-        attributes: ["likes", "comments"],
-      },
-      {
-        model: Bookmarks,
-        attributes: ["id"],
-        where: {
-          user_id: userId,
-        },
-        required: false,
-      },
-      {
-        model: PostHashtags,
-        include: [Hashtags],
-      },
-    ],
-    offset,
-  });
+      type: QueryTypes.SELECT,
+    }
+  );
 
   return result;
 };
 
-export const getAllTaggedPosts = async ({ hashtagId, hashtagName, offset }) => {
+export const getAllTaggedPosts = async ({ hashtagId, offset }) => {
   const result = await Posts.findAll({
     // logging: console.log,
     include: [
@@ -203,7 +231,7 @@ export const getAllTaggedPosts = async ({ hashtagId, hashtagName, offset }) => {
             model: Hashtags,
 
             where: {
-              name: hashtagName,
+              id: hashtagId,
             },
           },
         ],
@@ -234,6 +262,7 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const orderBy = sortByOptions[sortBy];
 
   const result = await Posts.findAll({
+    logging: console.log,
     where: {
       user_id: userId,
     },
@@ -245,6 +274,7 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
     ],
     offset,
     order: [orderBy, ["id", "desc"]],
+    limit: POST_LIMIT,
   });
   return result;
 };
@@ -281,9 +311,7 @@ export const getAllUserBookmarkedPosts = async ({ userId, sort = "desc" }) => {
         include: [Hashtags],
       },
     ],
-    order: [
-      [{ model: Bookmarks }, "created_at", sort],
-    ],
+    order: [[{ model: Bookmarks }, "created_at", sort]],
   });
   return result;
 };

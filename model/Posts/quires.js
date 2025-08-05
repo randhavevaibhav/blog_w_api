@@ -262,7 +262,7 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   const orderBy = sortByOptions[sortBy];
 
   const result = await Posts.findAll({
-    logging: console.log,
+    // logging: console.log,
     where: {
       user_id: userId,
     },

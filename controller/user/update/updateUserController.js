@@ -3,7 +3,6 @@ import {
   getUser,
   updateUser,
 } from "../../../model/Users/quires.js";
-import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { encrypt, isPositiveInteger } from "../../../utils/utils.js";
@@ -24,7 +23,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     userWebsiteURL,
     userLocation,
   } = req.body;
-  const { getUserInfoRedisKey } = userRedisKeys();
+
   if (!userId || !userMail || !userName || !password || !oldPassword) {
     return next(
       new AppError(

@@ -18,8 +18,7 @@ export const compressImage = async ({
   if (!isProfileImg) {
     if (processedImage.width > 900 && processedImage.height > 600) {
       processedImage = processedImage.resize({
-        w,
-        h,
+        w: 900,
       }); // Adjust width as needed
 
       // console.log("compressing !");

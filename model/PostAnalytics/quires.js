@@ -60,33 +60,3 @@ export const decPostLike = async (postId) => {
 
   return result;
 };
-
-export const incCommentCount = async (postId) => {
-  const result = await PostAnalytics.increment("comments", {
-    by: 1,
-    where: {
-      post_id: postId,
-    },
-  });
-
-  return result;
-};
-
-export const decCommentCount = async (postId) => {
-  const result = await sequelize.query(
-    `UPDATE post_analytics
-  SET comments = CASE
-      WHEN comments > 0 THEN comments - 1
-      ELSE 0
-  END
-  WHERE post_id=:postId`,
-    {
-      replacements: {
-        postId,
-      },
-      type: QueryTypes.SELECT,
-    }
-  );
-
-  return result;
-};

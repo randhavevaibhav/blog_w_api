@@ -1,4 +1,3 @@
-import { decCommentCount } from "../../../model/PostAnalytics/quires.js";
 import {
   deleteSinglePostComment,
   updateCommentAsGhost,
@@ -43,7 +42,7 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
   });
 
   if (!numHasReplies) {
-    await decCommentCount(postId);
+    // await decCommentCount(postId);
     result = await deleteSinglePostComment({ userId, commentId });
   }
 

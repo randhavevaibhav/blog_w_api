@@ -1,5 +1,4 @@
 import { createCommentAnalytics } from "../../../model/CommentAnalytics/quires.js";
-import { incCommentCount } from "../../../model/PostAnalytics/quires.js";
 import { createPostComment } from "../../../model/PostComments/quires.js";
 import { incUserCommentsCount } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
@@ -43,8 +42,6 @@ export const createPostCommentController = catchAsync(
 
     const commentData = { userId, postId, content, createdAt, parentId };
     const result = await createPostComment(commentData);
-
-    const resultOfIncCommentCount = await incCommentCount(postId);
 
     await incUserCommentsCount({ userId });
 

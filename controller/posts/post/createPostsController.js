@@ -37,6 +37,7 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   }
 
   const formattedUserId = parseInt(userId);
+  const isAdmin = parseInt(userId) === parseInt(process.env.ADMIN_USERID);
 
   if (!isPositiveInteger(formattedUserId)) {
     return next(new AppError(`userId must be numbers`));
@@ -44,7 +45,7 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   const totalUserPostsResult = await getTotalUserPosts({ userId });
   let totalUserPosts = totalUserPostsResult.dataValues.posts;
 
-  if (totalUserPosts >= 20) {
+  if (totalUserPosts >= 20 && !isAdmin) {
     return next(
       new AppError(`Can not create more posts. Post limit reached !!`)
     );

@@ -1,11 +1,7 @@
 import { createPostAnalytics } from "../../../model/PostAnalytics/quires.js";
 import { createPostHashtags } from "../../../model/PostHashtags/quires.js";
 import { createPost } from "../../../model/Posts/quires.js";
-import {
-  getTotalUserPosts,
-  incUserPostsCount,
-} from "../../../model/Users/quires.js";
-import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
+import { getTotalUserPosts } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -21,7 +17,6 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     likes,
     tagList,
   } = req.body;
-  const { getUserInfoRedisKey } = userRedisKeys();
   // console.log("{userId,title,content,createdAt,updatedAt,likes}",{userId,title,content,createdAt,updatedAt,likes})
   if (!userId || !title || !content || !createdAt) {
     return next(
@@ -63,9 +58,6 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   const result = await createPost(postData);
   const postId = result.id;
   await createPostAnalytics({ postId });
-  await incUserPostsCount({
-    userId,
-  });
 
   if (tagList) {
     if (tagList.length > 0) {

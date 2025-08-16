@@ -3,7 +3,6 @@ import {
   decFollowingCount,
 } from "../../../model/FollowerAnalytics/quires.js";
 import { removeFollower } from "../../../model/Followers/quires.js";
-import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -11,7 +10,6 @@ import { isPositiveInteger } from "../../../utils/utils.js";
 export const removeFollowerController = catchAsync(async (req, res, next) => {
   const userId = req.params.userId;
   const followingUserId = req.params.followingUserId;
-  const { getUserInfoRedisKey } = userRedisKeys();
 
   if (!userId || !followingUserId) {
     return next(

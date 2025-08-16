@@ -4,14 +4,12 @@ import {
   updateCommentAsGhost,
 } from "../../../model/PostComments/quires.js";
 import { decUserCommentsCount } from "../../../model/Users/quires.js";
-import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const deleteCommentController = catchAsync(async (req, res, next) => {
   const { userId, commentId, postId, hasReplies } = req.params;
-  const { getUserInfoRedisKey } = userRedisKeys();
   const numHasReplies = parseInt(hasReplies);
 
   if (!userId || !commentId || !postId) {

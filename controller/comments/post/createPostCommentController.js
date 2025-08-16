@@ -2,7 +2,6 @@ import { createCommentAnalytics } from "../../../model/CommentAnalytics/quires.j
 import { incCommentCount } from "../../../model/PostAnalytics/quires.js";
 import { createPostComment } from "../../../model/PostComments/quires.js";
 import { incUserCommentsCount } from "../../../model/Users/quires.js";
-import { userRedisKeys } from "../../../rediskeygen/user/userRedisKeys.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -18,7 +17,7 @@ export const createPostCommentController = catchAsync(
       createdAt,
       page = 0,
     } = req.body;
-    const { getUserInfoRedisKey } = userRedisKeys();
+
     // console.log("postId,content,createdAt,likes ===> ", postId);
 
     // console.log("userId  createPostCommentController ===> ",userId)

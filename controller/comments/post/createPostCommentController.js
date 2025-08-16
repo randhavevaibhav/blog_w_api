@@ -1,6 +1,5 @@
 import { createCommentAnalytics } from "../../../model/CommentAnalytics/quires.js";
 import { createPostComment } from "../../../model/PostComments/quires.js";
-import { incUserCommentsCount } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -42,8 +41,6 @@ export const createPostCommentController = catchAsync(
 
     const commentData = { userId, postId, content, createdAt, parentId };
     const result = await createPostComment(commentData);
-
-    await incUserCommentsCount({ userId });
 
     const createCommentAnalyticsRes = await createCommentAnalytics({
       commentId: result.id,

@@ -2,7 +2,6 @@ import {
   deleteSinglePostComment,
   updateCommentAsGhost,
 } from "../../../model/PostComments/quires.js";
-import { decUserCommentsCount } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
@@ -36,10 +35,6 @@ export const deleteCommentController = catchAsync(async (req, res, next) => {
   let ghosted = false;
 
   //decrease the comment count in post_analytics table if it is not zero
-
-  await decUserCommentsCount({
-    userId,
-  });
 
   if (!numHasReplies) {
     // await decCommentCount(postId);

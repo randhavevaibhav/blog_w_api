@@ -168,55 +168,6 @@ export const incUserPostsCount = async ({ userId }) => {
   return result;
 };
 
-// export const decUserPostsCount = async ({ userId }) => {
-//   const result = await sequelize.query(
-//     `UPDATE users
-//   SET posts = CASE
-//       WHEN posts > 0 THEN posts - 1
-//       ELSE 0
-//   END
-//   WHERE id =:userId`,
-//     {
-//       replacements: {
-//         userId,
-//       },
-//       type: QueryTypes.SELECT,
-//     }
-//   );
-
-//   return result;
-// };
-
-export const incUserCommentsCount = async ({ userId }) => {
-  const result = await Users.increment("comments", {
-    by: 1,
-    where: {
-      id: userId,
-    },
-  });
-
-  return result;
-};
-
-export const decUserCommentsCount = async ({ userId }) => {
-  const result = await sequelize.query(
-    `UPDATE users
-  SET comments = CASE
-      WHEN comments > 0 THEN comments - 1
-      ELSE 0
-  END
-  WHERE id =:userId`,
-    {
-      replacements: {
-        userId,
-      },
-      type: QueryTypes.SELECT,
-    }
-  );
-
-  return result;
-};
-
 export const getAllUserFollowers = async ({ userId }) => {
   const result = await Users.findAll({
     include: [

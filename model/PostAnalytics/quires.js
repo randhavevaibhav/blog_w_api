@@ -1,5 +1,3 @@
-import { QueryTypes } from "sequelize";
-import sequelize from "../../db.js";
 import { PostAnalytics } from "./PostAnalytics.js";
 
 export const createPostAnalytics = async ({ postId }) => {
@@ -27,36 +25,6 @@ export const getPostAnalytics = async ({ postId }) => {
       post_id: postId,
     },
   });
-
-  return result;
-};
-
-export const incPostLike = async (postId) => {
-  const result = await PostAnalytics.increment("likes", {
-    by: 1,
-    where: {
-      post_id: postId,
-    },
-  });
-
-  return result;
-};
-
-export const decPostLike = async (postId) => {
-  const result = await sequelize.query(
-    `UPDATE post_analytics
-  SET likes = CASE
-      WHEN likes > 0 THEN likes - 1
-      ELSE 0
-  END
-  WHERE post_id=:postId`,
-    {
-      replacements: {
-        postId,
-      },
-      type: QueryTypes.SELECT,
-    }
-  );
 
   return result;
 };

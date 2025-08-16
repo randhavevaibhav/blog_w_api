@@ -1,4 +1,3 @@
-import { incPostLike } from "../../../model/PostAnalytics/quires.js";
 import {
   createPostLike,
   checkIfPostLikedByUser,
@@ -30,7 +29,7 @@ export const likePostController = catchAsync(async (req, res, next) => {
 
   if (isPostLiked) {
     //already liked !
-    return res.sendStatus(204)
+    return res.sendStatus(204);
   }
 
   //if not like post
@@ -40,7 +39,6 @@ export const likePostController = catchAsync(async (req, res, next) => {
     createdAt,
   });
 
-  const incPostLikeResult = await incPostLike(postId);
   return res.status(200).send({
     message: "liked a post !",
     liked: true,

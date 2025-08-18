@@ -37,8 +37,6 @@ export const logoutController = catchAsync(async (req, res) => {
     */
   res.clearCookie("jwt", {
     httpOnly: true,
-    sameSite: "none",
-    secure: true,
   });
 
   return res.status(200).send({

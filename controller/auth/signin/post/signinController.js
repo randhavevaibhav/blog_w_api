@@ -99,6 +99,8 @@ export const signinController = catchAsync(async (req, res, next) => {
   res.cookie("jwt", newRefreshToken, {
     httpOnly: true,
     maxAge: 10 * 60 * 60 * 1000,
+    sameSite: "none",
+    secure: true,
   });
   return res.status(200).send({
     message: `user with mail: ${email} validated !!!`,

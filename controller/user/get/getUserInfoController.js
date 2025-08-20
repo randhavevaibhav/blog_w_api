@@ -11,6 +11,7 @@ import { getOwnRecentComment } from "../../../model/PostComments/quires.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 import { checkIfAlreadyFollowed } from "../../../model/Followers/quires.js";
 import { getFollowerAnalytics } from "../../../model/FollowerAnalytics/quires.js";
+import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
 export const getUserInfoController = catchAsync(async (req, res, next) => {
   const { userId, currentUserId } = req.params;
   let isFollowed = false;
@@ -71,8 +72,13 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
       postId: userRecentPost.id,
       userId: userRecentPost.user_id,
       title: userRecentPost.title,
+      tagList: await getAllPostHashtags({
+        postId:userRecentPost.id
+      }),
       createdAt: userRecentPost.created_at,
       titleImgURL: userRecentPost.title_img_url,
+      likes: userRecentPost.post_analytics?.likes,
+      comments: userRecentPost.post_analytics?.comments,
     };
   }
   userRecentComment = await getOwnRecentComment({ userId });

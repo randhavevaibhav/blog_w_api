@@ -139,6 +139,12 @@ export const getUserRecentPost = async ({ userId }) => {
     where: {
       user_id: userId,
     },
+     include: [
+      {
+        model: PostAnalytics,
+        attributes: ["likes", "comments"],
+      },
+    ],
     order: [["created_at", "DESC"]],
   });
 

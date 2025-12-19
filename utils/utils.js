@@ -14,7 +14,7 @@ export const compressImage = async ({
 }) => {
   let processedImage = await Jimp.read(fileBuffer);
 
-  // console.log("processedImage ===> ",processedImage)
+  /// console.log("processedImage ===> ",processedImage)
   if (!isProfileImg) {
     if (processedImage.width > 900 && processedImage.height > 600) {
       processedImage = processedImage.resize({

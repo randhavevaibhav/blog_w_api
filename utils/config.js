@@ -9,6 +9,9 @@ const environments = {
   DEV: {
     DB_URL: process.env.DB_LOCAL_URL,
   },
+  TEST: {
+    DB_URL: process.env.DB_TEST_URL,
+  },
 };
 
 export const config = environments[process.env.ENV];

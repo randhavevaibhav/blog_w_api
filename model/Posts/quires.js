@@ -91,9 +91,7 @@ export const getAllSearchedPosts = async ({
   query,
   offset,
   sort = "desc",
-  limit,
 }) => {
-  const postLimit = limit ? limit : SEARCH_POST_LIMIT;
   const sortOptions = {
     desc: ["created_at", "desc"],
     asc: ["created_at", "asc"],
@@ -128,7 +126,7 @@ export const getAllSearchedPosts = async ({
     ],
     offset,
     order: [sortBy],
-    limit: postLimit,
+    limit: SEARCH_POST_LIMIT,
   });
 
   return result;

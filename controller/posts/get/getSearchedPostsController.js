@@ -1,13 +1,13 @@
 import { getAllSearchedPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { POST_OFFSET } from "../../../utils/constants.js";
+import {  SEARCH_POST_OFFSET } from "../../../utils/constants.js";
 import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getSearchedPostsController = catchAsync(async (req, res, next) => {
-  const { query, offset, sortby, limit } = req.query;
+  const { query, offset, sortby } = req.query;
   const formattedOffset = parseInt(offset);
-  const formattedLimit = parseInt(limit);
+
 
   const sortOptionList = {
     asc: "asc",
@@ -17,12 +17,6 @@ export const getSearchedPostsController = catchAsync(async (req, res, next) => {
 
   if (!query || !isPositiveInteger(formattedOffset)) {
     return next(new AppError(`please provide correct query,offset value`, 400));
-  }
-
-  if (limit) {
-    if (!isPositiveInteger(formattedLimit)) {
-      return next(new AppError(`please provide correct limit value`, 400));
-    }
   }
 
   if (!sortOption) {
@@ -35,7 +29,6 @@ export const getSearchedPostsController = catchAsync(async (req, res, next) => {
     query,
     offset,
     sort: sortOption,
-    limit,
   });
 
   if (result.length <= 0) {
@@ -80,6 +73,6 @@ export const getSearchedPostsController = catchAsync(async (req, res, next) => {
     message: "Found posts",
     posts: formattedPost,
     totalPosts: formattedPost.length,
-    offset: Number(offset) + POST_OFFSET,
+    offset: Number(offset) + SEARCH_POST_OFFSET,
   });
 });

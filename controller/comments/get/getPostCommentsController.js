@@ -1,5 +1,8 @@
 import { getPostAnalytics } from "../../../model/PostAnalytics/quires.js";
-import { getAllPostComments } from "../../../model/PostComments/quires.js";
+import {
+  getAllAuthUserPostComments,
+  getAllPostComments,
+} from "../../../model/PostComments/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { COMMENT_OFFSET } from "../../../utils/constants.js";
@@ -24,22 +27,28 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
 
   if (!sortOption) {
     return next(
-      new AppError(
-        `please provide correct sort option. desc, asc, likes.`,
-        400,
-      ),
+      new AppError(`please provide correct sort option. desc, asc, likes.`, 400)
     );
   }
   if (!postId) {
     return next(new AppError(`please send required field. postId`));
   }
+  let comments = [];
 
-  const comments = await getAllPostComments({
-    postId,
-    offset,
-    currentUserId,
-    sort: sortby,
-  });
+  if (currentUserId) {
+    comments = await getAllAuthUserPostComments({
+      postId,
+      offset,
+      currentUserId,
+      sort: sortby,
+    });
+  } else {
+    comments = await getAllPostComments({
+      postId,
+      offset,
+      sort: sortby,
+    });
+  }
 
   // console.log("comments ==> ", comments);
   const commentsMap = new Map();
@@ -47,7 +56,7 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
   comments.forEach((comment) => {
     commentsMap.set(`@${comment.commentId}`, {
       ...comment,
-      isCmtUpdated:true,
+      isCmtUpdated: true,
       replies: [],
       page: parseInt(offset) / COMMENT_OFFSET,
     });

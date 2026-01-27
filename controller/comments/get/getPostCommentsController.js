@@ -1,10 +1,5 @@
-import { getCommentAnalytics } from "../../../model/CommentAnalytics/quires.js";
-import { isCommentLikedByUser } from "../../../model/CommentLikes/quires.js";
 import { getPostAnalytics } from "../../../model/PostAnalytics/quires.js";
-import {
-  getAllPostComments,
-  getReplies,
-} from "../../../model/PostComments/quires.js";
+import { getAllPostComments } from "../../../model/PostComments/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { COMMENT_OFFSET } from "../../../utils/constants.js";
@@ -29,95 +24,58 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
 
   if (!sortOption) {
     return next(
-      new AppError(`please provide correct sort option. desc, asc, likes.`, 400)
+      new AppError(
+        `please provide correct sort option. desc, asc, likes.`,
+        400,
+      ),
     );
   }
   if (!postId) {
     return next(new AppError(`please send required field. postId`));
   }
 
-  const commentsResult = await getAllPostComments({
+  const comments = await getAllPostComments({
     postId,
     offset,
+    currentUserId,
     sort: sortby,
   });
-  const commentsResultMapped = commentsResult.map((item) => item);
+
+  // console.log("comments ==> ", comments);
+  const commentsMap = new Map();
+
+  comments.forEach((comment) => {
+    commentsMap.set(`@${comment.commentId}`, {
+      ...comment,
+      isCmtUpdated:true,
+      replies: [],
+      page: parseInt(offset) / COMMENT_OFFSET,
+    });
+  });
+
+  comments.forEach((comment) => {
+    if (comment.parentId) {
+      const parent = commentsMap.get(`@${comment.parentId}`);
+      if (parent) {
+        parent.replies.push(`@${comment.commentId}`);
+      }
+    }
+  });
+  //  console.log("commentsMap ==> ", commentsMap);
+  const commentsMapObj = Object.fromEntries(commentsMap);
+  // console.log("commentsMapObj ==> ", commentsMapObj);
+  const commentsIds = Object.keys(commentsMapObj);
+  // console.log("commentsIds ==> ", commentsIds);
+
   // console.log("commentsResultMapped ==> ",commentsResultMapped)
   const postAnalytics = await getPostAnalytics({ postId });
   const totalComments = postAnalytics?.comments;
 
-  const getComments = (commentArr) => {
-    return commentArr.map(async (comment) => {
-      let replies = [];
-      let likedByUser = false;
-      const commentLikes = await getCommentAnalytics({
-        commentId: comment.comment_id,
-      });
-
-      if (currentUserId) {
-        const isCmtLikedByUser = await isCommentLikedByUser({
-          userId: currentUserId,
-          commentId: comment.comment_id,
-        });
-
-        likedByUser = isCmtLikedByUser ? true : false;
-      }
-
-      const repliesResult = await getReplies({
-        commentId: comment.comment_id,
-      });
-      if (repliesResult.length > 0) {
-        return {
-          commentId: comment.comment_id,
-          content: comment.content,
-          createdAt: comment.created_at,
-          likes: commentLikes ? commentLikes.likes : 0,
-          isCmtLikedByUser: likedByUser,
-          userName: comment.first_name,
-          userProfileImg: comment.profile_img_url,
-          userId: comment.user_id,
-          parentId: comment.parent_id,
-          replies: await Promise.all(getComments(repliesResult)),
-          page: parseInt(offset) / COMMENT_OFFSET,
-        };
-      } else {
-        return {
-          commentId: comment.comment_id,
-          content: comment.content,
-          createdAt: comment.created_at,
-          likes: commentLikes ? commentLikes.likes : 0,
-          isCmtLikedByUser: likedByUser,
-          userName: comment.first_name,
-          userProfileImg: comment.profile_img_url,
-          userId: comment.user_id,
-          parentId: comment.parent_id,
-          replies,
-          page: parseInt(offset) / COMMENT_OFFSET,
-        };
-      }
-    });
-  };
-
-  if (commentsResultMapped.length > 0) {
-    // console.log("commentsResultMapped ==> ",commentsResultMapped)
-    Promise.all(getComments(commentsResultMapped, currentUserId))
-      .then(async (comments) => {
-        return res.status(200).send({
-          message: `comments fetched.`,
-          comments,
-          totalComments: totalComments.comments,
-          offset: Number(offset) + COMMENT_OFFSET,
-        });
-      })
-      .catch((err) => {
-        next(err);
-      });
-  } else {
-    return res.status(200).send({
-      message: `No comments found.`,
-      comments: [],
-      totalComments: totalComments.comments,
-      offset: Number(offset) + COMMENT_OFFSET,
-    });
-  }
+  return res.status(200).send({
+    message: `comments fetched.`,
+    comments: commentsMapObj,
+    commentsIds,
+    totalComments: parseInt(totalComments),
+    offset: Number(offset) + COMMENT_OFFSET,
+  });
 });

@@ -1,13 +1,12 @@
-import { Op } from "sequelize";
 import { Bookmarks } from "./Bookmark.js";
-import { Posts } from "../Posts/Posts.js";
 
 
-export const createBookmark = async ({ userId, postId, createdAt }) => {
+
+export const createBookmark = async ({ userId, postId }) => {
   const result = await Bookmarks.create({
     user_id: userId,
     post_id: postId,
-    created_at: createdAt,
+    created_at: new Date(),
   });
 
   return result;
@@ -36,25 +35,4 @@ export const checkIfAlreadyBookmarked = async ({ userId, postId }) => {
 };
 
 
-export const getUserBookmarks = async ({userId,sort='desc'}) => {
 
-  const result = await Bookmarks.findAll({
-    // logging:console.log,
-    where:{
-      user_id:userId
-    },
-    include:[{
-      model:Posts,
-      attributes:["id","user_id","title","title_img_url","created_at"],
-      where:{
-        id:{
-          [Op.ne]:null
-        },
-        
-      },
-    
-    }],
-     order:[ ["created_at",sort],['id', "desc"]],
-  })
-  return result;
-};

@@ -44,6 +44,7 @@ export const requireAuth = (req, res, next) => {
       }
       //all went well
       // console.log("decoded.userId ====> ", decoded.userId);
+      req.user = {userId:decoded.userId};
       next();
     }
   );

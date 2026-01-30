@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import {
-  getUser,
+  getUserWithEmail,
   getRefreshToken,
   updateRefreshToken,
   checkIfUserExistWithMail,
@@ -31,7 +31,7 @@ export const signinController = catchAsync(async (req, res, next) => {
     return next(new AppError(`email or password is missing`, 400));
   }
 
-  // const user = await getUser(email);
+  // const user = await getUserWithEmail(email);
   //very time costly operation ==>
   const isUserExist = await checkIfUserExistWithMail({ email });
   if (!isUserExist) {
@@ -42,7 +42,7 @@ export const signinController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const user = await getUser({ email });
+  const user = await getUserWithEmail({ email });
 
   //IMP first arg to bcrypt.compare should be password entered by user then hash version of pass stored in db othervise fails,.
 

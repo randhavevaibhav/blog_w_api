@@ -3,43 +3,21 @@ import {
   getAllAuthUserPostComments,
   getAllPostComments,
 } from "../../../model/PostComments/quires.js";
-import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { COMMENT_OFFSET } from "../../../utils/constants.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
+
 
 export const getPostCommentsController = catchAsync(async (req, res, next) => {
-  const { postId, currentUserId } = req.params;
+  const { postId } = req.params;
   const { offset, sortby } = req.query;
-  const formattedOffset = parseInt(offset);
-
-  const sortOptionList = {
-    asc: "asc",
-    desc: "desc",
-    likes: "likes",
-  };
-
-  const sortOption = sortOptionList[sortby];
-
-  if (!isPositiveInteger(formattedOffset)) {
-    return next(new AppError(`offset needs to be number`, 400));
-  }
-
-  if (!sortOption) {
-    return next(
-      new AppError(`please provide correct sort option. desc, asc, likes.`, 400)
-    );
-  }
-  if (!postId) {
-    return next(new AppError(`please send required field. postId`));
-  }
   let comments = [];
-
-  if (currentUserId) {
+  
+  if (req.user) {
+    const {userId} = req.user;
     comments = await getAllAuthUserPostComments({
       postId,
       offset,
-      currentUserId,
+      currentUserId:userId,
       sort: sortby,
     });
   } else {
@@ -79,7 +57,6 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
   // console.log("commentsResultMapped ==> ",commentsResultMapped)
   const postAnalytics = await getPostAnalytics({ postId });
   const totalComments = postAnalytics?.comments;
-
   return res.status(200).send({
     message: `comments fetched.`,
     comments: commentsMapObj,

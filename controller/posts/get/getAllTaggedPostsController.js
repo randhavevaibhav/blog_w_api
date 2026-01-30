@@ -5,24 +5,12 @@ import {
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
+
 
 export const getAllTaggedPostsController = catchAsync(
   async (req, res, next) => {
     const { hashtagId, hashtagName } = req.params;
     const { offset } = req.query;
-
-    if (!hashtagId || !offset) {
-      return next(new AppError(`hashtagId or offset is not present`, 400));
-    }
-    const formattedHashtagId = parseInt(hashtagId);
-    const formattedOffset = parseInt(offset);
-    if (!isPositiveInteger(formattedHashtagId)) {
-      return next(new AppError(`hashtagId must be a number`, 400));
-    }
-    if (!isPositiveInteger(formattedOffset)) {
-      return next(new AppError(`offset must be a number`, 400));
-    }
 
     const result = await getAllTaggedPosts({
       hashtagId,

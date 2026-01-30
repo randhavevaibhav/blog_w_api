@@ -102,6 +102,3 @@ export const Users = sq.define(
   }
 );
 
-Users.hasMany(Followers, {
-  foreignKey: "user_id",
-});

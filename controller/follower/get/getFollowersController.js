@@ -1,27 +1,11 @@
 import { getUserFollowers } from "../../../model/Followers/quires.js";
-import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { FOLLOWERS_LIMIT, FOLLOWERS_OFFSET } from "../../../utils/constants.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
+import {  FOLLOWERS_OFFSET } from "../../../utils/constants.js";
+
 
 export const getFollowersController = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
+  const { userId } = req.user;
   const { offset } = req.query;
-
-  if (!userId||!offset) {
-    return next(new AppError(`userId or offset is not present`, 400));
-  }
-
-  const formattedOffset = parseInt(offset);
-  const formattedUserId = parseInt(userId);
-
-  if (!isPositiveInteger(formattedOffset)) {
-    return next(new AppError(`offset must be a number`, 400));
-  }
-
-  if (!isPositiveInteger(formattedUserId)) {
-    return next(new AppError(`userId must be a number`, 400));
-  }
 
   const result = await getUserFollowers({ userId ,offset});
 

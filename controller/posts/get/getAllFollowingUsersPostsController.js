@@ -3,7 +3,7 @@ import { getAllFollowingUsersPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
+
 
 const getTagList = ({ colors, names, ids }) => {
   let tagList = [];
@@ -30,22 +30,8 @@ const getTagList = ({ colors, names, ids }) => {
 
 export const getAllFollowingUsersPostsController = catchAsync(
   async (req, res, next) => {
-    const { userId } = req.params;
+    const { userId } = req.user;
     const { offset } = req.query;
-
-    const formattedOffset = parseInt(offset);
-    const formattedUserId = parseInt(userId);
-
-    if (
-      !isPositiveInteger(formattedOffset) ||
-      !isPositiveInteger(formattedUserId)
-    ) {
-      return next(new AppError(`offset,userId needs to be numbers`, 400));
-    }
-
-    if (!userId) {
-      return next(new AppError(`userId is not present`, 400));
-    }
 
     const result = await getAllFollowingUsersPosts({ userId, offset });
     // result.map((posts) => {
@@ -70,15 +56,6 @@ export const getAllFollowingUsersPostsController = catchAsync(
         likes: post["post_analytics.likes"],
         userId: post["users.id"],
         totalComments: post["post_analytics.comments"],
-        // tagList:getTagList({colors:post['post_hashtags.hashtags.color'],names:post['post_hashtags.hashtags.name']}),
-        // tagList: post.post_hashtags.map((val) => {
-        //   return {
-        //     id: val.hashtags.id,
-        //     name: val.hashtags.name,
-        //     info: val.hashtags.info,
-        //     color: val.hashtags.color,
-        //   };
-        // }),
         tagList: getTagList({
           colors: post["post_hashtags.hashtags.color"],
           names: post["post_hashtags.hashtags.name"],

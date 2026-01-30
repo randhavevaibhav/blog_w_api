@@ -1,37 +1,14 @@
 import {
-  createFollowerAnalytics,
-  getFollowerAnalytics,
-  incFollowerCount,
-  incFollowingCount,
-} from "../../../model/FollowerAnalytics/quires.js";
-import {
   checkIfAlreadyFollowed,
-  createNewFollower,
+  createNewFollowerTransaction,
 } from "../../../model/Followers/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
+
 
 export const createNewFollowerController = catchAsync(
-  async (req, res, next) => {
-    const { userId, followingUserId, createdAt } = req.body
-
-    if (!userId || !followingUserId || !createdAt) {
-      return next(
-        new AppError(
-          `please provide all required fields. ==>  userId, followingUserId,createdAt`
-        )
-      );
-    }
-
-    const formattedUserId = parseInt(userId);
-    const formattedFollowingUserId = parseInt(followingUserId);
-
-    if (
-      !isPositiveInteger(formattedUserId) ||
-      !isPositiveInteger(formattedFollowingUserId)
-    ) {
-      return next(new AppError(`userId, followingUserId must be numbers`));
-    }
+  async (req, res) => {
+    const {userId} = req.user;
+    const { followingUserId } = req.body
 
     const isAlreadyFollowed = await checkIfAlreadyFollowed({
       userId,
@@ -45,39 +22,10 @@ export const createNewFollowerController = catchAsync(
       });
     }
 
-    const result = await createNewFollower({
+    await createNewFollowerTransaction({
       userId,
-      followingUserId,
-      createdAt,
-    });
-
-    const getFollowingAnalyticsResult = await getFollowerAnalytics({
-      userId: followingUserId,
-    });
-
-    const getUserFollowingAnalyticsResult = await getFollowerAnalytics({
-      userId,
-    });
-
-    if (!getFollowingAnalyticsResult) {
-      await createFollowerAnalytics({
-        userId: followingUserId,
-      });
-    }
-
-    if (!getUserFollowingAnalyticsResult) {
-      await createFollowerAnalytics({
-        userId,
-      });
-    }
-
-    await incFollowerCount({
-      userId: followingUserId,
-    });
-
-    await incFollowingCount({
-      userId,
-    });
+      followingUserId
+    })
 
     res.status(201).send({
       message: `followed new user`,

@@ -1,32 +1,9 @@
 import { getAllUserBookmarkedPosts } from "../../../model/Posts/quires.js";
-import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
 
-export const getUserBookmarksController = catchAsync(async (req, res, next) => {
-  const userId = req.params.userId;
+export const getUserBookmarksController = catchAsync(async (req, res) => {
+  const { userId } = req.user;
   const { sort } = req.query;
-
-  const sortOptionList = {
-    asc: "asc",
-    desc: "desc",
-  };
-
-  const sortOption = sortOptionList[sort];
-  if (!userId) {
-    return next(new AppError(`userId is not present`, 400));
-  }
-  const formattedUserId = parseInt(userId);
-
-  if (!isPositiveInteger(formattedUserId)) {
-    return next(new AppError(`userId must be a number`, 400));
-  }
-
-  if (!sortOption) {
-    return next(
-      new AppError(`Please provide correct sort option. asc, desc.`, 400)
-    );
-  }
 
   const bookmarkPostsResult = await getAllUserBookmarkedPosts({ userId, sort });
 

@@ -2,16 +2,127 @@ import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { FOLLOWERS_LIMIT, FOLLOWING_LIMIT } from "../../utils/constants.js";
 import { Followers } from "./Followers.js";
+import { getFollowerAnalytics } from "../FollowerAnalytics/quires.js";
+import { FollowerAnalytics } from "../FollowerAnalytics/FollowerAnalytics.js";
 
-export const createNewFollower = async ({
+export const createNewFollowerTransaction = async ({
   userId,
   followingUserId,
-  createdAt,
 }) => {
-  const result = await Followers.create({
-    user_id: followingUserId,
-    follower_id: userId,
-    created_at: createdAt,
+  const result = await sequelize.transaction(async (t) => {
+    const createNewFollowerResult = await Followers.create(
+      {
+        user_id: followingUserId,
+        follower_id: userId,
+        created_at: new Date(),
+      },
+      {
+        transaction: t,
+      },
+    );
+
+    const getFollowingAnalyticsResult = await getFollowerAnalytics({
+      userId: followingUserId,
+    });
+
+    const getUserFollowingAnalyticsResult = await getFollowerAnalytics({
+      userId,
+    });
+
+    if (!getFollowingAnalyticsResult) {
+      await FollowerAnalytics.create(
+        {
+          user_id: followingUserId,
+          followers: 0,
+          following: 0,
+        },
+        {
+          transaction: t,
+        },
+      );
+    }
+
+    if (!getUserFollowingAnalyticsResult) {
+      await FollowerAnalytics.create(
+        {
+          user_id: userId,
+          followers: 0,
+          following: 0,
+        },
+        {
+          transaction: t,
+        },
+      );
+    }
+
+    await FollowerAnalytics.increment("followers", {
+      by: 1,
+      where: {
+        user_id: followingUserId,
+      },
+    });
+
+    await FollowerAnalytics.increment("following", {
+      by: 1,
+      where: {
+        user_id: userId,
+      },
+    });
+
+    return {
+      createNewFollowerResult,
+    };
+  });
+
+  return result;
+};
+
+export const removeFollowerTransaction = async ({
+  userId,
+  followingUserId,
+}) => {
+  const result = await sequelize.transaction(async (t) => {
+    const removeFollowerResult = await Followers.destroy({
+      where: {
+        user_id: followingUserId,
+        follower_id: userId,
+      },
+      transaction: t,
+    });
+
+    const decFollowerCountResult = await sequelize.query(
+      `UPDATE follower_analytics
+        SET followers = CASE
+        WHEN followers > 0 THEN followers - 1
+        ELSE 0
+        END
+        WHERE user_id=:userId`,
+      {
+        replacements: { userId },
+        type: QueryTypes.SELECT,
+        transaction:t
+      },
+    );
+
+     const decFollowingCountResult = await sequelize.query(
+      `UPDATE follower_analytics
+        SET following = CASE
+        WHEN following > 0 THEN following - 1
+        ELSE 0
+        END
+        WHERE user_id=:userId`,
+      {
+        replacements: { userId },
+        type: QueryTypes.SELECT,
+        transaction:t
+      },
+    );
+
+    return {
+      removeFollowerResult,
+      decFollowerCountResult,
+      decFollowingCountResult
+    };
   });
 
   return result;
@@ -38,7 +149,7 @@ limit ${FOLLOWERS_LIMIT}
         offset,
       },
       type: QueryTypes.SELECT,
-    }
+    },
   );
 
   return result;
@@ -64,7 +175,7 @@ limit ${FOLLOWING_LIMIT}
         offset,
       },
       type: QueryTypes.SELECT,
-    }
+    },
   );
 
   return result;
@@ -81,13 +192,3 @@ export const checkIfAlreadyFollowed = async ({ userId, followingUserId }) => {
   return result;
 };
 
-export const removeFollower = async ({ userId, followingUserId }) => {
-  const result = await Followers.destroy({
-    where: {
-      user_id: followingUserId,
-      follower_id: userId,
-    },
-  });
-
-  return result;
-};

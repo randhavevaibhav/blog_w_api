@@ -1,72 +1,31 @@
-import { createPostAnalytics } from "../../../model/PostAnalytics/quires.js";
-import { createPostHashtags } from "../../../model/PostHashtags/quires.js";
-import { createPost } from "../../../model/Posts/quires.js";
+import {
+  createPostTransaction,
+} from "../../../model/Posts/quires.js";
 import { getTotalUserPosts } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const createPostsController = catchAsync(async (req, res, next) => {
-  const {
-    userId,
-    title,
-    titleImgURL,
-    content,
-    createdAt,
-    updatedAt,
-    likes,
-    tagList,
-  } = req.body;
-  // console.log("{userId,title,content,createdAt,updatedAt,likes}",{userId,title,content,createdAt,updatedAt,likes})
-  if (!userId || !title || !content || !createdAt) {
-    return next(
-      new AppError(
-        `please provide all required fields. ==>  title, content,user id, created at`
-      )
-    );
-  }
-  if (tagList) {
-    if (!Array.isArray(tagList)) {
-      return next(new AppError(`tagList must be an array.`));
-    }
-  }
+  const { userId, title, titleImgURL, content, tagList } = req.body;
 
-  const formattedUserId = parseInt(userId);
-  const isAdmin = parseInt(userId) === parseInt(process.env.ADMIN_USERID);
-
-  if (!isPositiveInteger(formattedUserId)) {
-    return next(new AppError(`userId must be numbers`));
-  }
   const totalUserPostsResult = await getTotalUserPosts({ userId });
   let totalUserPosts = totalUserPostsResult.dataValues.posts;
 
   if (totalUserPosts >= 20 && !isAdmin) {
     return next(
-      new AppError(`Can not create more posts. Post limit reached !!`)
+      new AppError(`Can not create more posts. Post limit reached !!`),
     );
   }
 
-  const postData = {
+  const { createPostResult } = await createPostTransaction({
     userId,
     title,
     titleImgURL,
     content,
-    createdAt,
-    updatedAt,
-    likes,
-  };
-  const result = await createPost(postData);
-  const postId = result.id;
-  await createPostAnalytics({ postId });
+    tagList,
+  });
 
-  if (tagList) {
-    if (tagList.length > 0) {
-      await createPostHashtags({
-        postId,
-        hashtagIdList: tagList,
-      });
-    }
-  }
+  const postId = createPostResult.id;
 
   res.status(201).send({
     message: `successfully created new post.`,

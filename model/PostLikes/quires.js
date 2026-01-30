@@ -1,10 +1,10 @@
 import { PostLikes } from "./PostLikes.js";
 
-export const createPostLike = async ({ userId, postId, createdAt }) => {
+export const createPostLike = async ({ userId, postId }) => {
   const result = await PostLikes.create({
     user_id: userId,
     post_id: postId,
-    created_at: createdAt,
+    created_at: new Date(),
   });
   return result;
 };
@@ -30,12 +30,3 @@ export const removeUserPostLike = async ({ userId, postId }) => {
   return result;
 };
 
-export const removeAllPostLikes = async ({ postId }) => {
-  const result = PostLikes.destroy({
-    where: {
-      post_id: postId,
-    },
-  });
-
-  return result;
-};

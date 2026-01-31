@@ -2,6 +2,7 @@ import { Router } from "express";
 import CommentLikesControllers from "../../controller/commentLikes/index.js";
 import { requireAuth } from "../../middleware/authMiddleware.js";
 import { rateLimit } from "express-rate-limit";
+import { validateLikeDislikeComment } from "../../middleware/fieldValidationMiddleware.js";
 
 const limiter = rateLimit({
   windowMs: 1000, // 1 sec
@@ -15,6 +16,6 @@ const limiter = rateLimit({
 const router = Router();
 const { likeCommentController, dislikeCommentController } =
   CommentLikesControllers;
-router.post("/comment/like", requireAuth, limiter, likeCommentController);
-router.post("/comment/dislike", requireAuth, limiter, dislikeCommentController);
+router.post("/comment/like", requireAuth, limiter,validateLikeDislikeComment, likeCommentController);
+router.post("/comment/dislike", requireAuth, limiter,validateLikeDislikeComment, dislikeCommentController);
 export default router;

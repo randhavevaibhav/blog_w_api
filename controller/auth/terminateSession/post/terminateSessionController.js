@@ -1,6 +1,6 @@
 import {
   checkIfUserExistWithMail,
-  getUser,
+  getUserWithEmail,
   updateRefreshToken,
 } from "../../../../model/Users/quires.js";
 import { AppError } from "../../../../utils/appError.js";
@@ -21,7 +21,7 @@ export const terminateSessionController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const user = await getUser({ email });
+  const user = await getUserWithEmail({ email });
 
   if (!user) {
     return next(new AppError(`user with mail:${email} not found!`, 400));

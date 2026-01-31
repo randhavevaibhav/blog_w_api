@@ -1,7 +1,9 @@
-import { QueryTypes } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
-import { Users } from "./Users.js";
+import { PostComments, Posts, Users } from "../associations.js";
 import { Followers } from "../Followers/Followers.js";
+import { FollowerAnalytics } from "../FollowerAnalytics/FollowerAnalytics.js";
+import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
 
 export const createUser = async ({
   firstName,
@@ -23,9 +25,14 @@ export const createUser = async ({
   return result;
 };
 
-export const getUser = async ({ email }) => {
+export const getUserWithEmail = async ({ email }) => {
   const user = await Users.findOne({ where: { email: email } });
 
+  return user;
+};
+
+export const getUserWithId = async ({ userId }) => {
+  const user = await Users.findOne({ where: { id: userId } });
   return user;
 };
 
@@ -35,7 +42,7 @@ export const checkIfUserExistWithMail = async ({ email }) => {
     {
       replacements: { email },
       type: QueryTypes.SELECT,
-    }
+    },
   );
   if (result.length > 0) {
     return true;
@@ -50,7 +57,7 @@ export const checkIfUserExistWithId = async ({ userId }) => {
     {
       replacements: { userId },
       type: QueryTypes.SELECT,
-    }
+    },
   );
   if (result.length > 0) {
     return true;
@@ -85,27 +92,52 @@ export const updateUser = async ({
       where: {
         id: userId,
       },
-    }
+    },
   );
 
   return result;
 };
 
-export const getUserInfo = async ({ userId }) => {
+export const getUserInfo = async ({
+  userId,
+  currentUserId,
+}) => {
   const result = Users.findOne({
     attributes: [
-      "first_name",
+      ["first_name", "firstName"],
       "email",
-      "registered_at",
-      "profile_img_url",
+      ["registered_at", "registeredAt"],
+      ["profile_img_url", "profileImgURL"],
       "bio",
       "skills",
-      "website_url",
+      ["website_url", "websiteURL"],
       "location",
+      ["posts", "totalUserPosts"],
+      ["comments", "totalUserComments"],
+    ],
+    include: [
+
+      {
+        model: Followers,
+        where: {
+          user_id: userId,
+          follower_id: currentUserId,
+        },
+        required: false,
+      },
+       {
+        model: FollowerAnalytics,
+        where: {
+          user_id: userId,
+        },
+        required: false,
+      }
     ],
     where: {
       id: userId,
     },
+    raw: true,
+    // logging: true,
   });
   //  return result[0][0];
   return result;
@@ -120,7 +152,7 @@ export const updateRefreshToken = async ({ userId, refreshToken }) => {
       where: {
         id: userId,
       },
-    }
+    },
   );
 
   return res;
@@ -145,15 +177,6 @@ export const getTotalUserPosts = async ({ userId }) => {
     attributes: ["posts"],
   });
 
-  return result;
-};
-export const getTotalCommentCountOfUser = async ({ userId }) => {
-  const result = await Users.findOne({
-    where: {
-      id: userId,
-    },
-    attributes: ["comments"],
-  });
   return result;
 };
 

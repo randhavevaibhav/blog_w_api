@@ -1,34 +1,15 @@
 import { getAllSearchedPosts } from "../../../model/Posts/quires.js";
-import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import {  SEARCH_POST_OFFSET } from "../../../utils/constants.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
 
-export const getSearchedPostsController = catchAsync(async (req, res, next) => {
+
+export const getSearchedPostsController = catchAsync(async (req, res) => {
   const { query, offset, sortby } = req.query;
-  const formattedOffset = parseInt(offset);
-
-
-  const sortOptionList = {
-    asc: "asc",
-    desc: "desc",
-  };
-  const sortOption = sortOptionList[sortby];
-
-  if (!query || !isPositiveInteger(formattedOffset)) {
-    return next(new AppError(`please provide correct query,offset value`, 400));
-  }
-
-  if (!sortOption) {
-    return next(
-      new AppError(`please provide correct sort option. desc, asc.`, 400)
-    );
-  }
 
   const result = await getAllSearchedPosts({
     query,
     offset,
-    sort: sortOption,
+    sort: sortby,
   });
 
   if (result.length <= 0) {

@@ -1,16 +1,15 @@
 import {
   checkIfUserExistWithId,
-  getUser,
+  getUserWithEmail,
   updateUser,
 } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { encrypt, isPositiveInteger } from "../../../utils/utils.js";
+import { encrypt } from "../../../utils/utils.js";
 import bcrypt from "bcrypt";
 
 export const updateUserController = catchAsync(async (req, res, next) => {
-  //  return next(new AppError("updating user is disabled !!"))
-
+ 
   const {
     userId,
     userMail,
@@ -24,19 +23,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     userLocation,
   } = req.body;
 
-  if (!userId || !userMail || !userName || !password || !oldPassword) {
-    return next(
-      new AppError(
-        `Please send all required fields. userId,userName,userMail,oldPassword,password`
-      )
-    );
-  }
-  const formattedUserId = parseInt(userId);
-
-  if (!isPositiveInteger(formattedUserId)) {
-    return next(new AppError(`userId must be number`));
-  }
-
+  
   const isUserExist = await checkIfUserExistWithId({ userId });
   if (!isUserExist) {
     return next(
@@ -46,7 +33,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     );
   }
 
-  const user = await getUser({ email: userMail });
+  const user = await getUserWithEmail({ email: userMail });
 
   // console.log("user in sinIn_post ===> ", user);
 

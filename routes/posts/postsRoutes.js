@@ -1,7 +1,19 @@
 import { Router } from "express";
 import postControllers from "../../controller/posts/index.js";
 import { requireAuth } from "../../middleware/authMiddleware.js";
-import { authPostActionsMiddleware } from "../../middleware/authPostActionsMiddleware.js";
+import { optionalAuthMiddleware } from "../../middleware/optionalAuthMiddleware.js";
+import {
+  validateCreatePost,
+  validateDeletePost,
+  validateGetAllPosts,
+  validateGetAllTaggedPosts,
+  validateGetAllFollowingUserPosts,
+  validateGetAllUserPosts,
+  validateGetIndividualPost,
+  validateGetPostAnalytics,
+  validateGetSearchedPosts,
+  validateUpdatePost
+} from "../../middleware/fieldValidationMiddleware.js";
 
 const router = Router();
 const {
@@ -16,32 +28,37 @@ const {
   getAllTaggedPostsController,
   getPostAnalyticsController,
 } = postControllers;
-router.post("/post", requireAuth, createPostsController);
-router.get("/user/posts/:userId", requireAuth, getAllUserPostsController);
+
+
+router.post("/post", requireAuth, validateCreatePost, createPostsController);
+router.get("/user/posts", requireAuth,validateGetAllUserPosts, getAllUserPostsController);
 router.get(
-  "/following/posts/:userId",
+  "/following/posts",
   requireAuth,
-  getAllFollowingUsersPostsController
+  validateGetAllFollowingUserPosts,
+  getAllFollowingUsersPostsController,
 );
 
-router.get("/post/:userId/:postId", getIndividualPostController);
-router.get("/posts/all/:userId?", getAllPostsController);
-router.get("/tag/:hashtagId/:hashtagName", getAllTaggedPostsController);
-router.get("/posts/search", getSearchedPostsController);
+router.get("/post/:postId",validateGetIndividualPost, getIndividualPostController);
+router.get("/posts/all",optionalAuthMiddleware,validateGetAllPosts, getAllPostsController);
+router.get("/tag/:hashtagId/:hashtagName",validateGetAllTaggedPosts, getAllTaggedPostsController);
+router.get("/posts/search",requireAuth,validateGetSearchedPosts, getSearchedPostsController);
 router.get(
-  "/post/analytics/:currentUserId?/:userId/:postId",
-  getPostAnalyticsController
+  "/post/analytics/:userId/:postId",
+  optionalAuthMiddleware,
+  validateGetPostAnalytics,
+  getPostAnalyticsController,
 );
 router.delete(
-  "/post/delete/:userId/:postId",
+  "/post/delete/:postId",
   requireAuth,
-  authPostActionsMiddleware,
-  deletePostController
+  validateDeletePost,
+  deletePostController,
 );
 router.patch(
   "/post/edit",
   requireAuth,
-  authPostActionsMiddleware,
-  updatePostController
+  validateUpdatePost,
+  updatePostController,
 );
 export default router;

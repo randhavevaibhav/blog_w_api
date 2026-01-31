@@ -1,4 +1,4 @@
-import { Posts } from "./Posts.js";
+import { Posts } from "../associations.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
 import { Op, QueryTypes } from "sequelize";
@@ -8,42 +8,187 @@ import { Bookmarks } from "../Bookmark/Bookmark.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
 import { Hashtags } from "../Hashtags/Hashtags.js";
 import { getAllUserFollowers } from "../Users/quires.js";
+import { PostComments } from "../PostComments/PostComments.js";
+import { PostLikes } from "../PostLikes/PostLikes.js";
 
-export const createPost = async ({
+export const createPostTransaction = async ({
   userId,
   title,
   titleImgURL,
   content,
-  createdAt,
-  updatedAt,
-  likes,
+  tagList,
 }) => {
-  const result = await Posts.create({
-    user_id: userId,
-    title,
-    title_img_url: titleImgURL,
-    content,
-    created_at: createdAt,
-    updated_at: updatedAt,
-    likes,
+  const result = await sequelize.transaction(async (t) => {
+    const createPostResult = await Posts.create(
+      {
+        user_id: userId,
+        title,
+        title_img_url: titleImgURL,
+        content,
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        transaction: t,
+      },
+    );
+
+    const postId = createPostResult.id;
+    const postAnalyticsResult = await PostAnalytics.create(
+      {
+        post_id: postId,
+        likes: 0,
+        comments: 0,
+      },
+      {
+        transaction: t,
+      },
+    );
+    let createPostHashtagsResults = null;
+    if (tagList) {
+      if (tagList.length > 0) {
+        const postHashtagList = tagList.map((hashtag) => {
+          return {
+            hashtag_id: hashtag.id,
+            post_id: postId,
+          };
+        });
+
+        createPostHashtagsResults = await PostHashtags.bulkCreate(
+          postHashtagList,
+          {
+            transaction: t,
+          },
+        );
+      }
+    }
+
+    return {
+      createPostResult,
+      postAnalyticsResult,
+      createPostHashtagsResults,
+    };
   });
 
   return result;
 };
 
-export const isPostBelongsToUser = async ({ userId, postId }) => {
-  const result = await Posts.findOne({
-    where: {
-      id: postId,
-      user_id: userId,
-    },
+export const deletePostTransaction = async ({ postId, userId }) => {
+  const result = await sequelize.transaction(async (t) => {
+    const deletePostResult = await Posts.destroy({
+      where: {
+        id: postId,
+        user_id: userId,
+      },
+      transaction: t,
+    });
+
+    const deletePostCommentsResult = await PostComments.destroy({
+      where: {
+        post_id: postId,
+        user_id: userId,
+      },
+      transaction: t,
+    });
+
+    const deletePostAnalyticsResult = await PostAnalytics.destroy({
+      where: {
+        post_id: postId,
+      },
+      transaction: t,
+    });
+
+    const deletePostLikesResult = PostLikes.destroy({
+      where: {
+        post_id: postId,
+        user_id: userId,
+      },
+      transaction: t,
+    });
+
+    const deletePostHashtagsResult = await PostHashtags.destroy({
+      where: {
+        post_id: postId,
+      },
+      transaction: t,
+    });
+
+    return {
+      deletePostResult,
+      deletePostCommentsResult,
+      deletePostAnalyticsResult,
+      deletePostLikesResult,
+      deletePostHashtagsResult,
+    };
   });
 
-  if (!result) {
-    return false;
-  } else {
-    return true;
-  }
+  return result;
+};
+
+export const updatePostTransaction = async ({
+  title,
+  content,
+  titleImgURL,
+  userId,
+  postId,
+  tagList,
+}) => {
+  const result = await sequelize.transaction(async (t) => {
+    const updatePostResult = await Posts.update(
+      {
+        title,
+        content,
+        title_img_url: titleImgURL,
+        updated_at: new Date(),
+      },
+      {
+        where: {
+          id: postId,
+          user_id: userId,
+        },
+        transaction: t,
+      },
+    );
+
+    if (tagList) {
+      if (tagList.length === 0) {
+        await PostHashtags.destroy({
+          where: {
+            post_id: postId,
+          },
+          transaction: t,
+        });
+      } else if (tagList.length > 0) {
+        await PostHashtags.destroy({
+          where: {
+            post_id: postId,
+          },
+          transaction: t,
+        }).then(async () => {
+          const postHashtagList = tagList.map((hashtag) => {
+            return {
+              hashtag_id: hashtag.id,
+              post_id: postId,
+            };
+          });
+
+          await PostHashtags.bulkCreate(postHashtagList, {
+            transaction: t,
+          }).catch((error) => {
+            return next(
+              new AppError(`Error while updating post hashtags. ${error}`),
+            );
+          });
+        });
+      }
+    }
+
+    return {
+      updatePostResult,
+    };
+  });
+
+  return result;
 };
 
 export const getAllPosts = async ({ offset, userId }) => {
@@ -74,7 +219,7 @@ export const getAllPosts = async ({ offset, userId }) => {
         model: Bookmarks,
         attributes: ["id"],
         where: {
-          user_id: userId ? userId : null,
+          user_id: userId,
         },
         required: false,
       },
@@ -87,11 +232,7 @@ export const getAllPosts = async ({ offset, userId }) => {
   return result;
 };
 
-export const getAllSearchedPosts = async ({
-  query,
-  offset,
-  sort = "desc",
-}) => {
+export const getAllSearchedPosts = async ({ query, offset, sort = "desc" }) => {
   const sortOptions = {
     desc: ["created_at", "desc"],
     asc: ["created_at", "asc"],
@@ -134,16 +275,25 @@ export const getAllSearchedPosts = async ({
 
 export const getUserRecentPost = async ({ userId }) => {
   const result = await Posts.findOne({
+    attributes: [
+      ["id", "postId"],
+      ["user_id", "userId"],
+      ["created_at", "createdAt"],
+      ["title_img_url", "titleImgURL"],
+      "title",
+    ],
     where: {
       user_id: userId,
     },
-     include: [
+    include: [
       {
         model: PostAnalytics,
         attributes: ["likes", "comments"],
+        
       },
     ],
     order: [["created_at", "DESC"]],
+    raw:true
   });
 
   return result;
@@ -213,7 +363,7 @@ export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
         offset,
       },
       type: QueryTypes.SELECT,
-    }
+    },
   );
 
   return result;
@@ -335,7 +485,7 @@ WHERE
         userId,
       },
       type: QueryTypes.SELECT,
-    }
+    },
   );
   return result ? result[0].total_likes : null;
 };
@@ -352,40 +502,6 @@ export const getPost = async ({ postId }) => {
       },
     ],
   });
-
-  return result;
-};
-
-export const deletePost = async ({ postId }) => {
-  const result = await Posts.destroy({
-    where: {
-      id: postId,
-    },
-  });
-
-  return result;
-};
-
-export const updatePost = async ({
-  postId,
-  title,
-  content,
-  titleImgURL,
-  updatedAt,
-}) => {
-  const result = await Posts.update(
-    {
-      title,
-      content,
-      title_img_url: titleImgURL,
-      updated_at: updatedAt,
-    },
-    {
-      where: {
-        id: postId,
-      },
-    }
-  );
 
   return result;
 };

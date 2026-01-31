@@ -19,6 +19,7 @@ import { AppError } from "./utils/appError.js";
 import {
   LOCAL_CLIENT_ORIGIN,
   REMOTE_CLIENT_ORIGIN,
+  REMOTE_TEST_CLIENT_ORIGIN,
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
 import rateLimit from "express-rate-limit";
@@ -47,6 +48,7 @@ const corsOptions = {
     REMOTE_CLIENT_ORIGIN,
     "http://127.0.0.1:5173",
     "http://localhost:4173",
+    REMOTE_TEST_CLIENT_ORIGIN,
   ],
   credentials: true,
 };

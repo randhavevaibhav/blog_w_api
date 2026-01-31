@@ -3,28 +3,17 @@ import { getAllPosts } from "../../../model/Posts/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
 
 export const getAllPostsController = catchAsync(async (req, res, next) => {
-  const { userId } = req.params;
   const { offset } = req.query;
-  const formattedOffset = parseInt(offset);
-  const formattedUserId = parseInt(userId);
-
-  if (!offset) {
-    return next(new AppError(`userId,offset is not present`, 400));
+  let result = [];
+  if (req.user) {
+    const { userId } = req.user;
+    result = await getAllPosts({ offset, userId });
+   
+  } else {
+    result = await getAllPosts({ offset, userId: null });
   }
-
-  if (!isPositiveInteger(formattedOffset)) {
-    return next(new AppError(`offset needs to be number`, 400));
-  }
-
-  if (userId) {
-    if (!isPositiveInteger(formattedUserId)) {
-      return next(new AppError(`userId needs to be number`, 400));
-    }
-  }
-  const result = await getAllPosts({ offset, userId });
 
   if (result.length <= 0) {
     return res.status(200).send({
@@ -87,7 +76,7 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
 
             return acc;
           },
-          []
+          [],
         );
 
         acc.push({

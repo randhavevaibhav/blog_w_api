@@ -2,35 +2,15 @@ import {
   deleteSinglePostComment,
   updateCommentAsGhost,
 } from "../../../model/PostComments/quires.js";
-import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-import { isPositiveInteger } from "../../../utils/utils.js";
 
-export const deleteCommentController = catchAsync(async (req, res, next) => {
-  const { userId, commentId, postId, hasReplies } = req.params;
+
+export const deleteCommentController = catchAsync(async (req, res) => {
+  const {userId} = req.user;
+  const { commentId, postId, hasReplies } = req.params;
   const numHasReplies = parseInt(hasReplies);
 
-  if (!userId || !commentId || !postId) {
-    return next(
-      new AppError(
-        `Please send all required fields. userId,commentId,postId`,
-        400
-      )
-    );
-  }
-
-  const formattedUserId = parseInt(userId);
-  const formattedPostId = parseInt(postId);
-  const formattedCommentId = parseInt(commentId);
-
-  if (
-    !isPositiveInteger(formattedUserId) ||
-    !isPositiveInteger(formattedPostId) ||
-    !isPositiveInteger(formattedCommentId)
-  ) {
-    return next(new AppError(`userId, postId, commentId must be numbers`));
-  }
-
+ 
   let result = null;
   let ghosted = false;
 

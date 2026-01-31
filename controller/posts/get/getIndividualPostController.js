@@ -1,32 +1,11 @@
 import { getPost } from "../../../model/Posts/quires.js";
 
-import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
-
-import { isPositiveInteger } from "../../../utils/utils.js";
-
 import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
 
 export const getIndividualPostController = catchAsync(
-  async (req, res, next) => {
-    const userId = req.params.userId;
+  async (req, res) => {
     const postId = req.params.postId;
-
-    if (!userId || !postId) {
-      return next(
-        new AppError(`Please send all required fields. userId,postId`)
-      );
-    }
-
-    const formattedUserId = parseInt(userId);
-    const formattedPostId = parseInt(postId);
-
-    if (
-      !isPositiveInteger(formattedUserId) ||
-      !isPositiveInteger(formattedPostId)
-    ) {
-      return next(new AppError(`userId, postId must be numbers`));
-    }
 
     const postResult = await getPost({ postId });
 

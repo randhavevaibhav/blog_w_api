@@ -41,7 +41,6 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(limiter);
-app.set("trust proxy", 1);
 
 const corsOptions = {
   origin: [

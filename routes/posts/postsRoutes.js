@@ -12,7 +12,7 @@ import {
   validateGetIndividualPost,
   validateGetPostAnalytics,
   validateGetSearchedPosts,
-  validateUpdatePost
+  validateUpdatePost,
 } from "../../middleware/fieldValidationMiddleware.js";
 
 const router = Router();
@@ -29,36 +29,58 @@ const {
   getPostAnalyticsController,
 } = postControllers;
 
-
 router.post("/post", requireAuth, validateCreatePost, createPostsController);
-router.get("/user/posts", requireAuth,validateGetAllUserPosts, getAllUserPostsController);
+router.get(
+  "/user/posts",
+  requireAuth,
+  validateGetAllUserPosts,
+  getAllUserPostsController
+);
 router.get(
   "/following/posts",
   requireAuth,
   validateGetAllFollowingUserPosts,
-  getAllFollowingUsersPostsController,
+  getAllFollowingUsersPostsController
 );
 
-router.get("/post/:postId",validateGetIndividualPost, getIndividualPostController);
-router.get("/posts/all",optionalAuthMiddleware,validateGetAllPosts, getAllPostsController);
-router.get("/tag/:hashtagId/:hashtagName",validateGetAllTaggedPosts, getAllTaggedPostsController);
-router.get("/posts/search",requireAuth,validateGetSearchedPosts, getSearchedPostsController);
+router.get(
+  "/post/:postId",
+  validateGetIndividualPost,
+  getIndividualPostController
+);
+router.get(
+  "/posts/all",
+  optionalAuthMiddleware,
+  validateGetAllPosts,
+  getAllPostsController
+);
+router.get(
+  "/tag/:hashtagId/:hashtagName",
+  validateGetAllTaggedPosts,
+  getAllTaggedPostsController
+);
+router.get(
+  "/posts/search",
+  requireAuth,
+  validateGetSearchedPosts,
+  getSearchedPostsController
+);
 router.get(
   "/post/analytics/:userId/:postId",
   optionalAuthMiddleware,
   validateGetPostAnalytics,
-  getPostAnalyticsController,
+  getPostAnalyticsController
 );
 router.delete(
   "/post/delete/:postId",
   requireAuth,
   validateDeletePost,
-  deletePostController,
+  deletePostController
 );
 router.patch(
   "/post/edit",
   requireAuth,
   validateUpdatePost,
-  updatePostController,
+  updatePostController
 );
 export default router;

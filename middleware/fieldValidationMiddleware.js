@@ -332,7 +332,6 @@ export const validateGetIndividualPost = [
 
 export const validateGetPostAnalytics = [
   postIdParamFieldValidation,
-  userIdParamFieldValidation,
   validationMiddleware,
 ];
 

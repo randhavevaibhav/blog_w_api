@@ -99,45 +99,170 @@ export const updateUser = async ({
 };
 
 export const getUserInfo = async ({ userId, currentUserId }) => {
-  const result = Users.findOne({
-    attributes: [
-      ["first_name", "firstName"],
-      "email",
-      ["registered_at", "registeredAt"],
-      ["profile_img_url", "profileImgURL"],
-      "bio",
-      "skills",
-      ["website_url", "websiteURL"],
-      "location",
-      ["posts", "totalUserPosts"],
-      ["comments", "totalUserComments"],
-    ],
-    include: [
-      {
-        model: Followers,
-        where: {
-          user_id: userId,
-          follower_id: currentUserId,
-        },
-        required: false,
+  const result = await sequelize.query(
+    `
+    WITH
+    RECENT_POST AS (
+      SELECT
+        P.ID AS "recentPostId",
+        P.USER_ID AS "recentPostUserId",
+        P.CREATED_AT AS "recentPostCreatedAt",
+        P.TITLE_IMG_URL AS "titleImgURL",
+        P.TITLE,
+        PA.LIKES,
+        PA.COMMENTS
+      FROM
+        POSTS P
+        JOIN POST_ANALYTICS PA ON PA.POST_ID = P.ID
+      WHERE
+        P.USER_ID =:userId
+      ORDER BY
+        P.CREATED_AT DESC
+      LIMIT
+        1
+    ),
+    FOLLOWER_ANALYTICS AS (
+      SELECT
+        *
+      FROM
+        FOLLOWER_ANALYTICS
+      WHERE
+        USER_ID =:userId
+    ),
+    RECENT_COMMENT AS (
+      SELECT
+        PC.ID,
+        PC.USER_ID AS "postCommentUserId",
+        PC.POST_ID,
+        PC.CONTENT,
+        PC.PARENT_ID,
+        PC.CREATED_AT AS "recentCommentCreatedAt",
+        P.USER_ID AS "postAuthorUserId",
+        P.TITLE_IMG_URL AS "titleImgURL"
+      FROM
+        POST_COMMENTS PC
+        JOIN POSTS P ON P.ID = PC.POST_ID
+      WHERE
+        PC.USER_ID =:userId
+        AND PC.CONTENT <> 'NA-#GOHST'
+      ORDER BY
+        PC.CREATED_AT DESC
+      LIMIT
+        1
+    ),
+    TOTAL_POST_LIKES AS (
+      SELECT
+        SUM(PA.LIKES) AS TOTAL_LIKES,
+        P.USER_ID
+      FROM
+        POSTS P
+        JOIN POST_ANALYTICS PA ON P.ID = PA.POST_ID
+      WHERE
+        P.USER_ID =:userId
+      GROUP BY
+        P.USER_ID
+    ),
+    HAS_FOLLOWED AS (
+      SELECT
+        *
+      FROM
+        FOLLOWERS
+      WHERE
+        USER_ID =:userId -- userId
+        AND FOLLOWER_ID =:currentUserId --- currentUserId
+    )
+  SELECT
+    U.ID AS "userId",
+    U.FIRST_NAME AS "firstName",
+    U.REGISTERED_AT AS "registeredAt",
+    U.PROFILE_IMG_URL AS "profileImgURL",
+    U.BIO,
+    U.SKILLS,
+    U.WEBSITE_URL AS "websiteURL",
+    U.LOCATION,
+    U.POSTS AS "totalUserPosts",
+    U.COMMENTS AS "totalUserComments",
+    FA.FOLLOWERS AS "totalUserFollowers",
+    FA.FOLLOWING AS "totalUserFollowings",
+    TPL.TOTAL_LIKES AS "totalOwnPostsLikes",
+    RP."recentPostId" AS "recentPostId",
+    RP."recentPostUserId" AS "recentPostUserId",
+    RP."recentPostCreatedAt" AS "recentPostCreatedAt",
+    RP."titleImgURL" AS "titleImgURL",
+    RP."title",
+    RP."likes" AS "recentPostLikes",
+    RP."comments" AS "recentComments",
+    RC.ID AS "commentId",
+    RC."postCommentUserId" AS "postCommentUserId",
+    RC.POST_ID AS "recentCommentPostId",
+    RC.CONTENT,
+    RC.PARENT_ID AS "parentId",
+    RC."titleImgURL" AS "recentCommentPostTitleImgURL",
+    RC."recentCommentCreatedAt" AS "recentCommentCreatedAt",
+    RC."postAuthorUserId" AS "postAuthorUserId"
+  FROM
+    USERS U
+    LEFT JOIN RECENT_POST RP ON RP."recentPostUserId" = U.ID
+    LEFT JOIN RECENT_COMMENT RC ON RC."postCommentUserId" = U.ID
+    LEFT JOIN HAS_FOLLOWED HF ON HF.USER_ID = U.ID
+    LEFT JOIN TOTAL_POST_LIKES TPL ON TPL.USER_ID = U.ID
+    LEFT JOIN FOLLOWER_ANALYTICS FA ON FA.USER_ID = U.ID
+  WHERE
+    U.ID =:userId
+
+  `,
+    {
+      replacements: {
+        currentUserId,
+        userId,
       },
-      {
-        model: FollowerAnalytics,
-        where: {
-          user_id: userId,
-        },
-        required: false,
-      },
-    ],
-    where: {
-      id: userId,
-    },
-    raw: true,
-    // logging: true,
-  });
-  //  return result[0][0];
-  return result;
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  return result[0];
 };
+
+// export const getUserInfo = async ({ userId, currentUserId }) => {
+//   const result = Users.findOne({
+//     attributes: [
+//       ["first_name", "firstName"],
+//       "email",
+//       ["registered_at", "registeredAt"],
+//       ["profile_img_url", "profileImgURL"],
+//       "bio",
+//       "skills",
+//       ["website_url", "websiteURL"],
+//       "location",
+//       ["posts", "totalUserPosts"],
+//       ["comments", "totalUserComments"],
+//     ],
+//     include: [
+//       {
+//         model: Followers,
+//         where: {
+//           user_id: userId,
+//           follower_id: currentUserId,
+//         },
+//         required: false,
+//       },
+//       {
+//         model: FollowerAnalytics,
+//         where: {
+//           user_id: userId,
+//         },
+//         required: false,
+//       },
+//     ],
+//     where: {
+//       id: userId,
+//     },
+//     raw: true,
+//     // logging: true,
+//   });
+//   //  return result[0][0];
+//   return result;
+// };
 
 export const updateRefreshToken = async ({ userId, refreshToken }) => {
   const res = await Users.update(

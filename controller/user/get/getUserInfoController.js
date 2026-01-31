@@ -5,13 +5,10 @@ import {
   getUserInfo,
 } from "../../../model/Users/quires.js";
 
-import { getAllPostHashtags } from "../../../model/PostHashtags/quires.js";
-import {
-  getTotalOwnPostsLikesCount,
-  getUserRecentPost,
-} from "../../../model/Posts/quires.js";
-import { getOwnRecentComment } from "../../../model/PostComments/quires.js";
 export const getUserInfoController = catchAsync(async (req, res, next) => {
+  let recentPost = null;
+  let recentComment = null;
+
   const { userId } = req.params;
 
   const isUserExist = await checkIfUserExistWithId({ userId });
@@ -21,53 +18,49 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
 
   const currentUserId = req.user?.userId || null;
 
-  const [
-    userInfoResult,
-    totalOwnPostsLikes,
-    userRecentPost,
-    userRecentComment,
-  ] = await Promise.all([
-    getUserInfo({ userId, currentUserId }),
-    getTotalOwnPostsLikesCount({ userId }),
-    getUserRecentPost({ userId }),
-    getOwnRecentComment({ userId }),
-  ]);
+  const result = await getUserInfo({
+    userId,
+    currentUserId,
+  });
 
- 
   const userInfo = {
-    ...userInfoResult, 
-    isFollowed: !!userInfoResult["followers.id"],
-    totalUserFollowers: userInfoResult["analytics.followers"] || 0,
-    totalUserFollowings: userInfoResult["analytics.following"] || 0,
-    totalOwnPostsLikes,
+    userId: result.userId,
+    firstName: result.firstName,
+    profileImgURL: result.profileImgURL,
+    registeredAt: result.registeredAt,
+    skills: result.skills,
+    websiteURL: result.websiteURL,
+    location: result.location,
+    totalUserPosts: result.totalUserPosts,
+    totalUserComments: result.totalUserComments,
+    totalUserFollowers: result.totalUserFollowers,
+    totalUserFollowings: result.totalUserFollowings,
+    totalOwnPostsLikes: result.totalOwnPostsLikes,
   };
 
-  let recentPost = null;
-  if (userRecentPost) {
-    const tagList = await getAllPostHashtags({ postId: userRecentPost.postId });
+  if (result.recentPostId)
     recentPost = {
-      postId: userRecentPost.postId,
-      userId: userRecentPost.userId,
-      title: userRecentPost.title,
-      createdAt: userRecentPost.createdAt,
-      titleImgURL: userRecentPost.titleImgURL,
-      tagList,
-      likes: userRecentPost["post_analytics.likes"] || 0,
-      comments: userRecentPost["post_analytics.comments"] || 0,
+      postId: result.recentPostId,
+      createdAt: result.recentPostCreatedAt,
+      titleImgURL: result.titleImgURL,
+      title: result.title,
+      userId: result.recentPostUserId,
+      likes: result.recentPostLikes,
+      comments: result.recentComments,
+    };
+
+  if (result.commentId) {
+    recentComment = {
+      commentId: result.commentId,
+      userId: result.postCommentUserId,
+      postId: result.recentCommentPostId,
+      createdAt: result.recentCommentCreatedAt,
+      content: result.content,
+      parentId: result.parentId,
+      authorId: result.postAuthorUserId,
+      titleImgURL: result.recentCommentPostTitleImgURL,
     };
   }
-
-  const recentComment = userRecentComment
-    ? {
-        commentId: userRecentComment.commentId,
-        userId: userRecentComment.userId,
-        postId: userRecentComment.postId,
-        content: userRecentComment.content,
-        parentId: userRecentComment.parentId,
-        createdAt: userRecentComment.createdAt,
-        authorId: userRecentComment.authorId,
-      }
-    : null;
 
   return res.status(200).json({
     message: "Fetched user info.",

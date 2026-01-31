@@ -88,7 +88,7 @@ const titleFieldValidation = body("title")
 const titleImgURLFieldValidation = body("titleImgURL")
   .optional()
   .isString()
-  .withMessage("titleImgURL must be a string")
+  .withMessage("titleImgURL must be a string");
 
 const userMailFieldValidation = body("userMail")
   .notEmpty()
@@ -353,6 +353,6 @@ export const validateUpdatePost = [
 ];
 
 export const validateGetUserInfo = [
- userIdParamFieldValidation,
+  userIdParamFieldValidation,
   validationMiddleware,
 ];

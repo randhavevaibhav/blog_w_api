@@ -4,10 +4,10 @@ import { checkIfAlreadyBookmarked } from "../../../model/Bookmark/quires.js";
 import { checkIfAlreadyFollowed } from "../../../model/Followers/quires.js";
 import { getPostAnalytics } from "../../../model/PostAnalytics/quires.js";
 
-export const getPostAnalyticsController = catchAsync(async (req, res, next) => {
+export const getPostAnalyticsController = catchAsync(async (req, res) => {
   const userId = req.params.userId;
   const postId = req.params.postId;
- 
+
   let postLikedByUser = false;
   let postBookmarked = false;
   let isFollowed = false;
@@ -15,7 +15,7 @@ export const getPostAnalyticsController = catchAsync(async (req, res, next) => {
   const postAnalytics = await getPostAnalytics({ postId });
 
   if (req.user) {
-    const {userId:currentUserId} = req.user;
+    const { userId: currentUserId } = req.user;
     const isPostLikedByUser = await checkIfPostLikedByUser({
       userId: currentUserId,
       postId,

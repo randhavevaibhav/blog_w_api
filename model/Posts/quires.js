@@ -30,7 +30,7 @@ export const createPostTransaction = async ({
       },
       {
         transaction: t,
-      },
+      }
     );
 
     const postId = createPostResult.id;
@@ -42,7 +42,7 @@ export const createPostTransaction = async ({
       },
       {
         transaction: t,
-      },
+      }
     );
     let createPostHashtagsResults = null;
     if (tagList) {
@@ -58,7 +58,7 @@ export const createPostTransaction = async ({
           postHashtagList,
           {
             transaction: t,
-          },
+          }
         );
       }
     }
@@ -147,7 +147,7 @@ export const updatePostTransaction = async ({
           user_id: userId,
         },
         transaction: t,
-      },
+      }
     );
 
     if (tagList) {
@@ -176,7 +176,7 @@ export const updatePostTransaction = async ({
             transaction: t,
           }).catch((error) => {
             return next(
-              new AppError(`Error while updating post hashtags. ${error}`),
+              new AppError(`Error while updating post hashtags. ${error}`)
             );
           });
         });
@@ -289,11 +289,10 @@ export const getUserRecentPost = async ({ userId }) => {
       {
         model: PostAnalytics,
         attributes: ["likes", "comments"],
-        
       },
     ],
     order: [["created_at", "DESC"]],
-    raw:true
+    raw: true,
   });
 
   return result;
@@ -363,7 +362,7 @@ export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
         offset,
       },
       type: QueryTypes.SELECT,
-    },
+    }
   );
 
   return result;
@@ -485,7 +484,7 @@ WHERE
         userId,
       },
       type: QueryTypes.SELECT,
-    },
+    }
   );
   return result ? result[0].total_likes : null;
 };
@@ -495,12 +494,24 @@ export const getPost = async ({ postId }) => {
     where: {
       id: postId,
     },
+    attributes: [
+      ["id", "postId"],
+      "title",
+      "content",
+      ["title_img_url", "titleImgURL"],
+      ["created_at", "createdAt"],
+    ],
     include: [
       {
         model: Users,
-        attributes: ["first_name", "profile_img_url"],
+        attributes: [
+          ["id", "userId"],
+          ["first_name", "userName"],
+          ["profile_img_url", "userProfileImg"],
+        ],
       },
     ],
+    raw: true,
   });
 
   return result;

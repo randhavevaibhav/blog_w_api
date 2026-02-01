@@ -173,6 +173,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     )
   SELECT
     U.ID AS "userId",
+    U.EMAIL,
     U.FIRST_NAME AS "firstName",
     U.REGISTERED_AT AS "registeredAt",
     U.PROFILE_IMG_URL AS "profileImgURL",
@@ -182,6 +183,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     U.LOCATION,
     U.POSTS AS "totalUserPosts",
     U.COMMENTS AS "totalUserComments",
+    HF.FOLLOWER_ID AS "isFollowed",
     FA.FOLLOWERS AS "totalUserFollowers",
     FA.FOLLOWING AS "totalUserFollowings",
     TPL.TOTAL_LIKES AS "totalOwnPostsLikes",

@@ -25,6 +25,7 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
 
   const userInfo = {
     userId: result.userId,
+    email: result.email,
     firstName: result.firstName,
     profileImgURL: result.profileImgURL,
     registeredAt: result.registeredAt,
@@ -36,6 +37,7 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
     totalUserFollowers: result.totalUserFollowers,
     totalUserFollowings: result.totalUserFollowings,
     totalOwnPostsLikes: result.totalOwnPostsLikes,
+    isFollowed: result.isFollowed,
   };
 
   if (result.recentPostId)

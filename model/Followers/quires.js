@@ -18,7 +18,7 @@ export const createNewFollowerTransaction = async ({
       },
       {
         transaction: t,
-      },
+      }
     );
 
     const getFollowingAnalyticsResult = await getFollowerAnalytics({
@@ -38,7 +38,7 @@ export const createNewFollowerTransaction = async ({
         },
         {
           transaction: t,
-        },
+        }
       );
     }
 
@@ -51,7 +51,7 @@ export const createNewFollowerTransaction = async ({
         },
         {
           transaction: t,
-        },
+        }
       );
     }
 
@@ -60,6 +60,7 @@ export const createNewFollowerTransaction = async ({
       where: {
         user_id: followingUserId,
       },
+      transaction: t,
     });
 
     await FollowerAnalytics.increment("following", {
@@ -67,6 +68,7 @@ export const createNewFollowerTransaction = async ({
       where: {
         user_id: userId,
       },
+      transaction: t,
     });
 
     return {
@@ -100,11 +102,11 @@ export const removeFollowerTransaction = async ({
       {
         replacements: { userId },
         type: QueryTypes.SELECT,
-        transaction:t
-      },
+        transaction: t,
+      }
     );
 
-     const decFollowingCountResult = await sequelize.query(
+    const decFollowingCountResult = await sequelize.query(
       `UPDATE follower_analytics
         SET following = CASE
         WHEN following > 0 THEN following - 1
@@ -114,14 +116,14 @@ export const removeFollowerTransaction = async ({
       {
         replacements: { userId },
         type: QueryTypes.SELECT,
-        transaction:t
-      },
+        transaction: t,
+      }
     );
 
     return {
       removeFollowerResult,
       decFollowerCountResult,
-      decFollowingCountResult
+      decFollowingCountResult,
     };
   });
 
@@ -149,7 +151,7 @@ limit ${FOLLOWERS_LIMIT}
         offset,
       },
       type: QueryTypes.SELECT,
-    },
+    }
   );
 
   return result;
@@ -175,7 +177,7 @@ limit ${FOLLOWING_LIMIT}
         offset,
       },
       type: QueryTypes.SELECT,
-    },
+    }
   );
 
   return result;
@@ -191,4 +193,3 @@ export const checkIfAlreadyFollowed = async ({ userId, followingUserId }) => {
 
   return result;
 };
-

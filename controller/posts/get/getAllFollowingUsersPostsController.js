@@ -1,8 +1,6 @@
-
 import { getAllFollowingUsersPosts } from "../../../model/Posts/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
-
 
 export const getAllFollowingUsersPostsController = catchAsync(
   async (req, res) => {
@@ -10,7 +8,7 @@ export const getAllFollowingUsersPostsController = catchAsync(
     const { offset } = req.query;
 
     const result = await getAllFollowingUsersPosts({ userId, offset });
-   
+
     if (result.length <= 0) {
       return res.status(200).send({
         message: "No following user posts found",
@@ -22,7 +20,7 @@ export const getAllFollowingUsersPostsController = catchAsync(
     const normalizedPosts = result.reduce((acc, post) => {
       acc = {
         ...acc,
-        [post.postId]: {
+        [`@${post.postId}`]: {
           ...post,
         },
       };
@@ -35,5 +33,5 @@ export const getAllFollowingUsersPostsController = catchAsync(
       total_posts_count: result.length,
       offset: Number(offset) + POST_OFFSET,
     });
-  },
+  }
 );

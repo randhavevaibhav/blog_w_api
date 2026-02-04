@@ -191,43 +191,105 @@ export const updatePostTransaction = async ({
   return result;
 };
 
-export const getAllPosts = async ({ offset, userId }) => {
-  const result = await Posts.findAll({
-    include: [
-      {
-        model: Users,
-        attributes: ["id", "first_name", "profile_img_url"],
-        where: {
-          [Op.and]: [
-            {
-              id: {
-                [Op.ne]: null,
-              },
-            },
-          ],
-        },
+export const getAllPosts = async ({ offset, userId = null }) => {
+  const result = await sequelize.query(
+    `
+    SELECT
+    p.id AS "postId",
+    (:offset / :limit) AS "page",
+    p.user_id AS "userId",
+    p.title,
+    p.title_img_url AS "titleImgURL",
+    pa.likes AS "likes",
+    pa.comments AS "totalComments",
+    p.created_at AS "createdAt",
+    u.first_name AS "firstName",
+    u.profile_img_url AS "profileImgURL",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags,
+    EXISTS (
+        SELECT
+            1
+        FROM
+            bookmarks b
+        WHERE
+            b.post_id = p.id
+            AND b.user_id =:userId
+    ) AS "isBookmarked",
+    recent_comments.data AS "recentComments"
+FROM
+    posts p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN post_hashtags ph ON p.id = ph.post_id
+    LEFT JOIN post_analytics pa ON p.id = pa.post_id
+    LEFT JOIN hashtags h ON ph.hashtag_id = h.id
+    LEFT JOIN LATERAL (
+        SELECT
+            jsonb_agg(c_sub) AS data
+        FROM
+            (
+                SELECT
+                    jsonb_build_object(
+                        'id',
+                        c.id,
+                        'content',
+                        c.content,
+                        'createdAt',
+                        c.created_at,
+                        'user',
+                        jsonb_build_object(
+                            'userId',
+                            cu.id,
+                            'firstName',
+                            cu.first_name,
+                            'profileImgUrl',
+                            cu.profile_img_url
+                        )
+                    ) AS c_sub
+                FROM
+                    post_comments c
+                    JOIN users cu ON c.user_id = cu.id
+                WHERE
+                    c.post_id = p.id
+                    and c.parent_id is null
+                    AND c.content <> 'NA-#GOHST'
+                ORDER BY
+                    c.created_at DESC
+                LIMIT
+                    2
+            ) sub
+    ) recent_comments ON true
+WHERE
+    p.id IS NOT NULL
+    AND u.id IS NOT NULL
+GROUP BY
+    p.id,
+    p.user_id,
+    p.title,
+    p.title_img_url,
+    pa.likes,
+    pa.comments,
+    p.created_at,
+    u.first_name,
+    u.profile_img_url,
+    recent_comments.data
+ORDER BY p.created_at DESC
+OFFSET :offset
+LIMIT :limit    
+    `,
+    {
+      type: QueryTypes.SELECT,
+      replacements: {
+        userId,
+        offset,
+        limit: POST_LIMIT,
       },
-      {
-        model: PostAnalytics,
-        attributes: ["likes", "comments"],
-      },
-      {
-        model: PostHashtags,
-        include: [Hashtags],
-      },
-      {
-        model: Bookmarks,
-        attributes: ["id"],
-        where: {
-          user_id: userId,
-        },
-        required: false,
-      },
-    ],
-    offset,
-    order: [["created_at", "desc"]],
-    limit: POST_LIMIT,
-  });
+    }
+  );
 
   return result;
 };
@@ -306,102 +368,165 @@ export const getAllFollowingUsersPosts = async ({ userId, offset }) => {
   if (followingUsersIds.length <= 0) {
     return [];
   }
-
   const result = await sequelize.query(
     `
-      SELECT
-  	"posts"."id",
-  	"posts"."user_id",
-  	"posts"."title",
-  	"posts"."content",
-  	"posts"."created_at",
-  	"posts"."updated_at",
-  	"posts"."title_img_url",
-  	"users"."id" AS "users.id",
-    "users"."first_name" AS "users.first_name",
-  	"users"."profile_img_url" AS "users.profile_img_url",
-  	"post_analytics"."id" AS "post_analytics.id",
-  	"post_analytics"."likes" AS "post_analytics.likes",
-  	"post_analytics"."comments" AS "post_analytics.comments",
-  	"bookmarks"."id" AS "bookmarks.id",
-  	STRING_AGG("post_hashtags->hashtags"."color"::TEXT, ', ') AS "post_hashtags.hashtags.color",
-  	STRING_AGG("post_hashtags->hashtags"."name"::TEXT, ', ') AS "post_hashtags.hashtags.name",
-    STRING_AGG("post_hashtags->hashtags"."id"::TEXT, ', ') AS "post_hashtags.hashtags.id"
-  FROM
-  	"posts" AS "posts"
-  	LEFT OUTER JOIN "users" AS "users" ON "posts"."user_id" = "users"."id"
-  	LEFT OUTER JOIN "post_analytics" AS "post_analytics" ON "posts"."id" = "post_analytics"."post_id"
-  	LEFT OUTER JOIN "bookmarks" AS "bookmarks" ON "posts"."id" = "bookmarks"."post_id"
-  	AND "bookmarks"."user_id" =:userId
-  	LEFT OUTER JOIN "post_hashtags" AS "post_hashtags" ON "posts"."id" = "post_hashtags"."post_id"
-  	LEFT OUTER JOIN "hashtags" AS "post_hashtags->hashtags" ON "post_hashtags"."hashtag_id" = "post_hashtags->hashtags"."id"
-  WHERE
-  	"posts"."user_id" IN (${followingUsersIds})
-  GROUP BY
-  	"posts"."id",
-  	"posts"."user_id",
-  	"posts"."title",
-  	"posts"."content",
-  	"posts"."created_at",
-  	"posts"."updated_at",
-  	"posts"."title_img_url",
-  	"users"."id",
-    "users.first_name",
-  	"users"."profile_img_url",
-  	"post_analytics"."id",
-  	"post_analytics"."likes",
-  	"post_analytics"."comments",
-  	"bookmarks"."id"
-  ORDER BY
-  	"posts"."id"
-  OFFSET :offset;
-      `,
+    SELECT
+    p.id AS "postId",
+    (:offset / :limit) AS "page",
+    p.user_id AS "userId",
+    p.title,
+    p.title_img_url AS "titleImgURL",
+    pa.likes AS "likes",
+    pa.comments AS "totalComments",
+    p.created_at AS "createdAt",
+    u.first_name AS "firstName",
+    u.profile_img_url AS "profileImgURL",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags,
+    EXISTS (
+        SELECT
+            1
+        FROM
+            bookmarks b
+        WHERE
+            b.post_id = p.id
+            AND b.user_id =:userId
+    ) AS "isBookmarked",
+    recent_comments.data AS "recentComments"
+FROM
+    posts p
+    INNER JOIN followers f ON p.user_id = f.user_id AND f.follower_id = :userId
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN post_hashtags ph ON p.id = ph.post_id
+    LEFT JOIN post_analytics pa ON p.id = pa.post_id
+    LEFT JOIN hashtags h ON ph.hashtag_id = h.id
+    LEFT JOIN LATERAL (
+        SELECT
+            jsonb_agg(c_sub) AS data
+        FROM
+            (
+                SELECT
+                    jsonb_build_object(
+                        'id',
+                        c.id,
+                        'content',
+                        c.content,
+                        'createdAt',
+                        c.created_at,
+                        'user',
+                        jsonb_build_object(
+                            'userId',
+                            cu.id,
+                            'firstName',
+                            cu.first_name,
+                            'profileImgUrl',
+                            cu.profile_img_url
+                        )
+                    ) AS c_sub
+                FROM
+                    post_comments c
+                    JOIN users cu ON c.user_id = cu.id
+                WHERE
+                    c.post_id = p.id
+                    and c.parent_id is null
+                    AND c.content <> 'NA-#GOHST'
+                ORDER BY
+                    c.created_at DESC
+                LIMIT
+                    2
+            ) sub
+    ) recent_comments ON true
+WHERE
+    p.id IS NOT NULL
+    AND u.id IS NOT NULL
+GROUP BY
+    p.id,
+    p.user_id,
+    p.title,
+    p.title_img_url,
+    pa.likes,
+    pa.comments,
+    p.created_at,
+    u.first_name,
+    u.profile_img_url,
+    recent_comments.data
+OFFSET :offset
+LIMIT :limit`,
     {
+      type: QueryTypes.SELECT,
       replacements: {
         userId,
         offset,
+        limit: POST_LIMIT,
       },
-      type: QueryTypes.SELECT,
     }
   );
-
   return result;
 };
 
 export const getAllTaggedPosts = async ({ hashtagId, offset }) => {
-  const result = await Posts.findAll({
-    // logging: console.log,
-    include: [
-      {
-        model: PostHashtags,
-        where: {
-          id: {
-            [Op.ne]: null,
-          },
-        },
-        include: [
-          {
-            model: Hashtags,
-
-            where: {
-              id: hashtagId,
-            },
-          },
-        ],
+  const result = await sequelize.query(
+    `
+    SELECT
+    p.id AS "postId",
+    (:offset / :limit) AS "page",
+    p.user_id AS "userId",
+    p.title,
+    p.title_img_url AS "titleImgURL",
+    pa.likes AS "likes",
+    pa.comments AS "totalComments",
+    p.created_at AS "createdAt",
+    u.first_name AS "firstName",
+    u.profile_img_url AS "profileImgURL",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags
+FROM
+    posts p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN post_hashtags ph ON p.id = ph.post_id
+    LEFT JOIN post_analytics pa ON p.id = pa.post_id
+    LEFT JOIN hashtags h ON ph.hashtag_id = h.id
+   
+WHERE
+    p.id IS NOT NULL
+    AND u.id IS NOT NULL
+    AND EXISTS (
+        SELECT 1 
+        FROM post_hashtags ph2 
+        WHERE ph2.post_id = p.id 
+        AND ph2.hashtag_id = :hashtagId
+    )
+GROUP BY
+    p.id,
+    p.user_id,
+    p.title,
+    p.title_img_url,
+    pa.likes,
+    pa.comments,
+    p.created_at,
+    u.first_name,
+    u.profile_img_url
+OFFSET :offset
+LIMIT :limit
+    
+    `,
+    {
+      type: QueryTypes.SELECT,
+      replacements: {
+        hashtagId,
+        offset,
+        limit: POST_LIMIT,
       },
-      {
-        model: Users,
-        attributes: ["id", "first_name", "profile_img_url"],
-      },
-      {
-        model: PostAnalytics,
-        attributes: ["likes", "comments"],
-      },
-    ],
-
-    offset,
-    order: [["created_at", "desc"]],
-  });
+    }
+  );
 
   return result;
 };
@@ -416,6 +541,12 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
 
   const result = await Posts.findAll({
     // logging: console.log,
+    attributes: [
+      ["id", "postId"],
+      ["created_at", "createdAt"],
+      ["title_img_url", "imgURL"],
+      "title",
+    ],
     where: {
       user_id: userId,
     },
@@ -428,6 +559,8 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
     offset,
     order: [orderBy, ["id", "desc"]],
     limit: POST_LIMIT,
+    raw: true,
+    nest: true,
   });
   return result;
 };
@@ -489,30 +622,126 @@ WHERE
   return result ? result[0].total_likes : null;
 };
 
-export const getPost = async ({ postId }) => {
-  const result = await Posts.findOne({
-    where: {
-      id: postId,
-    },
-    attributes: [
-      ["id", "postId"],
-      "title",
-      "content",
-      ["title_img_url", "titleImgURL"],
-      ["created_at", "createdAt"],
-    ],
-    include: [
-      {
-        model: Users,
-        attributes: [
-          ["id", "userId"],
-          ["first_name", "userName"],
-          ["profile_img_url", "userProfileImg"],
-        ],
-      },
-    ],
-    raw: true,
-  });
+export const getPost = async ({ postId, currentUserId }) => {
+  const result = await sequelize.query(
+    `
+  SELECT
+    p.id AS "postId",
+    p.user_id AS "userId",
+    p.title,
+    p.title_img_url AS "titleImgURL",
+    pa.likes AS "likes",
+    pa.comments AS "totalComments",
+    p.created_at AS "createdAt",
+    u.first_name AS "firstName",
+    u.profile_img_url AS "profileImgURL",
+     EXISTS (
+        SELECT
+            1
+        FROM
+            bookmarks b
+        WHERE
+            b.post_id = p.id
+            AND b.user_id =:currentUserId
+    ) AS "isBookmarked",
+    EXISTS (
+        SELECT 
+            1 
+        FROM 
+            post_likes pl
+        WHERE 
+            pl.user_id =:currentUserId
+            AND pl.post_id=p.id
+    ) AS "isLikedByUser",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags
+FROM
+    posts p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN post_hashtags ph ON p.id = ph.post_id
+    LEFT JOIN post_analytics pa ON p.id = pa.post_id
+    LEFT JOIN hashtags h ON ph.hashtag_id = h.id
+   
+WHERE
+    p.id IS NOT NULL
+    AND u.id IS NOT NULL
+    AND p.id=:postId
 
+GROUP BY
+    p.id,
+    p.user_id,
+    p.title,
+    p.title_img_url,
+    pa.likes,
+    pa.comments,
+    p.created_at,
+    u.first_name,
+    u.profile_img_url`,
+    {
+      type: QueryTypes.SELECT,
+      replacements: {
+        postId,
+        currentUserId,
+      },
+    }
+  );
+  return result[0];
+};
+
+export const getTopRatedPosts = async ({ limit = 2, target = "likes" }) => {
+  const result = await sequelize.query(
+    `
+  SELECT
+    p.id AS "postId",
+    p.user_id AS "userId",
+    p.title,
+    p.title_img_url AS "titleImgURL",
+    pa.likes AS "likes",
+    pa.comments AS "totalComments",
+    p.created_at AS "createdAt",
+    u.first_name AS "firstName",
+    u.profile_img_url AS "profileImgURL",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags
+FROM
+    posts p
+    LEFT JOIN users u ON p.user_id = u.id
+    LEFT JOIN post_hashtags ph ON p.id = ph.post_id
+    LEFT JOIN post_analytics pa ON p.id = pa.post_id
+    LEFT JOIN hashtags h ON ph.hashtag_id = h.id
+   
+WHERE
+    p.id IS NOT NULL
+    AND u.id IS NOT NULL
+    AND pa.${target}>0
+
+GROUP BY
+    p.id,
+    p.user_id,
+    p.title,
+    p.title_img_url,
+    pa.likes,
+    pa.comments,
+    p.created_at,
+    u.first_name,
+    u.profile_img_url
+    
+  ORDER BY pa.${target} DESC
+  LIMIT :limit`,
+    {
+      type: QueryTypes.SELECT,
+      replacements: {
+        limit,
+      },
+    }
+  );
   return result;
 };

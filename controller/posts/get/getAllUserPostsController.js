@@ -2,12 +2,10 @@ import { getAllUserPosts } from "../../../model/Posts/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
 
-
-export const getAllUserPostsController = catchAsync(async (req, res, next) => {
+export const getAllUserPostsController = catchAsync(async (req, res) => {
   const { userId } = req.user;
   const { offset, sort } = req.query;
 
-  
   const result = await getAllUserPosts({ userId, offset, sortBy: sort });
 
   if (result.length <= 0) {
@@ -19,10 +17,7 @@ export const getAllUserPostsController = catchAsync(async (req, res, next) => {
 
   const formattedPosts = result.map((post) => {
     return {
-      postId: post.id,
-      title: post.title,
-      createdAt: post.created_at,
-      imgURL: post.title_img_url,
+      ...post,
       likes: post.post_analytics?.likes,
       comments: post.post_analytics?.comments,
     };
@@ -30,7 +25,6 @@ export const getAllUserPostsController = catchAsync(async (req, res, next) => {
   return res.status(200).send({
     message: `found user posts.`,
     posts: formattedPosts,
-
     offset: Number(offset) + POST_OFFSET,
   });
 });

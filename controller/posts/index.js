@@ -8,6 +8,7 @@ import { getSearchedPostsController } from "./get/getSearchedPostsController.js"
 import { getAllFollowingUsersPostsController } from "./get/getAllFollowingUsersPostsController.js";
 import { getAllTaggedPostsController } from "./get/getAllTaggedPostsController.js";
 import { getPostAnalyticsController } from "./get/getPostAnalyticsController.js";
+import { getTopRatedPostsController } from "./get/getTopRatedPostsController.js";
 export default {
   createPostsController,
   getAllUserPostsController,
@@ -19,4 +20,5 @@ export default {
   getSearchedPostsController,
   getAllTaggedPostsController,
   getPostAnalyticsController,
+  getTopRatedPostsController
 };

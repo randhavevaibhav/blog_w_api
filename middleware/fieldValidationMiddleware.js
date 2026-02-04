@@ -71,13 +71,6 @@ const contentFieldValidation = body("content")
   .withMessage("content must be a string")
   .escape();
 
-const hashtagNameParamFieldValidation = param("hashtagName")
-  .notEmpty()
-  .withMessage("hashtagName is required")
-  .isString()
-  .withMessage("hashtagName must be a string")
-  .escape();
-
 const titleFieldValidation = body("title")
   .notEmpty()
   .withMessage("title is required")
@@ -315,7 +308,6 @@ export const validateGetAllPosts = [
 export const validateGetAllTaggedPosts = [
   offsetQueryFieldValidation,
   hashtagIdParamFieldValidation,
-  hashtagNameParamFieldValidation,
   validationMiddleware,
 ];
 

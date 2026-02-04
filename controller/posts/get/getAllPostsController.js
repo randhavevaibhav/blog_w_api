@@ -1,6 +1,5 @@
-import { getRecentComments } from "../../../model/PostComments/quires.js";
 import { getAllPosts } from "../../../model/Posts/quires.js";
-import { AppError } from "../../../utils/appError.js";
+
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
 
@@ -10,7 +9,6 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
   if (req.user) {
     const { userId } = req.user;
     result = await getAllPosts({ offset, userId });
-   
   } else {
     result = await getAllPosts({ offset, userId: null });
   }
@@ -23,78 +21,20 @@ export const getAllPostsController = catchAsync(async (req, res, next) => {
     });
   }
 
-  const formattedPost = result.map((post) => {
-    return {
-      postId: post.id,
-      firstName: post.users.first_name,
-      profileImgURL: post.users.profile_img_url,
-      titleImgURL: post.title_img_url,
-      title: post.title,
-      createdAt: post.created_at,
-      likes: post.post_analytics?.likes,
-      userId: post.users.id,
-      totalComments: post.post_analytics?.comments,
-      tagList: post.post_hashtags.map((val) => {
-        return {
-          id: val.hashtags.id,
-          name: val.hashtags.name,
-          info: val.hashtags.info,
-          color: val.hashtags.color,
-        };
-      }),
-      isBookmarked: post.bookmarks?.length ? true : false,
+  const normalizedPosts = result.reduce((acc, post) => {
+    acc = {
+      ...acc,
+      [`@${post.postId}`]: {
+        ...post,
+      },
     };
+    return acc;
+  }, {});
+
+  return res.status(200).send({
+    message: "found posts.",
+    posts: normalizedPosts,
+    total_posts_count: result.length,
+    offset: Number(offset) + POST_OFFSET,
   });
-
-  let responseData = null;
-
-  responseData = formattedPost.map(async (post) => {
-    return {
-      ...post,
-      recentComments: await getRecentComments({
-        postId: post.postId,
-      }),
-    };
-  });
-
-  await Promise.all(responseData)
-    .then((result) => {
-      // console.log("result ==> ",result)
-      responseData = result.reduce((acc, rec) => {
-        // console.log("rec from getAllOwnPosts ==>  ", rec);
-
-        const formattedRecentComments = rec.recentComments.reduce(
-          (acc, comment) => {
-            acc.push({
-              content: comment.content,
-              postId: comment.post_id,
-              userId: comment.users.id,
-              createdAt: comment.created_at,
-              firstName: comment.users.first_name,
-              profileImgURL: comment.users.profile_img_url,
-            });
-
-            return acc;
-          },
-          [],
-        );
-
-        acc.push({
-          ...rec,
-          recentComments: formattedRecentComments,
-          page: parseInt(offset) / POST_OFFSET,
-        });
-        return acc;
-      }, []);
-
-      return res.status(200).send({
-        message: "found posts. get all",
-        posts: responseData,
-        total_posts_count: responseData.length,
-        offset: Number(offset) + POST_OFFSET,
-      });
-    })
-    .catch((err) => {
-      return next(new AppError(`Internal server error ===> ${err}`, 500));
-    });
 });

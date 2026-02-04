@@ -27,60 +27,63 @@ const {
   getSearchedPostsController,
   getAllTaggedPostsController,
   getPostAnalyticsController,
+  getTopRatedPostsController,
 } = postControllers;
 
-router.post("/post", requireAuth, validateCreatePost, createPostsController);
+router.post("/post", validateCreatePost, requireAuth, createPostsController);
 router.get(
   "/user/posts",
-  requireAuth,
   validateGetAllUserPosts,
-  getAllUserPostsController
+  requireAuth,
+  getAllUserPostsController,
 );
 router.get(
   "/following/posts",
-  requireAuth,
   validateGetAllFollowingUserPosts,
-  getAllFollowingUsersPostsController
+  requireAuth,
+  getAllFollowingUsersPostsController,
 );
 
 router.get(
   "/post/:postId",
   validateGetIndividualPost,
-  getIndividualPostController
+  optionalAuthMiddleware,
+  getIndividualPostController,
 );
 router.get(
   "/posts/all",
-  optionalAuthMiddleware,
   validateGetAllPosts,
-  getAllPostsController
+  optionalAuthMiddleware,
+  getAllPostsController,
 );
 router.get(
-  "/tag/:hashtagId/:hashtagName",
+  "/tag/:hashtagId",
   validateGetAllTaggedPosts,
-  getAllTaggedPostsController
+  getAllTaggedPostsController,
 );
 router.get(
   "/posts/search",
-  requireAuth,
   validateGetSearchedPosts,
-  getSearchedPostsController
+  requireAuth,
+  getSearchedPostsController,
 );
 router.get(
   "/post/analytics/:userId/:postId",
-  optionalAuthMiddleware,
   validateGetPostAnalytics,
-  getPostAnalyticsController
+  optionalAuthMiddleware,
+  getPostAnalyticsController,
 );
 router.delete(
   "/post/delete/:postId",
-  requireAuth,
   validateDeletePost,
-  deletePostController
+  requireAuth,
+  deletePostController,
 );
 router.patch(
   "/post/edit",
-  requireAuth,
   validateUpdatePost,
-  updatePostController
+  requireAuth,
+  updatePostController,
 );
+router.get("/posts/top-rated", getTopRatedPostsController);
 export default router;

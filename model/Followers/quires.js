@@ -98,9 +98,9 @@ export const removeFollowerTransaction = async ({
         WHEN followers > 0 THEN followers - 1
         ELSE 0
         END
-        WHERE user_id=:userId`,
+        WHERE user_id=:followingUserId`,
       {
-        replacements: { userId },
+        replacements: { followingUserId },
         type: QueryTypes.SELECT,
         transaction: t,
       }

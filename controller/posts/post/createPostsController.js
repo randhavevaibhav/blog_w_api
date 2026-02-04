@@ -1,6 +1,4 @@
-import {
-  createPostTransaction,
-} from "../../../model/Posts/quires.js";
+import { createPostTransaction } from "../../../model/Posts/quires.js";
 import { getTotalUserPosts } from "../../../model/Users/quires.js";
 import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
@@ -11,9 +9,11 @@ export const createPostsController = catchAsync(async (req, res, next) => {
   const totalUserPostsResult = await getTotalUserPosts({ userId });
   let totalUserPosts = totalUserPostsResult.dataValues.posts;
 
+  const isAdmin = parseInt(process.env.ADMIN_USERID) === parseInt(userId);
+
   if (totalUserPosts >= 20 && !isAdmin) {
     return next(
-      new AppError(`Can not create more posts. Post limit reached !!`),
+      new AppError(`Can not create more posts. Post limit reached !!`)
     );
   }
 

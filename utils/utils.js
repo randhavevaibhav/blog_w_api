@@ -55,3 +55,11 @@ export const getFileInfo = ({ file }) => {
 export const isPositiveInteger = (num) => {
   return typeof num === "number" && Number.isInteger(num) && num >= 0;
 };
+
+export const sleep = async (delay = 3000) => {
+  return new Promise((res, rej) => {
+    setTimeout(() => {
+      res("sleep resolved !");
+    }, delay);
+  });
+};

@@ -26,7 +26,6 @@ const {
   updatePostController,
   getSearchedPostsController,
   getAllTaggedPostsController,
-  getPostAnalyticsController,
   getTopRatedPostsController,
 } = postControllers;
 
@@ -67,12 +66,7 @@ router.get(
   requireAuth,
   getSearchedPostsController,
 );
-router.get(
-  "/post/analytics/:userId/:postId",
-  validateGetPostAnalytics,
-  optionalAuthMiddleware,
-  getPostAnalyticsController,
-);
+
 router.delete(
   "/post/delete/:postId",
   validateDeletePost,

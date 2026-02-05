@@ -622,7 +622,17 @@ WHERE
   return result ? result[0].total_likes : null;
 };
 
-export const getPost = async ({ postId, currentUserId }) => {
+export const getPost = async({postId})=>{
+  const result = await Posts.findOne({
+    where:{
+      id:postId
+    }
+  })
+
+  return result;
+}
+
+export const getIndividualPost = async ({ postId, currentUserId }) => {
   const result = await sequelize.query(
     `
   SELECT
@@ -630,6 +640,7 @@ export const getPost = async ({ postId, currentUserId }) => {
     p.user_id AS "userId",
     p.title,
     p.title_img_url AS "titleImgURL",
+    p.content,
     pa.likes AS "likes",
     pa.comments AS "totalComments",
     p.created_at AS "createdAt",
@@ -675,6 +686,7 @@ GROUP BY
     p.id,
     p.user_id,
     p.title,
+    p.content,
     p.title_img_url,
     pa.likes,
     pa.comments,

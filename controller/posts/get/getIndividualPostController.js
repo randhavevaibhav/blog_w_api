@@ -1,4 +1,4 @@
-import { getPost } from "../../../model/Posts/quires.js";
+import { getIndividualPost } from "../../../model/Posts/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
 export const getIndividualPostController = catchAsync(async (req, res) => {
@@ -7,7 +7,7 @@ export const getIndividualPostController = catchAsync(async (req, res) => {
   if (req.user) {
     currentUserId = req.user.userId;
   }
-  const postResult = await getPost({
+  const postResult = await getIndividualPost({
     postId,
     currentUserId,
   });

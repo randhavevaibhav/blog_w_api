@@ -1,9 +1,8 @@
-import { Op, QueryTypes } from "sequelize";
+import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
-import { PostComments, Posts, Users } from "../associations.js";
+import { Users } from "../associations.js";
 import { Followers } from "../Followers/Followers.js";
-import { FollowerAnalytics } from "../FollowerAnalytics/FollowerAnalytics.js";
-import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
+
 
 export const createUser = async ({
   firstName,
@@ -225,46 +224,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
   return result[0];
 };
 
-// export const getUserInfo = async ({ userId, currentUserId }) => {
-//   const result = Users.findOne({
-//     attributes: [
-//       ["first_name", "firstName"],
-//       "email",
-//       ["registered_at", "registeredAt"],
-//       ["profile_img_url", "profileImgURL"],
-//       "bio",
-//       "skills",
-//       ["website_url", "websiteURL"],
-//       "location",
-//       ["posts", "totalUserPosts"],
-//       ["comments", "totalUserComments"],
-//     ],
-//     include: [
-//       {
-//         model: Followers,
-//         where: {
-//           user_id: userId,
-//           follower_id: currentUserId,
-//         },
-//         required: false,
-//       },
-//       {
-//         model: FollowerAnalytics,
-//         where: {
-//           user_id: userId,
-//         },
-//         required: false,
-//       },
-//     ],
-//     where: {
-//       id: userId,
-//     },
-//     raw: true,
-//     // logging: true,
-//   });
-//   //  return result[0][0];
-//   return result;
-// };
+
 
 export const updateRefreshToken = async ({ userId, refreshToken }) => {
   const res = await Users.update(

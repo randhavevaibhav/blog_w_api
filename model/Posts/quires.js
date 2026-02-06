@@ -30,7 +30,7 @@ export const createPostTransaction = async ({
       },
       {
         transaction: t,
-      },
+      }
     );
 
     const postId = createPostResult.id;
@@ -42,7 +42,7 @@ export const createPostTransaction = async ({
       },
       {
         transaction: t,
-      },
+      }
     );
     let createPostHashtagsResults = null;
     if (tagList) {
@@ -58,7 +58,7 @@ export const createPostTransaction = async ({
           postHashtagList,
           {
             transaction: t,
-          },
+          }
         );
       }
     }
@@ -147,7 +147,7 @@ export const updatePostTransaction = async ({
           user_id: userId,
         },
         transaction: t,
-      },
+      }
     );
 
     if (tagList) {
@@ -176,7 +176,7 @@ export const updatePostTransaction = async ({
             transaction: t,
           }).catch((error) => {
             return next(
-              new AppError(`Error while updating post hashtags. ${error}`),
+              new AppError(`Error while updating post hashtags. ${error}`)
             );
           });
         });
@@ -288,7 +288,7 @@ LIMIT :limit
         offset,
         limit: POST_LIMIT,
       },
-    },
+    }
   );
 
   return result;
@@ -463,7 +463,7 @@ LIMIT :limit`,
         offset,
         limit: POST_LIMIT,
       },
-    },
+    }
   );
   return result;
 };
@@ -525,7 +525,7 @@ LIMIT :limit
         offset,
         limit: POST_LIMIT,
       },
-    },
+    }
   );
 
   return result;
@@ -568,10 +568,10 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
 export const getAllUserBookmarkedPosts = async ({
   userId,
   sort = "desc",
-  hashtagId ,
+  hashtagId,
 }) => {
-
-const filterByHashtag = parseInt(hashtagId)!=0;
+  const filterByHashtag = !!hashtagId && Number(hashtagId) > 0;
+  const safeSort = sort === "asc" ? "ASC" : "DESC";
   const result = await sequelize.query(
     `
   select
@@ -626,24 +626,21 @@ group by
     u.profile_img_url,
     u.id
 order by
-    b.created_at ${sort}
+    b.created_at ${safeSort}
     
     `,
     {
       replacements: {
         userId,
-        sort,
         hashtagId,
       },
-      type: QueryTypes.SELECT
-    },
+      type: QueryTypes.SELECT,
+    }
   );
   return result;
 };
 
-export const getAllBookmarkedPostsHashtags = async ({
-  userId
-}) => {
+export const getAllBookmarkedPostsHashtags = async ({ userId }) => {
   const result = await sequelize.query(
     `
   select distinct
@@ -662,7 +659,7 @@ where
         userId,
       },
       type: QueryTypes.SELECT,
-    },
+    }
   );
 
   return result;
@@ -682,7 +679,7 @@ WHERE
         userId,
       },
       type: QueryTypes.SELECT,
-    },
+    }
   );
   return result ? result[0].total_likes : null;
 };
@@ -765,7 +762,7 @@ GROUP BY
         postId,
         currentUserId,
       },
-    },
+    }
   );
   return result[0];
 };
@@ -819,7 +816,7 @@ GROUP BY
       replacements: {
         limit,
       },
-    },
+    }
   );
   return result;
 };

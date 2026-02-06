@@ -42,6 +42,11 @@ const hashtagIdParamFieldValidation = param("hashtagId")
   .isInt({ min: 1 })
   .withMessage("hashtagId must be a positive integer");
 
+const hashtagIdQueryFieldValidation = query("hashtagId")
+  .optional({ nullable: true })
+  .isInt({ min: 0 })
+  .withMessage("hashtagId must be a positive integer");
+
 const followingUserIdFieldValidation = body("followingUserId")
   .notEmpty()
   .withMessage("followingUserId is required")
@@ -250,6 +255,7 @@ export const validateLikeDislikeComment = [
 // Bookmark validators
 export const validateGetUserBookmark = [
   bookmarkSortQueryFieldValidation,
+  hashtagIdQueryFieldValidation,
   validationMiddleware,
 ];
 

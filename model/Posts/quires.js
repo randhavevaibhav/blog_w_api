@@ -30,7 +30,7 @@ export const createPostTransaction = async ({
       },
       {
         transaction: t,
-      }
+      },
     );
 
     const postId = createPostResult.id;
@@ -42,7 +42,7 @@ export const createPostTransaction = async ({
       },
       {
         transaction: t,
-      }
+      },
     );
     let createPostHashtagsResults = null;
     if (tagList) {
@@ -58,7 +58,7 @@ export const createPostTransaction = async ({
           postHashtagList,
           {
             transaction: t,
-          }
+          },
         );
       }
     }
@@ -147,7 +147,7 @@ export const updatePostTransaction = async ({
           user_id: userId,
         },
         transaction: t,
-      }
+      },
     );
 
     if (tagList) {
@@ -176,7 +176,7 @@ export const updatePostTransaction = async ({
             transaction: t,
           }).catch((error) => {
             return next(
-              new AppError(`Error while updating post hashtags. ${error}`)
+              new AppError(`Error while updating post hashtags. ${error}`),
             );
           });
         });
@@ -288,7 +288,7 @@ LIMIT :limit
         offset,
         limit: POST_LIMIT,
       },
-    }
+    },
   );
 
   return result;
@@ -463,7 +463,7 @@ LIMIT :limit`,
         offset,
         limit: POST_LIMIT,
       },
-    }
+    },
   );
   return result;
 };
@@ -525,7 +525,7 @@ LIMIT :limit
         offset,
         limit: POST_LIMIT,
       },
-    }
+    },
   );
 
   return result;
@@ -565,43 +565,108 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
   return result;
 };
 
-export const getAllUserBookmarkedPosts = async ({ userId, sort = "desc" }) => {
-  const result = await Posts.findAll({
-    // logging: console.log,
-    include: [
-      {
-        model: Users,
-        attributes: ["id", "first_name", "profile_img_url"],
-        where: {
-          [Op.and]: [
-            {
-              id: {
-                [Op.ne]: null,
-              },
-            },
-          ],
-        },
+export const getAllUserBookmarkedPosts = async ({
+  userId,
+  sort = "desc",
+  hashtagId ,
+}) => {
+
+const filterByHashtag = parseInt(hashtagId)!=0;
+  const result = await sequelize.query(
+    `
+  select
+    p.id AS "postId",
+    p.title,
+    p.content,
+    p.created_at AS "createdAt",
+    p.title_img_url AS "titleImgURL",
+    pa.likes,
+    pa.comments,
+    u.id AS "userId",
+    u.first_name AS "firstName",
+    u.profile_img_url AS "profileImgURL",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags
+from
+    posts p
+    left join users u ON p.user_id = u.id
+    left join bookmarks b on p.id = b.post_id
+    left join post_hashtags ph on p.id = ph.post_id
+    left join post_analytics pa on p.id = pa.post_id
+    left join hashtags h on ph.hashtag_id = h.id
+where
+    b.user_id =:userId
+    ${
+      filterByHashtag
+        ? ` and exists (
+        select
+            1
+        from
+            post_hashtags ph2
+        where
+            ph2.post_id = p.id
+            and ph2.hashtag_id =:hashtagId
+    )`
+        : ``
+    }
+group by
+    p.id,
+    p.title,
+    p.content,
+    p.created_at,
+    p.title_img_url,
+    pa.likes,
+    pa.comments,
+    u.first_name,
+    b.created_at,
+    u.profile_img_url,
+    u.id
+order by
+    b.created_at ${sort}
+    
+    `,
+    {
+      replacements: {
+        userId,
+        sort,
+        hashtagId,
       },
-      {
-        model: PostAnalytics,
-        attributes: ["likes", "comments"],
-      },
-      {
-        model: Bookmarks,
-        where: {
-          user_id: userId,
-        },
-      },
-      {
-        model: PostHashtags,
-        include: [Hashtags],
-      },
-    ],
-    order: [[{ model: Bookmarks }, "created_at", sort]],
-  });
+      type: QueryTypes.SELECT
+    },
+  );
   return result;
 };
 
+export const getAllBookmarkedPostsHashtags = async ({
+  userId
+}) => {
+  const result = await sequelize.query(
+    `
+  select distinct
+    (h.id),
+    h.name,
+    h.color
+from
+    bookmarks b
+    left join post_hashtags ph on ph.post_id = b.post_id
+    left join hashtags h on h.id = ph.hashtag_id
+where
+    b.user_id =:userId
+    and h.id is not null`,
+    {
+      replacements: {
+        userId,
+      },
+      type: QueryTypes.SELECT,
+    },
+  );
+
+  return result;
+};
 export const getTotalOwnPostsLikesCount = async ({ userId }) => {
   const result = await sequelize.query(
     `SELECT
@@ -617,20 +682,20 @@ WHERE
         userId,
       },
       type: QueryTypes.SELECT,
-    }
+    },
   );
   return result ? result[0].total_likes : null;
 };
 
-export const getPost = async({postId})=>{
+export const getPost = async ({ postId }) => {
   const result = await Posts.findOne({
-    where:{
-      id:postId
-    }
-  })
+    where: {
+      id: postId,
+    },
+  });
 
   return result;
-}
+};
 
 export const getIndividualPost = async ({ postId, currentUserId }) => {
   const result = await sequelize.query(
@@ -700,7 +765,7 @@ GROUP BY
         postId,
         currentUserId,
       },
-    }
+    },
   );
   return result[0];
 };
@@ -754,7 +819,7 @@ GROUP BY
       replacements: {
         limit,
       },
-    }
+    },
   );
   return result;
 };

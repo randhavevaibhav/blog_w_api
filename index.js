@@ -23,7 +23,7 @@ import {
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
 import rateLimit from "express-rate-limit";
-
+import prerender from "prerender-node";
 const limiter = rateLimit({
   windowMs: 1000, // 1 sec
   limit: 20, // each IP can make up to 20 requests per `windowsMs` (1 sec)
@@ -54,6 +54,7 @@ const corsOptions = {
 };
 
 const PORT = 8003;
+prerender.set("prerenderToken", process.env.PRERENDER_TOKEN);
 
 app.use(cors(corsOptions));
 // parse requests of content-type - application/x-www-form-urlencoded
@@ -70,6 +71,7 @@ app.use(commentLikesRoute);
 app.use(refreshTokenRoute);
 app.use(uploadFileRoute);
 app.use(convertRoutes);
+app.use(prerender);
 
 app.get("/", (req, res) => {
   res.send({

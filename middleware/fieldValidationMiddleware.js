@@ -42,7 +42,7 @@ const hashtagIdParamFieldValidation = param("hashtagId")
   .isInt({ min: 1 })
   .withMessage("hashtagId must be a positive integer");
 
-const hashtagIdQueryFieldValidation = query("hashtagId")
+const hashtagIdQueryFieldValidation = query("hashtag")
   .optional({ nullable: true })
   .isInt({ min: 0 })
   .withMessage("hashtagId must be a positive integer");
@@ -170,6 +170,21 @@ const searchedPostSortQueryFieldValidation = query("sort")
   .isIn(["asc", "desc"])
   .withMessage('searched post sort field must be either "asc","desc" ');
 
+
+const followersFollowingUsersSortQueryFieldValidation = query("sort")
+  .optional()
+  .isString()
+  .withMessage("followers/following sort field must be a string")
+  .isIn(["asc", "desc"])
+  .withMessage('followers/following sort field must be either "asc","desc" ');
+
+const followersFollowingUsersFilterByMutualQueryFieldValidation = query("mutual")
+  .optional()
+  .isString()
+  .withMessage("followers/following mutual field must be a string")
+  .isIn(["false", "true"])
+  .withMessage('followers/following mutual field must be either "false","true" ');
+
 const searchPostQueryFieldValidation = query("query")
   .notEmpty()
   .withMessage("search query is required")
@@ -273,6 +288,8 @@ export const validateDeleteBookmark = [
 
 export const validateGetFollowersFollowings = [
   offsetQueryFieldValidation,
+  followersFollowingUsersSortQueryFieldValidation,
+  followersFollowingUsersFilterByMutualQueryFieldValidation,
   validationMiddleware,
 ];
 
@@ -337,6 +354,7 @@ export const validateGetSearchedPosts = [
   searchPostQueryFieldValidation,
   offsetQueryFieldValidation,
   searchedPostSortQueryFieldValidation,
+  hashtagIdQueryFieldValidation,
   validationMiddleware,
 ];
 

@@ -169,6 +169,15 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
       WHERE
         USER_ID =:userId -- userId
         AND FOLLOWER_ID =:currentUserId --- currentUserId
+    ),
+    HAS_FOLLOWING AS (
+      SELECT
+        *
+      FROM
+        FOLLOWERS
+      WHERE
+        USER_ID =:currentUserId 
+        AND FOLLOWER_ID =:userId 
     )
   SELECT
     U.ID AS "userId",
@@ -183,6 +192,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     U.POSTS AS "totalUserPosts",
     U.COMMENTS AS "totalUserComments",
     HF.FOLLOWER_ID AS "isFollowed",
+    HFING.USER_ID  AS "isFollowing",
     FA.FOLLOWERS AS "totalUserFollowers",
     FA.FOLLOWING AS "totalUserFollowings",
     TPL.TOTAL_LIKES AS "totalOwnPostsLikes",
@@ -200,12 +210,24 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     RC.PARENT_ID AS "parentId",
     RC."titleImgURL" AS "recentCommentPostTitleImgURL",
     RC."recentCommentCreatedAt" AS "recentCommentCreatedAt",
-    RC."postAuthorUserId" AS "postAuthorUserId"
+    RC."postAuthorUserId" AS "postAuthorUserId",
+    EXISTS (
+        SELECT
+            1
+        FROM
+            followers f1
+            JOIN followers f2 ON f1.user_id = f2.follower_id
+            AND f1.follower_id = f2.user_id
+        WHERE
+            f1.user_id =:currentUserId
+            AND f1.follower_id =:userId
+    ) AS "isMutual"
   FROM
     USERS U
     LEFT JOIN RECENT_POST RP ON RP."recentPostUserId" = U.ID
     LEFT JOIN RECENT_COMMENT RC ON RC."postCommentUserId" = U.ID
     LEFT JOIN HAS_FOLLOWED HF ON HF.USER_ID = U.ID
+    LEFT JOIN HAS_FOLLOWING HFING ON HFING.FOLLOWER_ID = U.ID
     LEFT JOIN TOTAL_POST_LIKES TPL ON TPL.USER_ID = U.ID
     LEFT JOIN FOLLOWER_ANALYTICS FA ON FA.USER_ID = U.ID
   WHERE

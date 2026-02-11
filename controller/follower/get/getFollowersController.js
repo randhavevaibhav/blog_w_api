@@ -6,19 +6,9 @@ import {  FOLLOWERS_OFFSET } from "../../../utils/constants.js";
 export const getFollowersController = catchAsync(async (req, res, next) => {
   const { userId } = req.user;
   const { offset } = req.query;
-
-  const result = await getUserFollowers({ userId ,offset});
-
-  const formattedResult = result.map((follower) => {
-    return {
-      userId: follower.user_id,
-      followerId: follower.follower_id,
-      profileImgURL: follower.profile_img_url,
-      followerName: follower.first_name,
-      followerMail: follower.email,
-      createdAt: follower.created_at,
-    };
-  });
+   const { sort } = req.query;
+  const { mutual } = req.query;
+  const result = await getUserFollowers({ userId ,offset,sort,mutual});
 
   if (result.length == 0) {
     return res.status(200).send({
@@ -30,7 +20,7 @@ export const getFollowersController = catchAsync(async (req, res, next) => {
   return res.status(200).send({
     message: "found user followers",
     userId,
-    followers: formattedResult,
+    followers: result,
     offset: Number(offset) + FOLLOWERS_OFFSET,
   });
 });

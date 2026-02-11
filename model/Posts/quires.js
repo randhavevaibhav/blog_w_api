@@ -4,7 +4,6 @@ import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
 import { Op, QueryTypes } from "sequelize";
 import { Users } from "../Users/Users.js";
 import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
-import { Bookmarks } from "../Bookmark/Bookmark.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
 import { Hashtags } from "../Hashtags/Hashtags.js";
 import { getAllUserFollowers } from "../Users/quires.js";
@@ -294,46 +293,93 @@ LIMIT :limit
   return result;
 };
 
-export const getAllSearchedPosts = async ({ query, offset, sort = "desc" }) => {
-  const sortOptions = {
-    desc: ["created_at", "desc"],
-    asc: ["created_at", "asc"],
-  };
+export const getAllSearchedPostsHashtags = async({query})=>{
+  const result = await sequelize.query(
+    `
+  select distinct
+    (h.id),
+    h.name,
+    h.color
+from
+    posts p
+    left join post_hashtags ph on ph.post_id = p.id
+    left join hashtags h on h.id = ph.hashtag_id
+where
+    p.title ilike '%${query}%'
+    and h.id is not null`,
+    {
+      type: QueryTypes.SELECT,
+    }
+  );
 
-  const sortBy = sortOptions[sort];
 
-  const result = await Posts.findAll({
-    where: {
-      title: {
-        [Op.iLike]: `%${query}%`,
-      },
-    },
-    include: [
-      {
-        model: Users,
-        attributes: ["id", "first_name", "profile_img_url"],
-        where: {
-          id: {
-            [Op.ne]: null,
-          },
-        },
-      },
-      {
-        model: PostAnalytics,
-        attributes: ["likes", "comments"],
-      },
-      {
-        model: PostHashtags,
-        include: [Hashtags],
-      },
-    ],
-    offset,
-    order: [sortBy],
-    limit: SEARCH_POST_LIMIT,
-  });
+    return result;
+}
 
-  return result;
-};
+export const getAllSearchedPosts = async({ query, offset, sort = "desc",hashtag:hashtagId})=>{
+    const filterByHashtag = !!hashtagId && Number(hashtagId) > 0;
+  const safeSort = sort === "asc" ? "ASC" : "DESC";
+  const result = await sequelize.query(`
+    select
+    p.id as "postId",
+    p.title as "title",
+    p.title_img_url as "titleImgURL",
+    p.created_at as "createdAt",
+    u.id as "userId",
+    u.first_name as "firstName",
+    jsonb_agg(
+        DISTINCT jsonb_build_object('id', h.id, 'color', h.color, 'name', h.name)
+    ) FILTER (
+        WHERE
+            h.id IS NOT NULL
+    ) AS hashtags,
+    u.profile_img_url as "profileImgURL",
+    pa.likes,
+    pa.comments as "totalComments"
+from
+    posts p
+    left join users u on u.id = p.user_id
+    left join post_hashtags ph on p.id = ph.post_id
+    left join post_analytics pa on pa.post_id = p.id
+    left join hashtags h on ph.hashtag_id = h.id
+where
+    title ilike '%${query}%'
+    ${filterByHashtag?`and exists (
+        select
+            1
+        from
+            post_hashtags ph2
+        where
+            ph2.post_id = p.id
+            and ph2.hashtag_id =:hashtagId)`:``}
+group by
+    p.id,
+    p.title,
+    p.title_img_url,
+    p.created_at,
+    u.id,
+    u.first_name,
+    u.profile_img_url,
+    pa.likes,
+    pa.comments
+
+order by p.created_at ${safeSort}
+offset :offset
+limit   :limit
+    
+    `,{
+      type:QueryTypes.SELECT,
+      raw:true,
+      nest:true,
+      replacements:{
+        offset,
+        limit:SEARCH_POST_LIMIT,
+        hashtagId
+      }
+    })
+
+    return result
+}
 
 export const getUserRecentPost = async ({ userId }) => {
   const result = await Posts.findOne({
@@ -578,7 +624,8 @@ export const getAllUserBookmarkedPosts = async ({
     p.id AS "postId",
     p.title,
     p.content,
-    p.created_at AS "createdAt",
+    p.created_at AS "postCreatedAt",
+    b.created_at AS "bookmarkedAt",
     p.title_img_url AS "titleImgURL",
     pa.likes,
     pa.comments,

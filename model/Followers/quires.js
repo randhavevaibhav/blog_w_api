@@ -18,7 +18,7 @@ export const createNewFollowerTransaction = async ({
       },
       {
         transaction: t,
-      }
+      },
     );
 
     const getFollowingAnalyticsResult = await getFollowerAnalytics({
@@ -38,7 +38,7 @@ export const createNewFollowerTransaction = async ({
         },
         {
           transaction: t,
-        }
+        },
       );
     }
 
@@ -51,7 +51,7 @@ export const createNewFollowerTransaction = async ({
         },
         {
           transaction: t,
-        }
+        },
       );
     }
 
@@ -103,7 +103,7 @@ export const removeFollowerTransaction = async ({
         replacements: { followingUserId },
         type: QueryTypes.SELECT,
         transaction: t,
-      }
+      },
     );
 
     const decFollowingCountResult = await sequelize.query(
@@ -117,7 +117,7 @@ export const removeFollowerTransaction = async ({
         replacements: { userId },
         type: QueryTypes.SELECT,
         transaction: t,
-      }
+      },
     );
 
     return {
@@ -130,18 +130,37 @@ export const removeFollowerTransaction = async ({
   return result;
 };
 
-export const getUserFollowers = async ({ userId, offset }) => {
+export const getUserFollowers = async ({ userId, offset, sort = "desc",mutual="false" }) => {
   const result = await sequelize.query(
     `select 
-f.user_id,
-f.follower_id,
-u.first_name,
-u.email,
-u.profile_img_url,
-f.created_at
+f.user_id AS "userId",
+f.follower_id AS "followerId",
+u.first_name AS "followerName",
+u.email AS "followerMail",
+u.profile_img_url AS "profileImgURL",
+f.created_at AS "followedAt",
+ EXISTS (
+        SELECT
+            1
+        FROM
+            followers f1
+            JOIN followers f2 ON f1.user_id = f2.follower_id
+            AND f1.follower_id = f2.user_id
+        where f1.user_id =:userId and f1.follower_id=f.follower_id
+    ) AS "isMutual"
 from followers f
 join users u on u.id=follower_id
 where f.user_id=:userId
+${mutual==="true"?`and EXISTS (
+        SELECT
+            1
+        FROM
+            followers f1
+            JOIN followers f2 ON f1.user_id = f2.follower_id
+            AND f1.follower_id = f2.user_id
+        where f1.user_id =:userId and f1.follower_id=f.follower_id
+    )`:``}
+order by f.created_at ${sort}
 offset :offset
 limit ${FOLLOWERS_LIMIT}
  `,
@@ -151,23 +170,49 @@ limit ${FOLLOWERS_LIMIT}
         offset,
       },
       type: QueryTypes.SELECT,
-    }
+      raw:true
+    },
   );
 
   return result;
 };
 
-export const getUserFollowings = async ({ userId, offset }) => {
+export const getUserFollowings = async ({
+  userId,
+  offset,
+  sort = "desc",
+  mutual="false"
+}) => {
   const result = await sequelize.query(
     `select 
-u.id,
-u.first_name,
-u.email,
-u.profile_img_url,
+u.id AS "followingUserId",
+u.first_name AS "followingUserName",
+u.email AS "followingUserMail",
+u.profile_img_url AS "profileImgURL",
+f.created_at AS "followedAt",
+EXISTS (
+        SELECT
+            1
+        FROM
+            followers f1
+            JOIN followers f2 ON f1.user_id = f2.follower_id
+            AND f1.follower_id = f2.user_id
+        where f1.user_id =f.user_id and f1.follower_id=:userId
+    ) AS "isMutual",
 f.created_at
 from followers f
 join users u on u.id=f.user_id
-where f.follower_id=:userId
+where f.follower_id=:userId 
+${mutual==="true"?`and EXISTS (
+        SELECT
+            1
+        FROM
+            followers f1
+            JOIN followers f2 ON f1.user_id = f2.follower_id
+            AND f1.follower_id = f2.user_id
+        where f1.user_id =f.user_id and f1.follower_id=:userId
+    )`:``}
+order by f.created_at ${sort}
 offset :offset
 limit ${FOLLOWING_LIMIT}
  `,
@@ -176,7 +221,7 @@ limit ${FOLLOWING_LIMIT}
         userId,
         offset,
       },
-      type: QueryTypes.SELECT,
+      type: QueryTypes.SELECT
     }
   );
 

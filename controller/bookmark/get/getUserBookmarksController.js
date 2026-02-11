@@ -4,12 +4,12 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 export const getUserBookmarksController = catchAsync(async (req, res) => {
   const { userId } = req.user;
   const { sort } = req.query;
-  const { hashtagId } = req.query;
+  const { hashtag } = req.query;
   
   const bookmarkPostsResult = await getAllUserBookmarkedPosts({
     userId,
     sort,
-    hashtagId,
+    hashtagId:hashtag,
   });
 
   if (bookmarkPostsResult.length <= 0) {
@@ -21,13 +21,20 @@ export const getUserBookmarksController = catchAsync(async (req, res) => {
 
    const allPostHashtags = await getAllBookmarkedPostsHashtags({
     userId
-  })
+  });
+
+  const normalizedPostHashtags = allPostHashtags.reduce((acc,tag)=>{
+    return {
+      ...acc,
+      [tag.id]:{...tag}
+    }
+  },{})
 
 
 
   return res.status(200).send({
     message: "Found Bookmarks",
     bookmarks: bookmarkPostsResult,
-    allPostHashtags,
+   allPostHashtags: normalizedPostHashtags
   });
 });

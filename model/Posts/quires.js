@@ -316,9 +316,10 @@ where
     return result;
 }
 
-export const getAllSearchedPosts = async({ query, offset, sort = "desc",hashtag:hashtagId})=>{
+export const getAllSearchedPosts = async({ query, offset, sort = "desc",hashtag:hashtagId,limit})=>{
     const filterByHashtag = !!hashtagId && Number(hashtagId) > 0;
   const safeSort = sort === "asc" ? "ASC" : "DESC";
+  const searchPostsLimit = limit?limit:SEARCH_POST_LIMIT;
   const result = await sequelize.query(`
     select
     p.id as "postId",
@@ -373,7 +374,7 @@ limit   :limit
       nest:true,
       replacements:{
         offset,
-        limit:SEARCH_POST_LIMIT,
+        limit:searchPostsLimit,
         hashtagId
       }
     })

@@ -196,6 +196,11 @@ const offsetQueryFieldValidation = query("offset")
   .isInt({ min: 0 })
   .withMessage("offset must be a positive integer");
 
+const limitQueryFieldValidation = query("limit")
+  .optional()
+  .isInt({ min: 0 })
+  .withMessage("limit must be a positive integer");
+
 const hasRepliesParamFieldValidation = param("hasReplies")
   .toInt()
   .isInt()
@@ -353,6 +358,7 @@ export const validateGetPostAnalytics = [
 export const validateGetSearchedPosts = [
   searchPostQueryFieldValidation,
   offsetQueryFieldValidation,
+  limitQueryFieldValidation,
   searchedPostSortQueryFieldValidation,
   hashtagIdQueryFieldValidation,
   validationMiddleware,

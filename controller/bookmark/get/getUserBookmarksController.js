@@ -1,4 +1,4 @@
-import { getAllBookmarkedPostsHashtags, getAllUserBookmarkedPosts } from "../../../model/Posts/quires.js";
+import { getAllUserBookmarkedPosts } from "../../../model/Posts/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
 export const getUserBookmarksController = catchAsync(async (req, res) => {
@@ -19,22 +19,9 @@ export const getUserBookmarksController = catchAsync(async (req, res) => {
     });
   }
 
-   const allPostHashtags = await getAllBookmarkedPostsHashtags({
-    userId
-  });
-
-  const normalizedPostHashtags = allPostHashtags.reduce((acc,tag)=>{
-    return {
-      ...acc,
-      [tag.id]:{...tag}
-    }
-  },{})
-
-
 
   return res.status(200).send({
     message: "Found Bookmarks",
-    bookmarks: bookmarkPostsResult,
-   allPostHashtags: normalizedPostHashtags
+    bookmarks: bookmarkPostsResult
   });
 });

@@ -120,14 +120,6 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
       LIMIT
         1
     ),
-    FOLLOWER_ANALYTICS AS (
-      SELECT
-        *
-      FROM
-        FOLLOWER_ANALYTICS
-      WHERE
-        USER_ID =:userId
-    ),
     RECENT_COMMENT AS (
       SELECT
         PC.ID,
@@ -163,7 +155,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     ),
     HAS_FOLLOWED AS (
       SELECT
-        *
+        FOLLOWER_ID,USER_ID
       FROM
         FOLLOWERS
       WHERE
@@ -172,7 +164,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     ),
     HAS_FOLLOWING AS (
       SELECT
-        *
+        USER_ID,FOLLOWER_ID
       FROM
         FOLLOWERS
       WHERE
@@ -211,17 +203,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     RC."titleImgURL" AS "recentCommentPostTitleImgURL",
     RC."recentCommentCreatedAt" AS "recentCommentCreatedAt",
     RC."postAuthorUserId" AS "postAuthorUserId",
-    EXISTS (
-        SELECT
-            1
-        FROM
-            followers f1
-            JOIN followers f2 ON f1.user_id = f2.follower_id
-            AND f1.follower_id = f2.user_id
-        WHERE
-            f1.user_id =:currentUserId
-            AND f1.follower_id =:userId
-    ) AS "isMutual"
+    (CASE WHEN HF.FOLLOWER_ID IS NOT NULL AND HFING.USER_ID IS NOT NULL THEN TRUE ELSE FALSE END) AS "isMutual"
   FROM
     USERS U
     LEFT JOIN RECENT_POST RP ON RP."recentPostUserId" = U.ID

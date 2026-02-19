@@ -63,7 +63,6 @@ router.get(
 router.get(
   "/posts/search",
   validateGetSearchedPosts,
-  requireAuth,
   getSearchedPostsController,
 );
 

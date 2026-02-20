@@ -10,9 +10,9 @@ import {
   validateGetAllFollowingUserPosts,
   validateGetAllUserPosts,
   validateGetIndividualPost,
-  validateGetPostAnalytics,
   validateGetSearchedPosts,
   validateUpdatePost,
+  validateGetSearchedPostsHashtags,
 } from "../../middleware/fieldValidationMiddleware.js";
 
 const router = Router();
@@ -27,6 +27,7 @@ const {
   getSearchedPostsController,
   getAllTaggedPostsController,
   getTopRatedPostsController,
+  getSearchedPostsHashtagsController,
 } = postControllers;
 
 router.post("/post", validateCreatePost, requireAuth, createPostsController);
@@ -60,10 +61,17 @@ router.get(
   validateGetAllTaggedPosts,
   getAllTaggedPostsController,
 );
+
 router.get(
   "/posts/search",
   validateGetSearchedPosts,
   getSearchedPostsController,
+);
+
+router.get(
+  "/posts/search/hashtag",
+  validateGetSearchedPostsHashtags,
+  getSearchedPostsHashtagsController,
 );
 
 router.delete(

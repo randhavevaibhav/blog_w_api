@@ -364,6 +364,11 @@ export const validateGetSearchedPosts = [
   validationMiddleware,
 ];
 
+export const validateGetSearchedPostsHashtags = [
+  searchPostQueryFieldValidation,
+  validationMiddleware,
+];
+
 export const validateUpdatePost = [
   postIdFieldValidation,
   titleFieldValidation,

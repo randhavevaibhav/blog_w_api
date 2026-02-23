@@ -153,6 +153,18 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
       GROUP BY
         P.USER_ID
     ),
+     TOTAL_POST_COMMENTS AS (
+      SELECT
+        SUM(PA.COMMENTS) AS TOTAL_COMMENTS,
+        P.USER_ID
+      FROM
+        POSTS P
+        JOIN POST_ANALYTICS PA ON P.ID = PA.POST_ID
+      WHERE
+        P.USER_ID =:userId
+      GROUP BY
+        P.USER_ID
+    ),
     HAS_FOLLOWED AS (
       SELECT
         FOLLOWER_ID,USER_ID
@@ -182,12 +194,12 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     U.WEBSITE_URL AS "websiteURL",
     U.LOCATION,
     U.POSTS AS "totalUserPosts",
-    U.COMMENTS AS "totalUserComments",
     HF.FOLLOWER_ID AS "isFollowed",
     HFING.USER_ID  AS "isFollowing",
     FA.FOLLOWERS AS "totalUserFollowers",
     FA.FOLLOWING AS "totalUserFollowings",
     TPL.TOTAL_LIKES AS "totalOwnPostsLikes",
+    TPC.TOTAL_COMMENTS AS "totalOwnPostsComments",
     RP."recentPostId" AS "recentPostId",
     RP."recentPostUserId" AS "recentPostUserId",
     RP."recentPostCreatedAt" AS "recentPostCreatedAt",
@@ -211,6 +223,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
     LEFT JOIN HAS_FOLLOWED HF ON HF.USER_ID = U.ID
     LEFT JOIN HAS_FOLLOWING HFING ON HFING.FOLLOWER_ID = U.ID
     LEFT JOIN TOTAL_POST_LIKES TPL ON TPL.USER_ID = U.ID
+    LEFT JOIN TOTAL_POST_COMMENTS TPC ON TPC.USER_ID = U.ID
     LEFT JOIN FOLLOWER_ANALYTICS FA ON FA.USER_ID = U.ID
   WHERE
     U.ID =:userId

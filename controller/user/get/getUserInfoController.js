@@ -33,10 +33,10 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
     websiteURL: result.websiteURL,
     location: result.location,
     totalUserPosts: result.totalUserPosts,
-    totalUserComments: result.totalUserComments,
     totalUserFollowers: result.totalUserFollowers,
     totalUserFollowings: result.totalUserFollowings,
     totalOwnPostsLikes: result.totalOwnPostsLikes,
+    totalOwnPostsComments: result.totalOwnPostsComments,
     isFollowed: result.isFollowed,
     isMutual:result.isMutual,
     isFollowing:result.isFollowing

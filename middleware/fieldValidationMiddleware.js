@@ -81,6 +81,8 @@ const titleFieldValidation = body("title")
   .withMessage("title is required")
   .isString()
   .withMessage("title must be a string")
+  .isLength({ min: 5, max: 60 })
+  .withMessage("title must have min. 5 and max. 60 character")
   .escape();
 
 const titleImgURLFieldValidation = body("titleImgURL")

@@ -3,7 +3,6 @@ import sequelize from "../../db.js";
 import { Users } from "../associations.js";
 import { Followers } from "../Followers/Followers.js";
 
-
 export const createUser = async ({
   firstName,
   email,
@@ -114,7 +113,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
         POSTS P
         JOIN POST_ANALYTICS PA ON PA.POST_ID = P.ID
       WHERE
-        P.USER_ID =:userId
+        P.USER_ID =:userId AND P.ARCHIVE=0
       ORDER BY
         P.CREATED_AT DESC
       LIMIT
@@ -136,6 +135,7 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
       WHERE
         PC.USER_ID =:userId
         AND PC.CONTENT <> 'NA-#GOHST'
+        AND P.ARCHIVE=0
       ORDER BY
         PC.CREATED_AT DESC
       LIMIT
@@ -240,8 +240,6 @@ export const getUserInfo = async ({ userId, currentUserId }) => {
 
   return result[0];
 };
-
-
 
 export const updateRefreshToken = async ({ userId, refreshToken }) => {
   const res = await Users.update(

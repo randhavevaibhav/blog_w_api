@@ -1,11 +1,9 @@
 import { Posts } from "../associations.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
-import { Op, QueryTypes } from "sequelize";
-import { Users } from "../Users/Users.js";
+import { QueryTypes, where } from "sequelize";
 import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
-import { Hashtags } from "../Hashtags/Hashtags.js";
 import { getAllUserFollowers } from "../Users/quires.js";
 import { PostComments } from "../PostComments/PostComments.js";
 import { PostLikes } from "../PostLikes/PostLikes.js";
@@ -16,6 +14,7 @@ export const createPostTransaction = async ({
   titleImgURL,
   content,
   tagList,
+  archive,
 }) => {
   const result = await sequelize.transaction(async (t) => {
     const createPostResult = await Posts.create(
@@ -26,6 +25,7 @@ export const createPostTransaction = async ({
         content,
         created_at: new Date(),
         updated_at: new Date(),
+        archive,
       },
       {
         transaction: t,
@@ -264,7 +264,10 @@ FROM
     ) recent_comments ON true
 WHERE
     p.id IS NOT NULL
-    AND u.id IS NOT NULL
+    AND 
+    u.id IS NOT NULL
+    AND
+    p.archive=0
 GROUP BY
     p.id,
     p.user_id,
@@ -293,7 +296,7 @@ LIMIT :limit
   return result;
 };
 
-export const getAllSearchedPostsHashtags = async({query})=>{
+export const getAllSearchedPostsHashtags = async ({ query }) => {
   const result = await sequelize.query(
     `
   select distinct
@@ -312,15 +315,21 @@ where
     }
   );
 
+  return result;
+};
 
-    return result;
-}
-
-export const getAllSearchedPosts = async({ query, offset, sort = "desc",hashtag:hashtagId,limit})=>{
-    const filterByHashtag = !!hashtagId && Number(hashtagId) > 0;
+export const getAllSearchedPosts = async ({
+  query,
+  offset,
+  sort = "desc",
+  hashtag: hashtagId,
+  limit,
+}) => {
+  const filterByHashtag = !!hashtagId && Number(hashtagId) > 0;
   const safeSort = sort === "asc" ? "ASC" : "DESC";
-  const searchPostsLimit = limit?limit:SEARCH_POST_LIMIT;
-  const result = await sequelize.query(`
+  const searchPostsLimit = limit ? limit : SEARCH_POST_LIMIT;
+  const result = await sequelize.query(
+    `
     select
     p.id as "postId",
     p.title as "title",
@@ -344,15 +353,20 @@ from
     left join post_analytics pa on pa.post_id = p.id
     left join hashtags h on ph.hashtag_id = h.id
 where
-    title ilike '%${query}%'
-    ${filterByHashtag?`and exists (
+    title ilike '%${query}%' AND
+    p.archive=0 
+    ${
+      filterByHashtag
+        ? `and exists (
         select
             1
         from
             post_hashtags ph2
         where
             ph2.post_id = p.id
-            and ph2.hashtag_id =:hashtagId)`:``}
+            and ph2.hashtag_id =:hashtagId)`
+        : ``
+    }
 group by
     p.id,
     p.title,
@@ -368,19 +382,21 @@ order by p.created_at ${safeSort}
 offset :offset
 limit   :limit
     
-    `,{
-      type:QueryTypes.SELECT,
-      raw:true,
-      nest:true,
-      replacements:{
+    `,
+    {
+      type: QueryTypes.SELECT,
+      raw: true,
+      nest: true,
+      replacements: {
         offset,
-        limit:searchPostsLimit,
-        hashtagId
-      }
-    })
+        limit: searchPostsLimit,
+        hashtagId,
+      },
+    }
+  );
 
-    return result
-}
+  return result;
+};
 
 export const getUserRecentPost = async ({ userId }) => {
   const result = await Posts.findOne({
@@ -489,7 +505,10 @@ FROM
     ) recent_comments ON true
 WHERE
     p.id IS NOT NULL
-    AND u.id IS NOT NULL
+    AND 
+    u.id IS NOT NULL 
+    AND
+    p.archive=0
 GROUP BY
     p.id,
     p.user_id,
@@ -551,6 +570,8 @@ WHERE
         WHERE ph2.post_id = p.id 
         AND ph2.hashtag_id = :hashtagId
     )
+    AND
+    p.archive=0
 GROUP BY
     p.id,
     p.user_id,
@@ -578,7 +599,12 @@ LIMIT :limit
   return result;
 };
 
-export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
+export const getAllUserPosts = async ({
+  userId,
+  offset,
+  sortBy = "desc",
+  archive,
+}) => {
   const sortByOptions = {
     asc: ["updated_at", "asc"],
     desc: ["updated_at", "desc"],
@@ -593,9 +619,11 @@ export const getAllUserPosts = async ({ userId, offset, sortBy = "desc" }) => {
       ["created_at", "createdAt"],
       ["title_img_url", "imgURL"],
       "title",
+      "archive",
     ],
     where: {
       user_id: userId,
+      archive,
     },
     include: [
       {
@@ -648,6 +676,7 @@ from
     left join hashtags h on ph.hashtag_id = h.id
 where
     b.user_id =:userId
+    and p.archive=0
     ${
       filterByHashtag
         ? ` and exists (
@@ -712,25 +741,6 @@ where
 
   return result;
 };
-export const getTotalOwnPostsLikesCount = async ({ userId }) => {
-  const result = await sequelize.query(
-    `SELECT
-  SUM(pa.likes) AS total_likes
-FROM
-  posts p
-JOIN
-  post_analytics pa ON p.id = pa.post_id
-WHERE
-  p.user_id=:userId;`,
-    {
-      replacements: {
-        userId,
-      },
-      type: QueryTypes.SELECT,
-    }
-  );
-  return result ? result[0].total_likes : null;
-};
 
 export const getPost = async ({ postId }) => {
   const result = await Posts.findOne({
@@ -751,6 +761,7 @@ export const getIndividualPost = async ({ postId, currentUserId }) => {
     p.title,
     p.title_img_url AS "titleImgURL",
     p.content,
+    p.archive,
     pa.likes AS "likes",
     pa.comments AS "totalComments",
     p.created_at AS "createdAt",
@@ -791,6 +802,7 @@ WHERE
     p.id IS NOT NULL
     AND u.id IS NOT NULL
     AND p.id=:postId
+   ${!currentUserId ? ` AND p.archive=0` : ``}
 
 GROUP BY
     p.id,
@@ -798,6 +810,7 @@ GROUP BY
     p.title,
     p.content,
     p.title_img_url,
+    p.archive,
     pa.likes,
     pa.comments,
     p.created_at,
@@ -844,6 +857,8 @@ WHERE
     p.id IS NOT NULL
     AND u.id IS NOT NULL
     AND pa.${target}>0
+    AND
+    p.archive=0
 
 GROUP BY
     p.id,
@@ -866,4 +881,45 @@ GROUP BY
     }
   );
   return result;
+};
+
+export const archivePost = async ({ postId, archive, userId }) => {
+  const result = await Posts.update(
+    {
+      archive,
+    },
+    {
+      where: {
+        id: postId,
+        user_id: userId,
+      },
+    }
+  );
+
+  return result[0] === 1;
+};
+
+export const getArchiveUnArchivePostCount = async ({ userId }) => {
+  const result = await sequelize.query(
+    `
+  SELECT 
+  u.posts - COUNT(CASE WHEN p.archive = 1 THEN 1 END) AS "unarchivePosts",
+  COUNT(CASE WHEN p.archive = 1 THEN 1 END) AS "archivePosts"
+FROM users u
+LEFT JOIN posts p ON p.user_id = u.id
+WHERE u.id =:userId
+GROUP BY u.posts;
+  
+  
+  `,
+    {
+      replacements: {
+        userId,
+      },
+      raw: true,
+      type: QueryTypes.SELECT,
+    }
+  );
+
+  return result[0];
 };

@@ -1,7 +1,6 @@
 import sq from "../../db.js";
 import { DataTypes } from "@sequelize/core";
 
-
 export const Posts = sq.define(
   "posts",
   {
@@ -53,10 +52,13 @@ export const Posts = sq.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    archive: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     createdAt: false,
     updatedAt: false,
-  }
+  },
 );
-

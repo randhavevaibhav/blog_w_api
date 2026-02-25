@@ -1,4 +1,3 @@
-import { getPostAnalytics } from "../../../model/PostAnalytics/quires.js";
 import {
   getAllAuthUserPostComments,
   getAllPostComments,
@@ -55,13 +54,11 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
   // console.log("commentsIds ==> ", commentsIds);
 
   // console.log("commentsResultMapped ==> ",commentsResultMapped)
-  const postAnalytics = await getPostAnalytics({ postId });
-  const totalComments = postAnalytics?.comments;
+
   return res.status(200).send({
     message: `comments fetched.`,
     comments: commentsMapObj,
     commentsIds,
-    totalComments: parseInt(totalComments),
     offset: Number(offset) + COMMENT_OFFSET,
   });
 });

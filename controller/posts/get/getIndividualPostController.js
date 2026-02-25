@@ -3,13 +3,14 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 
 export const getIndividualPostController = catchAsync(async (req, res) => {
   const postId = req.params.postId;
+
   let currentUserId = null;
   if (req.user) {
     currentUserId = req.user.userId;
   }
   const postResult = await getIndividualPost({
     postId,
-    currentUserId,
+    currentUserId
   });
 
   if (!postResult) {

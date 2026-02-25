@@ -23,6 +23,7 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     titleImgURL,
     content,
     tagList,
+    archive:0
   });
 
   const postId = createPostResult.id;

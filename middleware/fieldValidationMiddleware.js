@@ -73,8 +73,14 @@ const contentFieldValidation = body("content")
   .notEmpty()
   .withMessage("content is required")
   .isString()
-  .withMessage("content must be a string")
-  .escape();
+  .withMessage("content must be a string");
+
+const archiveQueryFieldValidation = query("archive")
+  .optional()
+  .isInt({ min: 0, max: 1 })
+  .withMessage("archive field must be integer")
+  .isIn([1, 0])
+  .withMessage("archive field must be either 0 or 1");
 
 const titleFieldValidation = body("title")
   .notEmpty()
@@ -84,6 +90,12 @@ const titleFieldValidation = body("title")
   .isLength({ min: 5, max: 60 })
   .withMessage("title must have min. 5 and max. 60 character")
   .escape();
+
+const archiveFieldValidation = body("archive")
+  .isInt({ min: 0, max: 1 })
+  .withMessage("archive field must be integer")
+  .isIn([1, 0])
+  .withMessage("archive field must be either 0 or 1");
 
 const titleImgURLFieldValidation = body("titleImgURL")
   .optional()
@@ -172,7 +184,6 @@ const searchedPostSortQueryFieldValidation = query("sort")
   .isIn(["asc", "desc"])
   .withMessage('searched post sort field must be either "asc","desc" ');
 
-
 const followersFollowingUsersSortQueryFieldValidation = query("sort")
   .optional()
   .isString()
@@ -180,12 +191,16 @@ const followersFollowingUsersSortQueryFieldValidation = query("sort")
   .isIn(["asc", "desc"])
   .withMessage('followers/following sort field must be either "asc","desc" ');
 
-const followersFollowingUsersFilterByMutualQueryFieldValidation = query("mutual")
+const followersFollowingUsersFilterByMutualQueryFieldValidation = query(
+  "mutual",
+)
   .optional()
   .isString()
   .withMessage("followers/following mutual field must be a string")
   .isIn(["false", "true"])
-  .withMessage('followers/following mutual field must be either "false","true" ');
+  .withMessage(
+    'followers/following mutual field must be either "false","true" ',
+  );
 
 const searchPostQueryFieldValidation = query("query")
   .notEmpty()
@@ -343,6 +358,7 @@ export const validateGetAllTaggedPosts = [
 
 export const validateGetAllUserPosts = [
   offsetQueryFieldValidation,
+  archiveQueryFieldValidation,
   userPostsSortQueryFieldValidation,
   validationMiddleware,
 ];
@@ -377,6 +393,12 @@ export const validateUpdatePost = [
   contentFieldValidation,
   titleImgURLFieldValidation,
   tagListFieldValidation,
+  validationMiddleware,
+];
+
+export const validateArchivePost = [
+  postIdFieldValidation,
+  archiveFieldValidation,
   validationMiddleware,
 ];
 

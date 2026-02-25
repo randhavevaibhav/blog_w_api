@@ -38,8 +38,8 @@ export const getUserInfoController = catchAsync(async (req, res, next) => {
     totalOwnPostsLikes: result.totalOwnPostsLikes,
     totalOwnPostsComments: result.totalOwnPostsComments,
     isFollowed: result.isFollowed,
-    isMutual:result.isMutual,
-    isFollowing:result.isFollowing
+    isMutual: result.isMutual,
+    isFollowing: result.isFollowing,
   };
 
   if (result.recentPostId)

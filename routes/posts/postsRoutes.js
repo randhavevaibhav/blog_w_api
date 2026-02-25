@@ -13,6 +13,7 @@ import {
   validateGetSearchedPosts,
   validateUpdatePost,
   validateGetSearchedPostsHashtags,
+  validateArchivePost,
 } from "../../middleware/fieldValidationMiddleware.js";
 
 const router = Router();
@@ -28,6 +29,7 @@ const {
   getAllTaggedPostsController,
   getTopRatedPostsController,
   getSearchedPostsHashtagsController,
+  archivePostController
 } = postControllers;
 
 router.post("/post", validateCreatePost, requireAuth, createPostsController);
@@ -85,6 +87,13 @@ router.patch(
   validateUpdatePost,
   requireAuth,
   updatePostController,
+);
+
+router.patch(
+  "/post/archive",
+  validateArchivePost,
+  requireAuth,
+  archivePostController,
 );
 router.get("/posts/top-rated", getTopRatedPostsController);
 export default router;

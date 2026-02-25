@@ -9,6 +9,7 @@ import { getAllFollowingUsersPostsController } from "./get/getAllFollowingUsersP
 import { getAllTaggedPostsController } from "./get/getAllTaggedPostsController.js";
 import { getTopRatedPostsController } from "./get/getTopRatedPostsController.js";
 import { getSearchedPostsHashtagsController } from "./get/getSearchedPostsHashtagsController.js";
+import { archivePostController } from "./update/archivePostController.js";
 export default {
   createPostsController,
   getAllUserPostsController,
@@ -20,5 +21,6 @@ export default {
   getSearchedPostsController,
   getAllTaggedPostsController,
   getTopRatedPostsController,
-  getSearchedPostsHashtagsController
+  getSearchedPostsHashtagsController,
+  archivePostController
 };

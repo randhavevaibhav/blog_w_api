@@ -1,7 +1,7 @@
 import { Posts } from "../associations.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
-import { QueryTypes, where } from "sequelize";
+import { QueryTypes } from "sequelize";
 import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
 import { getAllUserFollowers } from "../Users/quires.js";
@@ -353,7 +353,7 @@ from
     left join post_analytics pa on pa.post_id = p.id
     left join hashtags h on ph.hashtag_id = h.id
 where
-    title ilike '%${query}%' AND
+    title ilike :query AND
     p.archive=0 
     ${
       filterByHashtag
@@ -391,6 +391,7 @@ limit   :limit
         offset,
         limit: searchPostsLimit,
         hashtagId,
+        query: `%${query}%`,
       },
     }
   );

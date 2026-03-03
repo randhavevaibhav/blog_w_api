@@ -677,7 +677,6 @@ from
     left join hashtags h on ph.hashtag_id = h.id
 where
     b.user_id =:userId
-    and p.archive=0
     ${
       filterByHashtag
         ? ` and exists (
@@ -803,7 +802,11 @@ WHERE
     p.id IS NOT NULL
     AND u.id IS NOT NULL
     AND p.id=:postId
-   ${!currentUserId ? ` AND p.archive=0` : ` AND CASE WHEN p.archive=1 THEN ${currentUserId}=p.user_id ELSE true END`}
+   ${
+     !currentUserId
+       ? ` AND p.archive=0`
+       : ` AND CASE WHEN p.archive=1 THEN ${currentUserId}=p.user_id ELSE true END`
+   }
 
 GROUP BY
     p.id,

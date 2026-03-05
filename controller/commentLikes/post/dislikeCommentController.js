@@ -1,7 +1,6 @@
-import { decCommentLike } from "../../../model/CommentAnalytics/quires.js";
 import {
+  destroyCommentLikeTransaction,
   isCommentLikedByUser,
-  removeCommentLike,
 } from "../../../model/CommentLikes/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
@@ -16,12 +15,7 @@ export const dislikeCommentController = catchAsync(async (req, res) => {
     return res.sendStatus(204);
   }
 
-  const removeCommentLikeResult = await removeCommentLike({
-    userId,
-    commentId,
-  });
-
-  const decCommentLikeResult = await decCommentLike({ commentId });
+  const decCommentLikeResult = await destroyCommentLikeTransaction({ commentId,userId});
   // console.log("result in decCommentLikeResult =======> ",decCommentLikeResult);
   return res.status(200).send({
     message: "disliked a comment !",

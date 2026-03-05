@@ -2,12 +2,16 @@ import jwt from "jsonwebtoken";
 
 export const optionalAuthMiddleware = (req, res, next) => {
   const authHeader = req.headers[`authorization`];
-  const accessToken = authHeader.split(" ")[1];
+  if (!authHeader) {
+    req.user = null;
+    return next();
+  }
 
+  const accessToken = authHeader.split(" ")[1];
+  
   if (!accessToken) {
     req.user = null;
     return next();
-    
   }
 
   try {

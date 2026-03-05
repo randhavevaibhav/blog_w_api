@@ -47,14 +47,10 @@ export const getPostCommentsController = catchAsync(async (req, res, next) => {
       }
     }
   });
-  //  console.log("commentsMap ==> ", commentsMap);
+ 
   const commentsMapObj = Object.fromEntries(commentsMap);
-  // console.log("commentsMapObj ==> ", commentsMapObj);
   const commentsIds = Object.keys(commentsMapObj);
-  // console.log("commentsIds ==> ", commentsIds);
-
-  // console.log("commentsResultMapped ==> ",commentsResultMapped)
-
+ 
   return res.status(200).send({
     message: `comments fetched.`,
     comments: commentsMapObj,

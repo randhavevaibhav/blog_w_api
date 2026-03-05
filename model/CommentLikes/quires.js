@@ -1,7 +1,38 @@
+import { QueryTypes } from "sequelize";
 import sequelize from "../../db.js";
 import { CommentAnalytics } from "../CommentAnalytics/CommentAnalytics.js";
-
 import { CommentLikes } from "./CommentLikes.js";
+
+export const destroyCommentLikeTransaction = async ({ userId, commentId }) => {
+  const result = await sequelize.transaction(async (t) => {
+    const removeCommentLikeResult = await CommentLikes.destroy({
+      where: {
+        comment_id: commentId,
+        user_id: userId,
+      },
+      transaction: t,
+    });
+    const decCommentLikeResult = await sequelize.query(
+      `UPDATE comment_analytics
+  SET likes = CASE
+      WHEN likes > 0 THEN likes - 1
+      ELSE 0
+  END
+  WHERE comment_id=:commentId`,
+      {
+        replacements: { commentId },
+        type: QueryTypes.SELECT,
+        transaction: t,
+      },
+    );
+    return {
+      removeCommentLikeResult,
+      decCommentLikeResult,
+    };
+  });
+
+  return result;
+};
 
 export const createCommentLikeTransaction = async ({ userId, commentId }) => {
   const result = await sequelize.transaction(async (t) => {
@@ -47,15 +78,3 @@ export const isCommentLikedByUser = async ({ userId, commentId }) => {
   });
   return result;
 };
-
-export const removeCommentLike = async ({ userId, commentId }) => {
-  const result = CommentLikes.destroy({
-    where: {
-      comment_id: commentId,
-      user_id: userId,
-    },
-  });
-
-  return result;
-};
-

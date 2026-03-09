@@ -1,12 +1,19 @@
 import { PostLikes } from "./PostLikes.js";
 
 export const createPostLike = async ({ userId, postId }) => {
-  const result = await PostLikes.create({
-    user_id: userId,
-    post_id: postId,
-    created_at: new Date(),
+  const [like, created] = await PostLikes.findOrCreate({
+    where: {
+      user_id: userId,
+      post_id: postId,
+    },
+    defaults: {
+      user_id: userId,
+      post_id: postId,
+      created_at: new Date(),
+    },
   });
-  return result;
+
+  return created ? 1 : 0;
 };
 
 export const checkIfPostLikedByUser = async ({ userId, postId }) => {
@@ -29,4 +36,3 @@ export const removeUserPostLike = async ({ userId, postId }) => {
 
   return result;
 };
-

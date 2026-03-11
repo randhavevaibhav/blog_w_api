@@ -97,9 +97,38 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(limiter);
 app.use(morgan("dev"));
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(cors(corsOptions));
+app.get("/api-docs", (req, res) => {
+  res.send(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Blog W API Docs</title>
+    <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+  </head>
+
+  <body>
+    <div id="swagger-ui"></div>
+
+    <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+    <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
+
+    <script>
+      const ui = SwaggerUIBundle({
+        url: "/swagger.json",
+        dom_id: "#swagger-ui",
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "StandaloneLayout"
+      });
+    </script>
+  </body>
+  </html>
+  `);
+});
+
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
 app.use(authRoutes);
@@ -119,6 +148,10 @@ app.get("/", (req, res) => {
   res.send({
     message: "home page",
   });
+});
+
+app.get("/swagger.json", (req, res) => {
+  res.json(swaggerDocs);
 });
 
 app.all("*", (req, res, next) => {

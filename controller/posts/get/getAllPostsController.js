@@ -4,7 +4,7 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { POST_OFFSET } from "../../../utils/constants.js";
 
 export const getAllPostsController = catchAsync(async (req, res, next) => {
-  const { offset } = req.query;
+  const { offset=0 } = req.query;
   let result = [];
   if (req.user) {
     const { userId } = req.user;

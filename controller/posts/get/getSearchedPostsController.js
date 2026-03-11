@@ -5,14 +5,13 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 import { SEARCH_POST_OFFSET } from "../../../utils/constants.js";
 
 export const getSearchedPostsController = catchAsync(async (req, res) => {
-  const { query, offset, sort, hashtag, limit = null } = req.query;
+  const { query, offset=0, sort="desc", hashtag=1} = req.query;
 
   const result = await getAllSearchedPosts({
     query,
     offset,
     sort,
     hashtag,
-    limit,
   });
 
   if (result.length === 0) {

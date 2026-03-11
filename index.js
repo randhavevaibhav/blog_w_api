@@ -112,7 +112,7 @@ app.get("/api-docs", (req, res) => {
 
     <script>
       const ui = SwaggerUIBundle({
-        url: "${config.API_URL}/swagger.json",
+        url: "/swagger.json",
         dom_id: "#swagger-ui",
         presets: [
           SwaggerUIBundle.presets.apis,

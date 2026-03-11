@@ -59,7 +59,7 @@ router.get(
   getAllPostsController,
 );
 router.get(
-  "/tag/:hashtagId",
+  "/posts/tag/:hashtagId",
   validateGetAllTaggedPosts,
   getAllTaggedPostsController,
 );

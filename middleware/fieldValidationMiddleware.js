@@ -230,7 +230,7 @@ const validationMiddleware = (req, res, next) => {
   if (!errors.isEmpty()) {
     return res
       .status(400)
-      .json({ errors: errors.array(), message: errors.array()[0].msg });
+      .json({ message: errors.array()[0].msg });
   }
   next();
 };
@@ -328,7 +328,6 @@ export const validateRemoveFollower = [
 //create/delete/get/update post validators
 
 export const validateCreatePost = [
-  userIdFieldValidation,
   titleFieldValidation,
   contentFieldValidation,
   tagListFieldValidation,

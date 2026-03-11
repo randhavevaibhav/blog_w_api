@@ -23,6 +23,11 @@ import {
 } from "./utils/constants.js";
 import { globalErrorController } from "./controller/error/globalErrorController.js";
 import rateLimit from "express-rate-limit";
+import morgan from "morgan";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express";
+import { tags } from "./docs/common.js";
+import { paths } from "./docs/paths.js";
 
 const limiter = rateLimit({
   windowMs: 1000, // 1 sec
@@ -36,12 +41,41 @@ const limiter = rateLimit({
 
 //no exports from index js
 
-const app = express();
-
-app.use(express.json());
-app.use(cookieParser());
-app.use(limiter);
-
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Blog w API",
+      version: "1.0.0",
+      description: "Blog W blogging website API doc",
+    },
+    servers: [
+      {
+        url: "http://localhost:8003",
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+          
+        },
+        cookieAuth: {
+          type: "apiKey",
+          in: "cookie",
+          name: "jwt",
+        },
+      },
+    },
+    paths,
+    tags,
+  },
+  // Path to the API docs (where your routes are)
+  apis: ["./docs/*.doc.js"],
+};
+const swaggerDocs = swaggerJSDoc(swaggerOptions);
 const corsOptions = {
   origin: [
     LOCAL_CLIENT_ORIGIN,
@@ -55,6 +89,14 @@ const corsOptions = {
 
 const PORT = 8003;
 
+const app = express();
+
+app.use(express.json());
+app.use(cookieParser());
+app.use(limiter);
+app.use(morgan("dev"));
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(cors(corsOptions));
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -82,7 +124,7 @@ app.all("*", (req, res, next) => {
 });
 
 app.listen(PORT, () =>
-  console.log(`server started at port ${PORT} http://localhost:${PORT}`)
+  console.log(`server started at port ${PORT} http://localhost:${PORT}`),
 );
 
 sq.authenticate()

@@ -5,7 +5,7 @@ import { POST_OFFSET } from "../../../utils/constants.js";
 
 export const getAllTaggedPostsController = catchAsync(async (req, res) => {
   const { hashtagId } = req.params;
-  const { offset } = req.query;
+  const { offset=0 } = req.query;
 
   const result = await getAllTaggedPosts({
     hashtagId,

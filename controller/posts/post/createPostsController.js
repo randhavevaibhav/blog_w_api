@@ -4,8 +4,9 @@ import { AppError } from "../../../utils/appError.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 
 export const createPostsController = catchAsync(async (req, res, next) => {
-  const { userId, title, titleImgURL, content, tagList } = req.body;
-
+  const { title, titleImgURL, content, tagList } = req.body;
+  const {userId} = req.user;
+  console.log("hitting create post with userId ==> ",userId)
   const totalUserPostsResult = await getTotalUserPosts({ userId });
   let totalUserPosts = totalUserPostsResult.dataValues.posts;
 

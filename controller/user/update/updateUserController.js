@@ -11,7 +11,6 @@ import bcrypt from "bcrypt";
 export const updateUserController = catchAsync(async (req, res, next) => {
  
   const {
-    userId,
     userMail,
     userName,
     password,
@@ -22,7 +21,7 @@ export const updateUserController = catchAsync(async (req, res, next) => {
     userWebsiteURL,
     userLocation,
   } = req.body;
-
+const {userId} = req.user;
   
   const isUserExist = await checkIfUserExistWithId({ userId });
   if (!isUserExist) {

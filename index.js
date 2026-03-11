@@ -53,6 +53,9 @@ const swaggerOptions = {
       {
         url: "http://localhost:8003",
       },
+      {
+        url: "https://blog-w-api.vercel.app",
+      },
     ],
     components: {
       securitySchemes: {
@@ -60,7 +63,6 @@ const swaggerOptions = {
           type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
-          
         },
         cookieAuth: {
           type: "apiKey",
@@ -124,7 +126,7 @@ app.all("*", (req, res, next) => {
 });
 
 app.listen(PORT, () =>
-  console.log(`server started at port ${PORT} http://localhost:${PORT}`),
+  console.log(`server started at port ${PORT} http://localhost:${PORT}`)
 );
 
 sq.authenticate()

@@ -18,6 +18,7 @@ import cookieParser from "cookie-parser";
 import { AppError } from "./utils/appError.js";
 import {
   LOCAL_CLIENT_ORIGIN,
+  PORT,
   REMOTE_CLIENT_ORIGIN,
   REMOTE_TEST_CLIENT_ORIGIN,
 } from "./utils/constants.js";
@@ -28,6 +29,7 @@ import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { tags } from "./docs/common.js";
 import { paths } from "./docs/paths.js";
+import { config } from "./utils/config.js";
 
 const limiter = rateLimit({
   windowMs: 1000, // 1 sec
@@ -51,10 +53,7 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "http://localhost:8003",
-      },
-      {
-        url: "https://blog-w-api.vercel.app",
+        url: config.API_URL,
       },
     ],
     components: {
@@ -89,8 +88,6 @@ const corsOptions = {
   credentials: true,
 };
 
-const PORT = 8003;
-
 const app = express();
 
 app.use(express.json());
@@ -115,7 +112,7 @@ app.get("/api-docs", (req, res) => {
 
     <script>
       const ui = SwaggerUIBundle({
-        url: "/swagger.json",
+        url: "${config.API_URL}/swagger.json",
         dom_id: "#swagger-ui",
         presets: [
           SwaggerUIBundle.presets.apis,

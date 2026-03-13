@@ -7,7 +7,7 @@ import { POST_OFFSET } from "../../../utils/constants.js";
 
 export const getAllUserPostsController = catchAsync(async (req, res) => {
   const { userId } = req.user;
-  const { offset, sort, archive = 0 } = req.query;
+  const { offset, sort="desc", archive = 0 } = req.query;
 
   const result = await getAllUserPosts({
     userId,
@@ -20,7 +20,7 @@ export const getAllUserPostsController = catchAsync(async (req, res) => {
     userId,
   });
 
-  const { unarchivePosts, archivePosts } = archiveResult;
+  const { unarchivePosts:unarchivePostsCount, archivePosts:archivePostsCount } = archiveResult;
 
   if (result.length <= 0) {
     return res.status(200).send({
@@ -34,8 +34,8 @@ export const getAllUserPostsController = catchAsync(async (req, res) => {
   return res.status(200).send({
     message: `found user posts.`,
     posts: result,
-    unarchivePosts,
-    archivePosts,
+    unarchivePostsCount,
+    archivePostsCount,
     offset: Number(offset) + POST_OFFSET,
   });
 });

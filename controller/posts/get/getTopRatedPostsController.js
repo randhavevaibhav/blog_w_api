@@ -14,8 +14,6 @@ export const getTopRatedPostsController = catchAsync(
     {
        return res.status(404).send({
       message: "No posts found.",
-      topLikedPosts:[],
-      topCommentedPosts:[],
     });
     }
 

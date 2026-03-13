@@ -71,6 +71,20 @@ export const isLikedByUser = {
   type: "boolean",
   example: false,
 };
+
+export const archive = {
+  type: "number",
+  example: 0,
+};
+
+export const postAnalytics = {
+  type: "object",
+  properties: {
+    likes,
+    comments: totalComments,
+  },
+};
+
 export const user = {
   type: "object",
   properties: {
@@ -143,7 +157,7 @@ export const fieldValidationError = {
   },
 };
 
-export const AuthorizationError = {
+export const authorizationError = {
   description: "Authorization error",
   content: {
     "application/json": {
@@ -154,13 +168,13 @@ export const AuthorizationError = {
             type: "string",
             example: "JWT cookie not present.",
           },
-           status: {
+          status: {
             type: "string",
             example: "Fail",
           },
-          variables:{
-            type:"object"
-          }
+          variables: {
+            type: "object",
+          },
         },
       },
     },
@@ -183,13 +197,11 @@ export const hashtagIdParam = {
   type: "number",
 };
 
-
-
 export const offsetQuery = {
   name: "offset",
   in: "query",
   description: "offset for pagination",
- required: false,
+  required: false,
   type: "number",
 };
 
@@ -197,7 +209,7 @@ export const searchQuery = {
   name: "query",
   in: "query",
   description: "query for search posts",
- required: true,
+  required: true,
   type: "string",
 };
 
@@ -209,7 +221,7 @@ export const sortQuery = {
   type: "string",
 };
 
-export const hashtagQuery= {
+export const hashtagQuery = {
   name: "hashtag",
   in: "query",
   description: "hashtag id",
@@ -217,14 +229,10 @@ export const hashtagQuery= {
   type: "number",
 };
 
-
-
-
-
-
-
-
-
-
-
-
+export const archiveQuery = {
+  name: "archive",
+  in: "query",
+  description: "archive status",
+  required: false,
+  type: "number",
+};

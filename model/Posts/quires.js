@@ -322,10 +322,13 @@ export const getAllSearchedPosts = async ({
   query,
   offset,
   sort = "desc",
-  hashtag: hashtagId
+  hashtag: hashtagId,
+  limit,
 }) => {
   const filterByHashtag = !!hashtagId && Number(hashtagId) > 0;
   const safeSort = sort === "asc" ? "ASC" : "DESC";
+   const searchPostsLimit = limit ? limit : SEARCH_POST_LIMIT;
+
   const result = await sequelize.query(
     `
     select
@@ -378,6 +381,7 @@ group by
 
 order by p.created_at ${safeSort}
 offset :offset
+limit   :limit
     
     `,
     {
@@ -387,6 +391,7 @@ offset :offset
       replacements: {
         offset,
         hashtagId,
+        limit: searchPostsLimit,
         query: `%${query}%`,
       },
     }

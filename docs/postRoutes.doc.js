@@ -22,40 +22,41 @@ import {
   titleImgURL,
   totalComments,
   userId,
-  AuthorizationError
+  archiveQuery,
+  postAnalytics,
+  archive,
+  authorizationError,
 } from "./common.js";
 
-const postsFoundSchema = {
+const postsFoundObjectSchema = {
   type: "object",
   properties: {
     posts: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          postId,
-          page,
-          userId,
-          title,
-          titleImgURL,
-          likes,
-          totalComments,
-          createdAt,
-          firstName,
-          profileImgURL,
-          hashtags,
-          isBookmarked,
-          recentComments,
+      type: "object",
+      properties: {
+        "@postId": {
+          type: "object",
+          properties: {
+            postId,
+            page,
+            userId,
+            title,
+            titleImgURL,
+            likes,
+            totalComments,
+            createdAt,
+            firstName,
+            profileImgURL,
+            hashtags,
+            isBookmarked,
+            recentComments,
+          },
         },
       },
     },
     message: {
       type: "string",
       example: "found posts.",
-    },
-    total_posts_count: {
-      type: "number",
-      example: 1,
     },
     offset: {
       type: "number",
@@ -75,10 +76,6 @@ const NoPostsFoundSchema = {
       type: "string",
       example: "No posts found",
     },
-    total_posts_count: {
-      type: "number",
-      example: 0,
-    },
   },
 };
 
@@ -95,7 +92,16 @@ export const getAllPostsDoc = {
       content: {
         "application/json": {
           schema: {
-            oneOf: [postsFoundSchema, NoPostsFoundSchema],
+            oneOf: [
+              postsFoundObjectSchema,
+              {
+                ...NoPostsFoundSchema,
+                total_posts_count: {
+                  type: "number",
+                  example: 0,
+                },
+              },
+            ],
           },
         },
       },
@@ -228,12 +234,7 @@ export const getSearchedPostsDoc = {
   tags: ["Public"],
   description: "Get searched posts",
   operationId: "getSearchedPosts",
-  parameters: [
-    offsetQuery,
-    searchQuery,
-   hashtagQuery,
-    sortQuery,
-  ],
+  parameters: [offsetQuery, searchQuery, hashtagQuery, sortQuery],
   responses: {
     200: {
       description: "get all search posts",
@@ -357,23 +358,23 @@ export const createPostDoc = {
       cookieAuth: [],
     },
   ],
-   requestBody: {
-          required: true,           
-          content: {
-            'application/json': {   
-              schema: {
-                type: 'object',
-                properties: {
-                 title,
-                 titleImgURL,
-                 content,
-                 tagList:{...hashtags}
-                },
-                required: ['title','content']
-              }
-            }
-          }
+  requestBody: {
+    required: true,
+    content: {
+      "application/json": {
+        schema: {
+          type: "object",
+          properties: {
+            title,
+            titleImgURL,
+            content,
+            tagList: { ...hashtags },
+          },
+          required: ["title", "content"],
         },
+      },
+    },
+  },
   responses: {
     201: {
       description: "create a new post",
@@ -392,10 +393,101 @@ export const createPostDoc = {
         },
       },
     },
- 401:AuthorizationError,
+    401: authorizationError,
     400: fieldValidationError,
     500: internalServerError,
   },
 };
 
+export const getAllUserPostsDoc = {
+  tags: ["Protected"],
+  description: "Get all user posts",
+  operationId: "getAllUserPosts",
+  security: [
+    {
+      bearerAuth: [],
+      cookieAuth: [],
+    },
+  ],
+  parameters: [offsetQuery, archiveQuery, sortQuery],
+  responses: {
+    200: {
+      description: "get all user posts",
+      content: {
+        "application/json": {
+          schema: {
+            oneOf: [
+              {
+                type: "object",
+                properties: {
+                  posts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        postId,
+                        archive,
+                        imgURL: titleImgURL,
+                        post_analytics: postAnalytics,
+                        title,
+                        createdAt,
+                      },
+                    },
+                  },
+                  message: {
+                    type: "string",
+                    example: "found user posts.",
+                  },
+                  unarchivePostsCount: {
+                    type: "string",
+                    example: "12",
+                  },
+                  archivePostsCount: {
+                    type: "string",
+                    example: "10",
+                  },
+                  offset: {
+                    type: "number",
+                    example: 10,
+                  },
+                },
+              },
+              NoPostsFoundSchema,
+            ],
+          },
+        },
+      },
+    },
+    401: authorizationError,
+    400: fieldValidationError,
+    500: internalServerError,
+  },
+};
 
+export const getAllFollowingUsersPostsDoc = {
+  tags: ["Protected"],
+  description: "Get all following users posts",
+  operationId: "getAllFollowingUsers",
+  security: [
+    {
+      bearerAuth: [],
+      cookieAuth: [],
+    },
+  ],
+  parameters: [offsetQuery],
+  responses: {
+    200: {
+      description: "get all following users posts",
+      content: {
+        "application/json": {
+          schema: {
+            oneOf: [postsFoundObjectSchema, NoPostsFoundSchema],
+          },
+        },
+      },
+    },
+    401: authorizationError,
+    400: fieldValidationError,
+    500: internalServerError,
+  },
+};

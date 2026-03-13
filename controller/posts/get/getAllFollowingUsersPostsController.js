@@ -5,7 +5,7 @@ import { POST_OFFSET } from "../../../utils/constants.js";
 export const getAllFollowingUsersPostsController = catchAsync(
   async (req, res) => {
     const { userId } = req.user;
-    const { offset } = req.query;
+    const { offset=0 } = req.query;
 
     const result = await getAllFollowingUsersPosts({ userId, offset });
 

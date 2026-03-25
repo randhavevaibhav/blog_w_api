@@ -1,6 +1,8 @@
 import bcrypt from "bcrypt";
 import { Jimp } from "jimp";
 import * as path from "path";
+import crypto from "crypto";
+
 export const encrypt = async (item) => {
   const salt = await bcrypt.genSalt();
   const encryptedItem = await bcrypt.hash(item, salt);
@@ -62,4 +64,11 @@ export const sleep = async (delay = 3000) => {
       res("sleep resolved !");
     }, delay);
   });
+};
+
+export const getRandomIntFromRange = ({ min = 0, max = 10 }) => {
+  const minNat = Math.abs(Math.floor(min));
+  const maxNat = Math.abs(Math.floor(max));
+
+  return crypto.randomInt(minNat, maxNat + 1);
 };

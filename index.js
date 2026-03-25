@@ -26,14 +26,17 @@ import { globalErrorController } from "./controller/error/globalErrorController.
 import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
 import { tags } from "./docs/common.js";
 import { paths } from "./docs/paths.js";
 import { config } from "./utils/config.js";
+import { getRandomIntFromRange } from "./utils/utils.js";
 
 const limiter = rateLimit({
-  windowMs: 1000, // 1 sec
-  limit: 20, // each IP can make up to 20 requests per `windowsMs` (1 sec)
+  windowMs:getRandomIntFromRange({
+    min:900,
+    max:1000
+  }),
+  limit: 20, // each IP can make up to 20 requests per `windowsMs`
   standardHeaders: true, // add the `RateLimit-*` headers to the response
   legacyHeaders: false, // remove the `X-RateLimit-*` headers from the response
   message: {

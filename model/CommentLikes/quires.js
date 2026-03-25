@@ -36,16 +36,18 @@ export const destroyCommentLikeTransaction = async ({ userId, commentId }) => {
 
 export const createCommentLikeTransaction = async ({ userId, commentId }) => {
   const result = await sequelize.transaction(async (t) => {
-    const createCommentLikeResult = await CommentLikes.create(
-      {
+    const createCommentLikeResult = await CommentLikes.findOrCreate({
+      where: {
+        user_id: userId,
+        comment_id: commentId,
+      },
+      defaults: {
         user_id: userId,
         comment_id: commentId,
         created_at: new Date(),
       },
-      {
-        transaction: t,
-      },
-    );
+      transaction:t
+    });
     const incCommentLikeResult = await CommentAnalytics.increment(
       "likes",
       {

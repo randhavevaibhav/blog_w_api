@@ -26,8 +26,8 @@ export const getAllUserPostsController = catchAsync(async (req, res) => {
     return res.status(200).send({
       message: `No post found.`,
       posts: [],
-      unarchivePosts,
-      archivePosts,
+      unarchivePostsCount,
+      archivePostsCount,
     });
   }
 

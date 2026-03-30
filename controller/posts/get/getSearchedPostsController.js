@@ -23,7 +23,7 @@ export const getSearchedPostsController = catchAsync(async (req, res) => {
     return res.status(200).send({
       message: "No posts found",
       posts: [],
-      // totalPosts: 0,
+      totalPosts: 0,
     });
   }
 

@@ -1,24 +1,29 @@
-import {
-  getAllSearchedPosts,
-} from "../../../model/Posts/quires.js";
+import { getAllSearchedPosts } from "../../../model/Posts/quires.js";
 import { catchAsync } from "../../../utils/catchAsync.js";
 import { SEARCH_POST_OFFSET } from "../../../utils/constants.js";
 
 export const getSearchedPostsController = catchAsync(async (req, res) => {
-  const { query, offset=0, sort="desc", hashtag=0,limit=0} = req.query;
+  const {
+    query,
+    offset = 0,
+    sort = "desc",
+    hashtag = 0,
+    limit = 0,
+  } = req.query;
 
   const result = await getAllSearchedPosts({
     query,
     offset,
     sort,
     hashtag,
-    limit
+    limit,
   });
 
   if (result.length === 0) {
     return res.status(200).send({
       message: "No posts found",
       posts: [],
+      // totalPosts: 0,
     });
   }
 

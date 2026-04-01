@@ -5,12 +5,14 @@ import { catchAsync } from "../../../utils/catchAsync.js";
 
 export const createPostsController = catchAsync(async (req, res, next) => {
   const { title, titleImgURL, content, tagList } = req.body;
-  const {userId} = req.user;
-  console.log("hitting create post with userId ==> ",userId)
+  const { userId } = req.user;
+
   const totalUserPostsResult = await getTotalUserPosts({ userId });
   let totalUserPosts = totalUserPostsResult.dataValues.posts;
 
-  const isAdmin = parseInt(process.env.ADMIN_USERID) === parseInt(userId);
+  const adminUsers = process.env.ADMIN_USERID.split(",").map(Number);
+
+  const isAdmin = adminUsers.includes(userId);
 
   if (totalUserPosts >= 20 && !isAdmin) {
     return next(
@@ -24,7 +26,7 @@ export const createPostsController = catchAsync(async (req, res, next) => {
     titleImgURL,
     content,
     tagList,
-    archive:0
+    archive: 0,
   });
 
   const postId = createPostResult.id;

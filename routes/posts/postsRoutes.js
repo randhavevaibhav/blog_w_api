@@ -14,7 +14,9 @@ import {
   validateUpdatePost,
   validateGetSearchedPostsHashtags,
   validateArchivePost,
+  validateDeleteNPosts,
 } from "../../middleware/fieldValidationMiddleware.js";
+
 
 const router = Router();
 const {
@@ -24,6 +26,7 @@ const {
   getIndividualPostController,
   getAllPostsController,
   deletePostController,
+  deleteNPostsController,
   updatePostController,
   getSearchedPostsController,
   getAllTaggedPostsController,
@@ -82,6 +85,14 @@ router.delete(
   requireAuth,
   deletePostController,
 );
+
+router.post(
+  "/posts/delete",
+  validateDeleteNPosts,
+  requireAuth,
+  deleteNPostsController,
+);
+
 router.patch(
   "/post/edit",
   validateUpdatePost,

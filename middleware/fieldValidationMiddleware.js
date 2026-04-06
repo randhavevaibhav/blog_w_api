@@ -1,10 +1,5 @@
 import { body, query, validationResult, param } from "express-validator";
 
-const userIdFieldValidation = body("userId")
-  .notEmpty()
-  .withMessage("userId is required")
-  .isInt({ min: 1 })
-  .withMessage("userId must be a positive integer");
 
 const userIdParamFieldValidation = param("userId")
   .notEmpty()
@@ -156,6 +151,10 @@ const pageFieldValidation = body("page")
   .isInt({ min: 0 })
   .withMessage("page must be a non-negative integer");
 
+ const postIdArrayFieldValidation =body('postIds')
+    .isArray({ min: 1 ,max:100})
+    .withMessage('postIds must be a non-empty array with length between 1 to 100');
+
 const bookmarkSortQueryFieldValidation = query("sort")
   .optional()
   .isString()
@@ -241,7 +240,6 @@ export const validateLikeDisLikePost = [
 ];
 
 export const validateUpdateUser = [
-  userIdFieldValidation,
   userMailFieldValidation,
   userNameFieldValidation,
   userBioFieldValidation,
@@ -336,6 +334,11 @@ export const validateCreatePost = [
 
 export const validateDeletePost = [
   postIdParamFieldValidation,
+  validationMiddleware,
+];
+
+export const validateDeleteNPosts = [
+  postIdArrayFieldValidation,
   validationMiddleware,
 ];
 

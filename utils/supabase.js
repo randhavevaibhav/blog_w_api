@@ -40,10 +40,11 @@ export const supabaseGetFilePublicUrl = async ({ bucket, fileName }) => {
 };
 
 export const supabaseDeleteStorageFile = async({filePath,bucket})=>{
-
+const isFilePathArray = Array.isArray(filePath);
+const FilePathArray = isFilePathArray?[...filePath]:[filePath]
   const { data, error } = await supabase.storage
   .from(bucket)
-  .remove([filePath]);
+  .remove([FilePathArray]);
 
   return {
     data,

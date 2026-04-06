@@ -1,7 +1,7 @@
 import { Posts } from "../associations.js";
 import sequelize from "../../db.js";
 import { POST_LIMIT, SEARCH_POST_LIMIT } from "../../utils/constants.js";
-import { QueryTypes } from "sequelize";
+import { Op, QueryTypes } from "sequelize";
 import { PostAnalytics } from "../PostAnalytics/PostAnalytics.js";
 import { PostHashtags } from "../PostHashtags/PostHashtags.js";
 import { getAllUserFollowers } from "../Users/quires.js";
@@ -124,6 +124,59 @@ export const deletePostTransaction = async ({ postId, userId }) => {
   return result;
 };
 
+export const deleteNPostsTransaction = async ({ postIds, userId }) => {
+  const result = await sequelize.transaction(async (t) => {
+    const deleteNPostsResult = await Posts.destroy({
+      where: {
+         id: { [Op.in]: postIds },
+        user_id: userId,
+      },
+      transaction: t,
+    });
+
+    const deleteNPostsCommentsResult = await PostComments.destroy({
+      where: {
+         post_id: { [Op.in]: postIds },
+       
+        user_id: userId,
+      },
+      transaction: t,
+    });
+
+    const deleteNPostsAnalyticsResult = await PostAnalytics.destroy({
+      where: {
+        post_id: { [Op.in]: postIds },
+      },
+      transaction: t,
+    });
+
+    const deleteNPostsLikesResult = PostLikes.destroy({
+      where: {
+         post_id: { [Op.in]: postIds },
+        user_id: userId,
+      },
+      transaction: t,
+    });
+
+    const deleteNPostsHashtagsResult = await PostHashtags.destroy({
+      where: {
+         post_id: { [Op.in]: postIds },
+      },
+      transaction: t,
+    });
+
+    return {
+      deleteNPostsResult,
+      deleteNPostsCommentsResult,
+      deleteNPostsAnalyticsResult,
+      deleteNPostsLikesResult,
+      deleteNPostsHashtagsResult,
+    };
+  });
+
+  return result;
+};
+
 export const updatePostTransaction = async ({
   title,
   content,
@@ -189,6 +242,25 @@ export const updatePostTransaction = async ({
 
   return result;
 };
+
+export const getAllNPosts = async({postIds,userId})=>{
+  const result = await Posts.findAll({
+    where:{
+         id: { [Op.in]: postIds },
+         user_id:userId
+    },
+     attributes: [
+      ["id", "postId"],
+      ["user_id", "userId"],
+      ["created_at", "createdAt"],
+      ["title_img_url", "titleImgURL"],
+      "title",
+    ],
+    raw:true
+  })
+
+  return result;
+}
 
 export const getAllPosts = async ({ offset, userId = null }) => {
   const result = await sequelize.query(

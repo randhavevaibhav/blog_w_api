@@ -399,7 +399,7 @@ export const validateUpdatePost = [
 ];
 
 export const validateArchivePost = [
-  postIdFieldValidation,
+  postIdArrayFieldValidation,
   archiveFieldValidation,
   validationMiddleware,
 ];

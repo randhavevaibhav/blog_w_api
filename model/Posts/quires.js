@@ -959,20 +959,20 @@ GROUP BY
   return result;
 };
 
-export const archivePost = async ({ postId, archive, userId }) => {
+export const archivePost = async ({ postIds, archive, userId }) => {
   const result = await Posts.update(
     {
       archive,
     },
     {
       where: {
-        id: postId,
+        id: { [Op.in]: postIds },
         user_id: userId,
       },
     }
   );
 
-  return result[0] === 1;
+  return result;
 };
 
 export const getArchiveUnArchivePostCount = async ({ userId }) => {

@@ -11,7 +11,6 @@ export const createPostCommentTransaction = async ({
   parentId,
   content,
 }) => {
-
   const result = await sequelize.transaction(async (t) => {
     const comment = await PostComments.create(
       {
@@ -37,8 +36,6 @@ export const createPostCommentTransaction = async ({
   return result;
 };
 
-
-
 export const getAllAuthUserPostComments = async ({
   postId,
   offset = 0,
@@ -47,11 +44,11 @@ export const getAllAuthUserPostComments = async ({
 }) => {
   const sortOptions = {
     desc: {
-      column: "ch.created_at",
+      column: "pc.created_at",
       type: "desc",
     },
     asc: {
-      column: "ch.created_at",
+      column: "pc.created_at",
       type: "asc",
     },
     likes: {
@@ -62,17 +59,26 @@ export const getAllAuthUserPostComments = async ({
 
   const sortBy = sortOptions[sort];
 
+  const dynamicOrderBy =
+    "ORDER BY" +" "+(sortBy.column === "likes"
+      ? `CASE 
+        WHEN content = 'NA-#GOHST' THEN 0 
+        ELSE ca.likes END  DESC`
+      : `${sortBy.column} ${sortBy.type}, created_at desc`);
+
   const result = await sequelize.query(
     `WITH RECURSIVE CommentHierarchy AS (
     -- Anchor: ONLY the first 10 top-level comments
     SELECT 
         id, content, parent_id, user_id, created_at, post_id,
-        id::TEXT as path,
+        id::TEXT as path,likes,
         0 as depth
     FROM (
-        SELECT * FROM post_comments 
-        WHERE post_id = :postId AND parent_id IS NULL
-        ORDER BY created_at DESC
+        SELECT pc.id, pc.content, pc.parent_id, pc.user_id, pc.created_at, pc.post_id, COALESCE(ca.likes, 0) AS likes 
+        FROM post_comments pc
+        LEFT JOIN comment_analytics ca ON ca.comment_id = pc.id
+        WHERE pc.post_id = :postId AND pc.parent_id IS NULL
+        ${dynamicOrderBy}
         LIMIT :limit OFFSET :offset
     ) AS top_level
 
@@ -82,7 +88,8 @@ export const getAllAuthUserPostComments = async ({
     SELECT
         pc.id, pc.content, pc.parent_id, pc.user_id, pc.created_at, pc.post_id,
         (ch.path || ',' || pc.id)::TEXT,
-        ch.depth + 1
+        ch.depth + 1,
+        ch.likes::INTEGER
     FROM post_comments pc
     INNER JOIN CommentHierarchy ch ON pc.parent_id = ch.id
 )
@@ -93,15 +100,14 @@ SELECT
     ch.parent_id AS "parentId",
     ch.user_id AS "userId",
     ch.depth,
-    COALESCE(ca.likes, 0) AS likes,
+     ch.likes,
     CASE WHEN cl.user_id IS NOT NULL THEN 'true' ELSE 'false' END AS "isCmtLikedByUser",
     u.first_name AS "userName",
     u.profile_img_url AS "userProfileImg"
 FROM CommentHierarchy ch
 JOIN users u ON u.id = ch.user_id
 LEFT JOIN comment_analytics ca ON ca.comment_id = ch.id
-LEFT JOIN comment_likes cl ON cl.comment_id = ch.id AND cl.user_id = :currentUserId
-ORDER BY ${sortBy.column} ${sortBy.type},ch.created_at desc,ch.depth desc`,
+LEFT JOIN comment_likes cl ON cl.comment_id = ch.id AND cl.user_id = :currentUserId`,
     {
       replacements: {
         postId,
@@ -122,11 +128,11 @@ export const getAllPostComments = async ({
 }) => {
   const sortOptions = {
     desc: {
-      column: "ch.created_at",
+      column: "created_at",
       type: "desc",
     },
     asc: {
-      column: "ch.created_at",
+      column: "created_at",
       type: "asc",
     },
     likes: {
@@ -137,17 +143,26 @@ export const getAllPostComments = async ({
 
   const sortBy = sortOptions[sort];
 
+    const dynamicOrderBy =
+    "ORDER BY" +" "+(sortBy.column === "likes"
+      ? `CASE 
+        WHEN content = 'NA-#GOHST' THEN 0 
+        ELSE ca.likes END  DESC`
+      : `${sortBy.column} ${sortBy.type}, created_at desc`);
+
   const result = await sequelize.query(
     `WITH RECURSIVE CommentHierarchy AS (
     -- Anchor: ONLY the first 10 top-level comments
-    SELECT 
+    SELECT
         id, content, parent_id, user_id, created_at, post_id,
-        id::TEXT as path,
+        id::TEXT as path,likes,
         0 as depth
     FROM (
-        SELECT * FROM post_comments 
-        WHERE post_id = :postId AND parent_id IS NULL
-        ORDER BY created_at DESC
+        SELECT pc.id, pc.content, pc.parent_id, pc.user_id, pc.created_at, pc.post_id, COALESCE(ca.likes, 0) AS likes 
+        FROM post_comments pc
+        LEFT JOIN comment_analytics ca ON ca.comment_id = pc.id
+        WHERE pc.post_id = :postId AND pc.parent_id IS NULL
+        ${dynamicOrderBy}
         LIMIT :limit OFFSET :offset
     ) AS top_level
 
@@ -157,7 +172,8 @@ export const getAllPostComments = async ({
     SELECT
         pc.id, pc.content, pc.parent_id, pc.user_id, pc.created_at, pc.post_id,
         (ch.path || ',' || pc.id)::TEXT,
-        ch.depth + 1
+        ch.depth + 1,
+        ch.likes::INTEGER
     FROM post_comments pc
     INNER JOIN CommentHierarchy ch ON pc.parent_id = ch.id
 )
@@ -168,15 +184,13 @@ SELECT
     ch.parent_id AS "parentId",
     ch.user_id AS "userId",
     ch.depth,
-    COALESCE(ca.likes, 0) AS likes,
-    CASE WHEN cl.user_id IS NOT NULL THEN 'true' ELSE 'false' END AS "isCmtLikedByUser",
+    ch.likes,
     u.first_name AS "userName",
     u.profile_img_url AS "userProfileImg"
 FROM CommentHierarchy ch
 JOIN users u ON u.id = ch.user_id
 LEFT JOIN comment_analytics ca ON ca.comment_id = ch.id
-LEFT JOIN comment_likes cl ON cl.comment_id = ch.id
-ORDER BY ${sortBy.column} ${sortBy.type},ch.created_at desc,ch.depth desc`,
+LEFT JOIN comment_likes cl ON cl.comment_id = ch.id`,
     {
       replacements: {
         postId,
@@ -235,21 +249,19 @@ export const updateCommentAsGhost = async ({ commentId }) => {
   return result;
 };
 
-export const updateComment = async ({ commentId, content,userId }) => {
+export const updateComment = async ({ commentId, content, userId }) => {
   const result = await PostComments.update(
     { content },
     {
       where: {
         id: commentId,
-        user_id:userId
+        user_id: userId,
       },
     },
   );
 
   return result;
 };
-
-
 
 export const getTotalOwnPostsCommentCount = async ({ userId }) => {
   const result = await sequelize.query(
@@ -270,9 +282,6 @@ export const getTotalOwnPostsCommentCount = async ({ userId }) => {
 
   return result ? result[0].total_comments : null;
 };
-
-
-
 
 export const deleteSinglePostComment = async ({ userId, commentId }) => {
   const result = await PostComments.destroy({
@@ -319,5 +328,3 @@ order by pc.created_at desc limit 1`,
 
   return result[0];
 };
-
-
